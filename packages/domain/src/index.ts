@@ -13,6 +13,7 @@ export * from './pricing';
 export * from './ports';
 export * from './user';
 export * from './image';
+export * from './contact';
 
 /*
  * 아래 모듈들은 아직 뼈대만 있다. 각 폴더의 index.ts 에

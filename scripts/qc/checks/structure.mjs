@@ -90,6 +90,11 @@ export function run() {
   ]) {
     for (const file of collect(target.dir, target.extensions)) {
       const rel = short(file);
+      /*
+       * 테스트는 제외한다. **연락처가 새지 않는지 검증하는 테스트는 연락처를 담을 수밖에 없다.**
+       * 오히려 여기 전화번호가 있다는 건 그 규칙을 검증하고 있다는 뜻이다.
+       */
+      if (/\.(test|spec|e2e-spec)\.tsx?$/.test(rel)) continue;
       for (const hit of findLines(read(file), phonePattern)) {
         findings.push(
           finding({
