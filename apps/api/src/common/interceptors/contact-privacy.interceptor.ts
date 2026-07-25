@@ -43,6 +43,21 @@ function sanitize(value: unknown, depth = 0): unknown {
     return value.map((item) => sanitize(item, depth + 1));
   }
 
+  /*
+   * 클래스 인스턴스는 재조립하지 않고 자기 직렬화에 맡긴다.
+   *
+   * 아래 루프는 `Object.entries` 로 새 평범한 객체를 만드는데, 그 과정에서 프로토타입이
+   * 사라진다. `Prisma.Decimal` 이 여기 걸려 `areaPyeong` 이 `{"s":1,"e":1,"d":[40]}` 라는
+   * 내부 표현으로 새어 나갔다. 화면에서는 `NaN평` 이 됐다.
+   *
+   * 결과를 다시 sanitize 에 통과시키는 게 핵심이다 — `toJSON` 이 무엇을 뱉든
+   * 연락처 제거 규칙은 그대로 적용된다. 성능 때문에 프라이버시를 뚫지 않는다.
+   */
+  const custom = (value as { toJSON?: unknown }).toJSON;
+  if (typeof custom === 'function') {
+    return sanitize((custom as () => unknown).call(value), depth + 1);
+  }
+
   const source = value as Record<string, unknown>;
   const out: Record<string, unknown> = {};
 

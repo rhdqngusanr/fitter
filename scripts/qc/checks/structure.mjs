@@ -36,16 +36,27 @@ export function run() {
     }
   }
 
-  /* 2. process.env 는 한 곳에서만 읽는다 */
-  const ENV_ALLOWED = 'apps/api/src/config/env.ts';
+  /*
+   * 2. process.env 는 앱마다 한 곳에서만 읽는다
+   *
+   * 앱이 둘이라 진입점도 둘이다. api 는 zod 로 검증하고, web 은 NEXT_PUBLIC_* 을 모은다.
+   * web 을 api 의 env.ts 로 보낼 수는 없다 — Next 는 `process.env.NEXT_PUBLIC_X` 를
+   * **빌드 시점에 문자열로 치환**하므로 다른 패키지의 함수로 감싸면 값이 사라진다.
+   * 규칙의 목적은 "파일 하나"가 아니라 "앱마다 통제된 진입점 하나"다.
+   */
+  const ENV_ENTRYPOINTS = new Map([
+    ['apps/api/', 'apps/api/src/config/env.ts'],
+    ['apps/web/', 'apps/web/src/lib/env.ts'],
+  ]);
   for (const dir of ['apps', 'packages']) {
     for (const file of collect(dir, ['.ts', '.tsx'])) {
       const rel = short(file);
+      const owner = [...ENV_ENTRYPOINTS].find(([prefix]) => rel.startsWith(prefix))?.[1];
       /*
        * 테스트 하네스는 예외다. 환경변수를 "읽는" 게 아니라 테스트용으로 "채우는" 파일이고,
        * 그게 그 파일의 존재 이유다. 앱 코드가 검증을 우회하는 것과는 다르다.
        */
-      if (rel === ENV_ALLOWED || rel.endsWith('next.config.mjs') || /\/test\//.test(rel)) continue;
+      if (rel === owner || rel.endsWith('next.config.mjs') || /\/test\//.test(rel)) continue;
       for (const hit of findLines(read(file), /process\.env/)) {
         if (isCommentLine(hit.text)) continue; // 규칙을 설명하는 주석은 위반이 아니다
         findings.push(
@@ -53,7 +64,10 @@ export function run() {
             rule: 'structure/env-direct-access',
             file: rel,
             line: hit.line,
-            message: `process.env 를 직접 읽는다. ${ENV_ALLOWED} 를 통해 주입받아라`,
+            /* packages/* 는 환경변수를 읽을 자격이 아예 없다 — 어느 앱에 실릴지 모르기 때문이다. */
+            message: owner
+              ? `process.env 를 직접 읽는다. ${owner} 를 통해 주입받아라`
+              : 'process.env 를 직접 읽는다. 패키지는 환경을 몰라야 한다 — 인자로 받아라',
             why: 'CLAUDE.md 금지 목록 — 검증되지 않은 환경변수가 런타임에 터진다',
           }),
         );
