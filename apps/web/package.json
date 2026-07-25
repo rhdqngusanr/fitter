@@ -1,0 +1,23 @@
+{
+  "name": "@fitter/web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Next.js 프론트. 공개 화면은 SSR로 색인되고, 로그인 화면은 noindex다.",
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev --port 3000",
+    "start": "next start --port 3000",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@fitter/shared": "workspace:*",
+    "next": "^15.5.4",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.1",
+    "typescript": "^5.9.3"
+  }
+}

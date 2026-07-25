@@ -1,0 +1,10 @@
+node_modules
+dist
+.next
+coverage
+pnpm-lock.yaml
+
+# 볼트와 시안은 포맷 대상이 아니다
+brain
+design
+docs

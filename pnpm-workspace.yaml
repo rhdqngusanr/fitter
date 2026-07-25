@@ -1,0 +1,19 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+
+# pnpm 11부터 postinstall 스크립트는 명시적으로 허용해야 실행된다.
+# 아래는 전부 플랫폼별 네이티브 바이너리를 내려받는 패키지다.
+#
+#   sharp          Next.js 이미지 최적화. 나중에 서버 썸네일 파생에도 쓴다
+#   esbuild        빌드 도구 체인이 내부적으로 사용
+#   unrs-resolver  ESLint의 모듈 해석기
+#
+# @swc/core 는 의도적으로 false 다. 이 개발 환경의 Windows Application Control 정책이
+# 서명되지 않은 네이티브 모듈 로드를 차단해서 쓸 수 없고, 실제로 쓰지도 않는다.
+# 테스트는 네이티브 바이너리가 필요 없는 ts-jest로 돈다.
+allowBuilds:
+  sharp: true
+  esbuild: true
+  unrs-resolver: true
+  '@swc/core': false
