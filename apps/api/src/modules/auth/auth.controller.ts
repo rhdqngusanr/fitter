@@ -4,9 +4,9 @@ import type { CookieOptions, Request, Response } from 'express';
 import { Public } from '../../common/decorators';
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
 import { ENV, type Env } from '../../config/env';
-import type { AuthService } from './auth.service';
-import { type AuthResult } from './auth.service';
-import type { TokenService } from './token.service';
+import { AuthService, type AuthResult } from './auth.service';
+
+import { TokenService } from './token.service';
 import { loginSchema, signupSchema, type LoginInput, type SignupInput } from './auth.dto';
 
 /**

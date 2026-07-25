@@ -4,7 +4,7 @@ import { ConflictError, NotFoundError } from '@fitter/domain';
 
 import { CurrentUser, type RequestUser } from '../../common/decorators';
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
-import type { PrismaService } from '../../infra/prisma/prisma.service';
+import { PrismaService } from '../../infra/prisma/prisma.service';
 import { selectProfileSchema, type SelectProfileInput } from '../auth/auth.dto';
 
 @Controller('me')

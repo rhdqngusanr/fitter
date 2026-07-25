@@ -1,11 +1,11 @@
 import type { CanActivate, ExecutionContext } from '@nestjs/common';
 import { Injectable } from '@nestjs/common';
-import type { Reflector } from '@nestjs/core';
+import { Reflector } from '@nestjs/core';
 import type { Request } from 'express';
 
 import { IS_PUBLIC_KEY, type RequestUser } from '../decorators';
 import { UnauthenticatedError } from '../errors/unauthenticated.error';
-import type { TokenService } from '../../modules/auth/token.service';
+import { TokenService } from '../../modules/auth/token.service';
 
 /**
  * 전역 인증 가드.

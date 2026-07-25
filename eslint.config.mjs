@@ -72,6 +72,21 @@ export default tseslint.config(
     },
   },
 
+  /*
+   * NestJS는 생성자 주입을 emitDecoratorMetadata 로 해석하고, 그러려면
+   * 주입 대상이 **런타임에 남는 값 import**여야 한다.
+   * consistent-type-imports 의 자동 수정이 이걸 `import type`으로 바꾸면
+   * 메타데이터가 Object가 되어 DI가 깨진다 — 실제로 한 번 깨뜨렸다.
+   *
+   * 스타일 규칙이 동작을 바꾸면 규칙 쪽이 틀린 것이다. 여기서는 끈다.
+   */
+  {
+    files: ['apps/api/**/*.ts'],
+    rules: {
+      '@typescript-eslint/consistent-type-imports': 'off',
+    },
+  },
+
   /* QC 스크립트는 Node에서 직접 돈다. 빌드 대상이 아니다. */
   {
     files: ['scripts/**/*.mjs'],
