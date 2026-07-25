@@ -62,3 +62,20 @@ export const listQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(50).optional(),
 });
 export type ListQueryInput = z.infer<typeof listQuerySchema>;
+
+const csv = z
+  .string()
+  .max(300)
+  .transform((value) =>
+    value
+      .split(',')
+      .map((v) => v.trim())
+      .filter(Boolean),
+  );
+
+/** 시공자가 일감을 고르는 목록. 자기 조건에 맞는 것만 보는 게 이 사람의 요구다. */
+export const browseQuerySchema = listQuerySchema.extend({
+  categories: csv.optional(),
+  regions: csv.optional(),
+});
+export type BrowseQueryInput = z.infer<typeof browseQuerySchema>;

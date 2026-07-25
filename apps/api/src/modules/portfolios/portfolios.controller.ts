@@ -107,7 +107,7 @@ export class PortfoliosController {
   @Public()
   @Get('portfolios')
   async gallery(@Query(new ZodValidationPipe(galleryQuerySchema)) query: GalleryQueryInput) {
-    return this.portfolios.gallery(query.cursor, query.limit);
+    return this.portfolios.gallery(query);
   }
 
   @Public()
