@@ -331,14 +331,27 @@ model ReferenceRequest {
 
   /// 확장 규약 1조. 자유 텍스트 금지. CHECK 제약으로 범위도 막는다.
   /// ㎡는 저장하지 않고 도메인의 pyeongToSquareMeters 로 파생한다 — 파생 경로는 하나여야 한다.
-  areaPyeong Decimal @map("area_pyeong") @db.Decimal(6, 2)
+  ///
+  /// nullable 인 이유는 DRAFT가 본질적으로 미완성이기 때문이다.
+  /// 다단계 폼의 1스텝에서 평수를 알 수 없는데 임시값을 넣으면
+  /// "사용자가 24평이라고 답했다"와 "아직 안 물어봤다"를 구분할 수 없게 된다.
+  /// 완성 판정은 publish 한 곳에서만 한다.
+  areaPyeong Decimal? @map("area_pyeong") @db.Decimal(6, 2)
 
-  housingType    HousingType    @map("housing_type")
-  regionCode     String         @map("region_code") @db.Char(5)
+  housingType    HousingType?   @map("housing_type")
+  regionCode     String?        @map("region_code") @db.Char(5)
   desiredStartAt DateTime?      @map("desired_start_at") @db.Date
   desiredEndAt   DateTime?      @map("desired_end_at") @db.Date
   isOccupied     Boolean        @default(false) @map("is_occupied")
   materialGrade  MaterialGrade? @map("material_grade")
+
+  /// 현장 변수. 전부 선택 입력이다 — 필수로 하면 폼이 길어져 고객이 이탈한다.
+  /// 층수와 엘리베이터는 자재 운반비를, 철거 유무는 공정 자체를 가른다.
+  /// 안 받은 데이터는 소급되지 않아서 2차 견적 전에 미리 열어둔다.
+  /// 근거: brain/50-결정/ADR-010 - 가격 정책 모델.md · 열린 질문 Q7
+  floor           Int?     @map("floor")
+  hasElevator     Boolean? @map("has_elevator")
+  needsDemolition Boolean? @map("needs_demolition")
   budgetMin      Int?           @map("budget_min")
   budgetMax      Int?           @map("budget_max")
 
@@ -351,7 +364,8 @@ model ReferenceRequest {
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(3)
 
   customer   User                       @relation(fields: [customerUserId], references: [id], onDelete: Restrict)
-  region     Region                     @relation(fields: [regionCode], references: [code], onDelete: Restrict)
+  /// DRAFT 단계에서는 지역이 아직 없다. FK가 nullable이므로 관계도 optional이다.
+  region     Region?                    @relation(fields: [regionCode], references: [code], onDelete: Restrict)
   images     ReferenceImage[]
   categories ReferenceRequestCategory[]
   contacts   ContactRequest[]

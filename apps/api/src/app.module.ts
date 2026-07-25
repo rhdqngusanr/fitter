@@ -11,6 +11,7 @@ import { StorageModule } from './infra/storage/storage.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ImagesModule } from './modules/images/images.module';
 import { MeModule } from './modules/me/me.module';
+import { ReferenceRequestsModule } from './modules/reference-requests/reference-requests.module';
 import { EstimatePolicyModule } from './modules/pricing/estimate-policy.module';
 import { HealthModule } from './health/health.module';
 
@@ -32,6 +33,7 @@ import { HealthModule } from './health/health.module';
     AuthModule,
     MeModule,
     ImagesModule,
+    ReferenceRequestsModule,
     HealthModule,
   ],
   providers: [
