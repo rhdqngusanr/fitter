@@ -1,0 +1,520 @@
+// Fitter 데이터 모델
+//
+// 정의의 원본은 brain/20-도메인 의 엔티티 노트들이고 이 파일은 그것의 구현이다.
+// 설계 근거와 인덱스 사유는 brain/70-산출물/ERD.md 에 있다.
+//
+// 이 스키마의 목표는 확장 규약을 사람의 선의가 아니라 DB 제약으로 지키는 것이다.
+// Prisma가 표현하지 못하는 제약(CHECK, GENERATED, 부분 유니크 인덱스)은
+// 마이그레이션 SQL에 직접 넣었다. 그 목록은 migrations/ 의 주석에 있다.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── 열거형 — brain/20-도메인/도메인 용어집.md 가 정본 ────────────────
+
+enum AuthProvider {
+  LOCAL
+  KAKAO
+}
+
+enum ProfileType {
+  CUSTOMER
+  PRO
+  ADMIN
+}
+
+enum RequestStatus {
+  DRAFT
+  PUBLISHED
+  CLOSED
+  HIDDEN
+}
+
+enum PortfolioStatus {
+  DRAFT
+  PUBLISHED
+  HIDDEN
+}
+
+enum HousingType {
+  APARTMENT
+  VILLA
+  OFFICETEL
+  HOUSE
+  COMMERCIAL
+}
+
+enum MaterialGrade {
+  BASIC
+  STANDARD
+  PREMIUM
+}
+
+/// 의뢰 사진의 출처. EXTERNAL이면 source_url이 필수다(CHECK 제약).
+enum ImageSourceType {
+  SELF
+  EXTERNAL
+}
+
+enum ImagePhase {
+  BEFORE
+  AFTER
+  PROCESS
+}
+
+/// 종료 상태에서 나가는 전이는 없다. "매칭 완료"라는 상태는 만들지 않는다.
+enum ContactStatus {
+  REQUESTED
+  ACCEPTED
+  DECLINED
+  CANCELLED
+  EXPIRED
+}
+
+enum ContactDirection {
+  PRO_TO_REQUEST
+  CUSTOMER_TO_PRO
+}
+
+enum ReportType {
+  COPYRIGHT
+  INAPPROPRIATE
+  SPAM
+}
+
+enum ReportStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum TargetType {
+  REFERENCE_REQUEST
+  PORTFOLIO_ITEM
+  USER
+}
+
+enum NotificationKind {
+  CONTACT_REQUESTED
+  CONTACT_ACCEPTED
+  CONTACT_DECLINED
+  CONTACT_EXPIRED
+  PRO_APPROVED
+  PRO_REJECTED
+}
+
+// ─── 계정과 역할 ────────────────────────────────────────────────────
+
+model User {
+  id           String       @id @default(uuid()) @db.Uuid
+  email        String       @unique
+  passwordHash String?      @map("password_hash")
+  provider     AuthProvider @default(LOCAL)
+  nickname     String
+  /// 컨택이 ACCEPTED가 되기 전에는 어떤 API 응답에도 실리지 않는다.
+  /// DB에서 막을 수 없는 이유는 "누가 조회했는가"를 DB가 모르기 때문이다.
+  /// 통제 지점은 응답 직렬화 레이어 한 곳이다. → brain/30-설계/권한 모델.md
+  phone        String?
+  isActive     Boolean      @default(true) @map("is_active")
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(3)
+
+  profiles          UserProfile[]
+  referenceRequests ReferenceRequest[]
+  portfolioItems    PortfolioItem[]
+  sentContacts      ContactRequest[]   @relation("ContactRequester")
+  receivedContacts  ContactRequest[]   @relation("ContactReceiver")
+  scraps            Scrap[]
+  reports           Report[]
+  notifications     Notification[]
+
+  @@index([deletedAt])
+  @@map("users")
+}
+
+/// 역할을 users의 컬럼이 아니라 별도 테이블로 뺐다.
+/// 계정당 1개라는 판단은 유지하되 스키마까지 못 박지 않는다 — 2차에 마이그레이션이 필요해진다.
+/// MVP에서는 애플리케이션이 1개만 만들도록 막는다. 근거는 ERD.md 의 열린 질문 Q2 절.
+model UserProfile {
+  id     String      @id @default(uuid()) @db.Uuid
+  userId String      @map("user_id") @db.Uuid
+  type   ProfileType
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(3)
+
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customerProfile CustomerProfile?
+  proProfile      ProProfile?
+
+  @@unique([userId, type])
+  @@map("user_profiles")
+}
+
+model CustomerProfile {
+  userProfileId String @id @map("user_profile_id") @db.Uuid
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  userProfile UserProfile @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+
+  @@map("customer_profiles")
+}
+
+/// 공개 프로필의 실체이자 승인 게이트.
+/// 포트폴리오 공개 조건은 "PUBLISHED + 시공자 승인" 둘 다이므로 목록 쿼리가 이 테이블을 조인한다.
+model ProProfile {
+  userProfileId       String  @id @map("user_profile_id") @db.Uuid
+  businessName        String  @map("business_name")
+  intro               String?
+  careerYears         Int     @default(0) @map("career_years")
+  businessNumber      String? @map("business_number")
+  isApproved          Boolean @default(false) @map("is_approved")
+  rejectionReason     String? @map("rejection_reason")
+  profileCompleteness Int     @default(0) @map("profile_completeness")
+  isDormant           Boolean @default(false) @map("is_dormant")
+
+  approvedAt DateTime? @map("approved_at") @db.Timestamptz(3)
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt  DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  userProfile    UserProfile        @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+  workCategories ProWorkCategory[]
+  serviceAreas   ProServiceArea[]
+
+  @@index([isApproved, isDormant])
+  @@map("pro_profiles")
+}
+
+// ─── 코드 테이블 ────────────────────────────────────────────────────
+
+/// 공종. 확장 규약 2조 — 문자열이 아니라 코드 테이블이다.
+/// 시드 13종은 packages/shared/src/work-categories.ts 와 같은 목록이어야 한다.
+model WorkCategory {
+  id        Int     @id @default(autoincrement())
+  code      String  @unique
+  nameKo    String  @map("name_ko")
+  /// 계층. 지금은 쓰지 않지만 "도배 > 실크/합지"가 생길 때 테이블을 안 바꾸려고 둔다.
+  parentId  Int?    @map("parent_id")
+  sortOrder Int     @default(0) @map("sort_order")
+  isActive  Boolean @default(true) @map("is_active")
+
+  parent   WorkCategory?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: Restrict)
+  children WorkCategory[] @relation("CategoryTree")
+
+  proProfiles       ProWorkCategory[]
+  referenceRequests ReferenceRequestCategory[]
+  portfolioItems    PortfolioItemCategory[]
+
+  @@index([isActive, sortOrder])
+  @@map("work_categories")
+}
+
+/// 행정구역. 확장 규약 3조 — 주소 원문 컬럼은 어디에도 없다.
+/// 상세 주소는 컨택 수락 후 당사자끼리 직접 주고받는다.
+model Region {
+  code        String  @id @db.Char(5)
+  sidoCode    String  @map("sido_code") @db.Char(2)
+  sidoName    String  @map("sido_name")
+  sigunguName String  @map("sigungu_name")
+  isActive    Boolean @default(true) @map("is_active")
+
+  proServiceAreas   ProServiceArea[]
+  referenceRequests ReferenceRequest[]
+  portfolioItems    PortfolioItem[]
+
+  @@index([sidoCode])
+  @@map("regions")
+}
+
+model ProWorkCategory {
+  proProfileId   String @map("pro_profile_id") @db.Uuid
+  workCategoryId Int    @map("work_category_id")
+
+  proProfile   ProProfile   @relation(fields: [proProfileId], references: [userProfileId], onDelete: Cascade)
+  workCategory WorkCategory @relation(fields: [workCategoryId], references: [id], onDelete: Restrict)
+
+  @@id([proProfileId, workCategoryId])
+  @@index([workCategoryId, proProfileId])
+  @@map("pro_work_categories")
+}
+
+model ProServiceArea {
+  proProfileId String @map("pro_profile_id") @db.Uuid
+  regionCode   String @map("region_code") @db.Char(5)
+
+  proProfile ProProfile @relation(fields: [proProfileId], references: [userProfileId], onDelete: Cascade)
+  region     Region     @relation(fields: [regionCode], references: [code], onDelete: Restrict)
+
+  @@id([proProfileId, regionCode])
+  @@index([regionCode, proProfileId])
+  @@map("pro_service_areas")
+}
+
+// ─── 레퍼런스 의뢰 ──────────────────────────────────────────────────
+
+model ReferenceRequest {
+  id             String        @id @default(uuid()) @db.Uuid
+  customerUserId String        @map("customer_user_id") @db.Uuid
+  title          String
+  description    String?
+  status         RequestStatus @default(DRAFT)
+
+  /// 확장 규약 1조. 자유 텍스트 금지.
+  areaPyeong Decimal  @map("area_pyeong") @db.Decimal(6, 2)
+  /// GENERATED ALWAYS 컬럼이다(마이그레이션 SQL 참조).
+  /// Prisma에 optional로 선언해 INSERT에서 빠지게 한다. 애플리케이션이 계산해 넣으면 언젠가 어긋난다.
+  areaM2     Decimal? @map("area_m2") @db.Decimal(8, 2)
+
+  housingType    HousingType    @map("housing_type")
+  regionCode     String         @map("region_code") @db.Char(5)
+  desiredStartAt DateTime?      @map("desired_start_at") @db.Date
+  desiredEndAt   DateTime?      @map("desired_end_at") @db.Date
+  isOccupied     Boolean        @default(false) @map("is_occupied")
+  materialGrade  MaterialGrade? @map("material_grade")
+  budgetMin      Int?           @map("budget_min")
+  budgetMax      Int?           @map("budget_max")
+
+  /// 확장 규약 5조. MVP에서 항상 null이고, 2차 견적의 산출 근거가 통째로 들어올 자리다.
+  estimateSnapshot Json? @map("estimate_snapshot")
+  viewCount        Int   @default(0) @map("view_count")
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(3)
+
+  customer   User                       @relation(fields: [customerUserId], references: [id], onDelete: Restrict)
+  region     Region                     @relation(fields: [regionCode], references: [code], onDelete: Restrict)
+  images     ReferenceImage[]
+  categories ReferenceRequestCategory[]
+  contacts   ContactRequest[]
+
+  @@index([status, regionCode, createdAt(sort: Desc), id(sort: Desc)])
+  @@index([customerUserId, createdAt(sort: Desc)])
+  @@map("reference_requests")
+}
+
+model ReferenceRequestCategory {
+  referenceRequestId String @map("reference_request_id") @db.Uuid
+  workCategoryId     Int    @map("work_category_id")
+
+  referenceRequest ReferenceRequest @relation(fields: [referenceRequestId], references: [id], onDelete: Cascade)
+  workCategory     WorkCategory     @relation(fields: [workCategoryId], references: [id], onDelete: Restrict)
+
+  @@id([referenceRequestId, workCategoryId])
+  @@index([workCategoryId, referenceRequestId])
+  @@map("reference_request_categories")
+}
+
+/// 저작권 대응의 실체.
+/// source_type이 EXTERNAL이면 source_url이 필수라는 CHECK 제약이 마이그레이션에 들어 있다.
+/// 시안에는 이 필드가 아예 없었고 전역 동의 체크박스 하나가 그 자리를 대신하고 있었다.
+model ReferenceImage {
+  id                 String          @id @default(uuid()) @db.Uuid
+  referenceRequestId String          @map("reference_request_id") @db.Uuid
+  storageKey         String          @map("storage_key")
+  thumb400Key        String?         @map("thumb_400_key")
+  thumb1200Key       String?         @map("thumb_1200_key")
+  width              Int?
+  height             Int?
+  sortOrder          Int             @default(0) @map("sort_order")
+  isCover            Boolean         @default(false) @map("is_cover")
+  sourceType         ImageSourceType @map("source_type")
+  sourceUrl          String?         @map("source_url")
+
+  isTakedownRequested Boolean   @default(false) @map("is_takedown_requested")
+  takedownRequestedAt DateTime? @map("takedown_requested_at") @db.Timestamptz(3)
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(3)
+
+  referenceRequest ReferenceRequest @relation(fields: [referenceRequestId], references: [id], onDelete: Cascade)
+
+  @@index([referenceRequestId, sortOrder])
+  @@map("reference_images")
+}
+
+// ─── 포트폴리오 ─────────────────────────────────────────────────────
+
+model PortfolioItem {
+  id        String          @id @default(uuid()) @db.Uuid
+  proUserId String          @map("pro_user_id") @db.Uuid
+  title     String
+  description String?
+  status    PortfolioStatus @default(DRAFT)
+
+  areaPyeong Decimal  @map("area_pyeong") @db.Decimal(6, 2)
+  areaM2     Decimal? @map("area_m2") @db.Decimal(8, 2)
+
+  housingType   HousingType?   @map("housing_type")
+  regionCode    String         @map("region_code") @db.Char(5)
+  workDays      Int?           @map("work_days")
+  workedAt      DateTime?      @map("worked_at") @db.Date
+  materialGrade MaterialGrade? @map("material_grade")
+
+  /// 강제할 수 없으니 유인으로 접근한다. 공개하면 신뢰도 뱃지를 준다.
+  /// 금액만 남기면 쓸모가 없어서 공종·평수·시공연월·자재등급·지역이 같은 행에 정규화되어 있다.
+  isCostPublic Boolean @default(false) @map("is_cost_public")
+  actualCost   Int?    @map("actual_cost")
+
+  viewCount Int @default(0) @map("view_count")
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(3)
+
+  pro        User                    @relation(fields: [proUserId], references: [id], onDelete: Restrict)
+  region     Region                  @relation(fields: [regionCode], references: [code], onDelete: Restrict)
+  images     PortfolioImage[]
+  categories PortfolioItemCategory[]
+  contacts   ContactRequest[]
+
+  @@index([status, regionCode, createdAt(sort: Desc), id(sort: Desc)])
+  @@index([proUserId, createdAt(sort: Desc)])
+  @@map("portfolio_items")
+}
+
+model PortfolioItemCategory {
+  portfolioItemId String @map("portfolio_item_id") @db.Uuid
+  workCategoryId  Int    @map("work_category_id")
+
+  portfolioItem PortfolioItem @relation(fields: [portfolioItemId], references: [id], onDelete: Cascade)
+  workCategory  WorkCategory  @relation(fields: [workCategoryId], references: [id], onDelete: Restrict)
+
+  @@id([portfolioItemId, workCategoryId])
+  @@index([workCategoryId, portfolioItemId])
+  @@map("portfolio_item_categories")
+}
+
+model PortfolioImage {
+  id              String      @id @default(uuid()) @db.Uuid
+  portfolioItemId String      @map("portfolio_item_id") @db.Uuid
+  storageKey      String      @map("storage_key")
+  thumb400Key     String?     @map("thumb_400_key")
+  thumb1200Key    String?     @map("thumb_1200_key")
+  width           Int?
+  height          Int?
+  sortOrder       Int         @default(0) @map("sort_order")
+  isCover         Boolean     @default(false) @map("is_cover")
+  /// before/after 대비가 실력을 가장 설득력 있게 보여준다.
+  phase           ImagePhase?
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(3)
+
+  portfolioItem PortfolioItem @relation(fields: [portfolioItemId], references: [id], onDelete: Cascade)
+
+  @@index([portfolioItemId, sortOrder])
+  @@map("portfolio_images")
+}
+
+// ─── 컨택 ───────────────────────────────────────────────────────────
+
+/// 양방향 매칭 요청. 두 방향이 하나의 개념으로 수렴하는 지점이다.
+///
+/// 상태 전이는 이 테이블이 아니라 도메인의 순수 함수에서 강제한다.
+/// 전이의 유효성이 상태만으로 결정되지 않고 주체가 함께 맞아야 하는데,
+/// DB는 누가 이 UPDATE를 호출했는지 모르기 때문이다. 근거는 ERD.md.
+model ContactRequest {
+  id            String           @id @default(uuid()) @db.Uuid
+  direction     ContactDirection
+  requesterUserId String         @map("requester_user_id") @db.Uuid
+  receiverUserId  String         @map("receiver_user_id") @db.Uuid
+
+  referenceRequestId String? @map("reference_request_id") @db.Uuid
+  portfolioItemId    String? @map("portfolio_item_id") @db.Uuid
+
+  message       String
+  status        ContactStatus @default(REQUESTED)
+  declineReason String?       @map("decline_reason")
+
+  respondedAt DateTime? @map("responded_at") @db.Timestamptz(3)
+  /// 생성 + 7일. 판정을 배치로 할지 조회 시점에 할지는 열린 질문 Q4.
+  expiresAt   DateTime  @map("expires_at") @db.Timestamptz(3)
+  /// 연락처 열람 시점. 플랫폼 이탈 지표로 쓴다.
+  contactViewedAt DateTime? @map("contact_viewed_at") @db.Timestamptz(3)
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(3)
+
+  requester        User              @relation("ContactRequester", fields: [requesterUserId], references: [id], onDelete: Restrict)
+  receiver         User              @relation("ContactReceiver", fields: [receiverUserId], references: [id], onDelete: Restrict)
+  referenceRequest ReferenceRequest? @relation(fields: [referenceRequestId], references: [id], onDelete: Restrict)
+  portfolioItem    PortfolioItem?    @relation(fields: [portfolioItemId], references: [id], onDelete: Restrict)
+
+  @@index([receiverUserId, status, createdAt(sort: Desc)])
+  @@index([requesterUserId, status, createdAt(sort: Desc)])
+  @@index([status, expiresAt])
+  @@map("contact_requests")
+}
+
+// ─── 부가 ───────────────────────────────────────────────────────────
+
+model Scrap {
+  id         String     @id @default(uuid()) @db.Uuid
+  userId     String     @map("user_id") @db.Uuid
+  targetType TargetType @map("target_type")
+  targetId   String     @map("target_id") @db.Uuid
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, targetType, targetId])
+  @@map("scraps")
+}
+
+/// 저작권 신고는 일반 신고와 분리된 정보를 받는다.
+/// 권리자가 신고하면 즉시 비공개 처리할 수 있어야 한다.
+model Report {
+  id           String       @id @default(uuid()) @db.Uuid
+  reporterId   String?      @map("reporter_id") @db.Uuid
+  type         ReportType
+  targetType   TargetType   @map("target_type")
+  targetId     String       @map("target_id") @db.Uuid
+  reason       String?
+  status       ReportStatus @default(PENDING)
+
+  rightsHolderName    String? @map("rights_holder_name")
+  rightsHolderContact String? @map("rights_holder_contact")
+  originalSourceUrl   String? @map("original_source_url")
+
+  resolvedAt DateTime? @map("resolved_at") @db.Timestamptz(3)
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt  DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  reporter User? @relation(fields: [reporterId], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt(sort: Desc)])
+  @@index([targetType, targetId])
+  @@map("reports")
+}
+
+model Notification {
+  id         String           @id @default(uuid()) @db.Uuid
+  userId     String           @map("user_id") @db.Uuid
+  kind       NotificationKind
+  resourceId String?          @map("resource_id") @db.Uuid
+  payload    Json?
+  readAt     DateTime?        @map("read_at") @db.Timestamptz(3)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt, createdAt(sort: Desc)])
+  @@map("notifications")
+}
