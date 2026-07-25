@@ -72,6 +72,18 @@ export default tseslint.config(
     },
   },
 
+  /* QC 스크립트는 Node에서 직접 돈다. 빌드 대상이 아니다. */
+  {
+    files: ['scripts/**/*.mjs'],
+    languageOptions: {
+      globals: {
+        process: 'readonly',
+        console: 'readonly',
+        URL: 'readonly',
+      },
+    },
+  },
+
   /* 테스트 파일은 규칙을 조금 푼다. */
   {
     files: ['**/*.test.ts', '**/*.spec.ts', '**/*.e2e-spec.ts'],

@@ -12,6 +12,8 @@
     "build": "pnpm -r build",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
+    "qc": "node scripts/qc/index.mjs",
+    "qc:errors": "node scripts/qc/index.mjs --errors",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
