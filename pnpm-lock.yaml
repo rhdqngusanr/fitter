@@ -168,6 +168,10 @@ importers:
         version: 5.9.3
 
   packages/domain:
+    dependencies:
+      '@fitter/shared':
+        specifier: workspace:*
+        version: link:../shared
     devDependencies:
       '@jest/globals':
         specifier: ^30.2.0

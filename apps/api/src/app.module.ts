@@ -1,14 +1,16 @@
 import { Module } from '@nestjs/common';
-import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 
 import { ConfigModule } from './config/config.module';
 import { LoggingModule } from './common/logging/logging.module';
 import { DomainExceptionFilter } from './common/errors/domain-exception.filter';
 import { ApprovedProGuard, JwtAuthGuard, RolesGuard } from './common/guards';
+import { ContactPrivacyInterceptor } from './common/interceptors';
 import { PrismaModule } from './infra/prisma/prisma.module';
 import { SecurityModule } from './infra/security/security.module';
 import { StorageModule } from './infra/storage/storage.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { ContactsModule } from './modules/contacts/contacts.module';
 import { ImagesModule } from './modules/images/images.module';
 import { MeModule } from './modules/me/me.module';
 import { PortfoliosModule } from './modules/portfolios/portfolios.module';
@@ -36,6 +38,7 @@ import { HealthModule } from './health/health.module';
     ImagesModule,
     ReferenceRequestsModule,
     PortfoliosModule,
+    ContactsModule,
     HealthModule,
   ],
   providers: [
@@ -50,6 +53,12 @@ import { HealthModule } from './health/health.module';
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
     { provide: APP_GUARD, useClass: ApprovedProGuard },
+
+    /*
+     * 연락처 차단. 응답이 나가는 마지막 지점이고 기본값이 "제거"다.
+     * 새 엔드포인트를 추가해도 별도 조치 없이 안전한 쪽이 기본이어야 한다.
+     */
+    { provide: APP_INTERCEPTOR, useClass: ContactPrivacyInterceptor },
   ],
 })
 export class AppModule {}

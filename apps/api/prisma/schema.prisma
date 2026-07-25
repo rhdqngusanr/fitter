@@ -511,6 +511,22 @@ model ContactRequest {
   status        ContactStatus @default(REQUESTED)
   declineReason String?       @map("decline_reason")
 
+  /// 시공자가 제시한 금액. **가격 전략 전체의 급소다.**
+  /// 실거래가는 시공자의 자발적 공개에만 의존해 느리게 쌓이지만,
+  /// 제안은 플랫폼 안에서 일어나므로 이탈과 무관하게 쌓인다.
+  /// 선택 입력이다 — 필수로 하면 "현장 봐야 안다"는 정당한 경우를 막는다.
+  /// 근거: brain/50-결정/ADR-010 - 가격 정책 모델.md
+  proposedAmount     Int?    @map("proposed_amount")
+  proposedAmountNote String? @map("proposed_amount_note")
+
+  /// 완료 확인. 양쪽이 확인하면 검증된 거래로 본다.
+  /// 이 하나가 리뷰 자격·실거래가·이탈 지표를 동시에 준다.
+  /// 근거: brain/50-결정/ADR-011 - 신뢰 장치 설계.md
+  completedConfirmedByCustomerAt DateTime? @map("completed_confirmed_by_customer_at") @db.Timestamptz(3)
+  completedConfirmedByProAt      DateTime? @map("completed_confirmed_by_pro_at") @db.Timestamptz(3)
+  /// 협상 후 최종 금액. 제안가보다 실거래가에 가깝다.
+  finalAmount                    Int?      @map("final_amount")
+
   respondedAt DateTime? @map("responded_at") @db.Timestamptz(3)
   /// 생성 + 7일. 판정을 배치로 할지 조회 시점에 할지는 열린 질문 Q4.
   expiresAt   DateTime  @map("expires_at") @db.Timestamptz(3)

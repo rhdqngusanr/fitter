@@ -3,6 +3,7 @@ import { Body, Controller, Get, Post } from '@nestjs/common';
 import { ConflictError, NotFoundError } from '@fitter/domain';
 
 import { CurrentUser, type RequestUser } from '../../common/decorators';
+import { REVEALED_PHONE_KEY } from '../../common/interceptors';
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
 import { PrismaService } from '../../infra/prisma/prisma.service';
 import { selectProfileSchema, type SelectProfileInput } from '../auth/auth.dto';
@@ -31,8 +32,13 @@ export class MeController {
     });
     if (!user) throw new NotFoundError('사용자를 찾을 수 없습니다.');
 
-    const { profiles, ...rest } = user;
-    return { ...rest, profileType: profiles[0]?.type ?? null };
+    const { profiles, phone, ...rest } = user;
+    return {
+      ...rest,
+      profileType: profiles[0]?.type ?? null,
+      /* 본인 것이므로 명시적으로 공개한다. 직렬화 인터셉터가 이 이름만 통과시킨다. */
+      [REVEALED_PHONE_KEY]: phone,
+    };
   }
 
   /**
