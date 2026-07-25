@@ -25,12 +25,16 @@ const envSchema = z.object({
   JWT_SECRET: z.string().min(32, 'JWT_SECRET은 32자 이상이어야 합니다.'),
   DATABASE_URL: z.string().min(1, 'DATABASE_URL이 필요합니다.'),
 
-  /* 아래는 해당 Phase에서 필수로 승격한다. */
-  STORAGE_BUCKET: z.string().min(1).optional(),
-  STORAGE_ENDPOINT: z.string().min(1).optional(),
-  STORAGE_ACCESS_KEY_ID: z.string().min(1).optional(),
-  STORAGE_SECRET_ACCESS_KEY: z.string().min(1).optional(),
-  REDIS_URL: z.string().min(1).optional(),
+  /* P4-2에서 필수로 승격했다. 개발은 MinIO, 운영은 Cloudflare R2. 둘 다 S3 API다. */
+  STORAGE_BUCKET: z.string().min(1),
+  STORAGE_ENDPOINT: z.string().min(1),
+  STORAGE_ACCESS_KEY_ID: z.string().min(1),
+  STORAGE_SECRET_ACCESS_KEY: z.string().min(1),
+  /* R2는 지역 개념이 없어 'auto'를 쓴다. MinIO도 아무 값이나 받는다. */
+  STORAGE_REGION: z.string().min(1).default('auto'),
+
+  /* 썸네일 파생과 고아 파일 정리를 큐로 돌린다. */
+  REDIS_URL: z.string().min(1),
 });
 
 export type Env = z.infer<typeof envSchema>;

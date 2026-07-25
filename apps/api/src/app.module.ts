@@ -7,7 +7,9 @@ import { DomainExceptionFilter } from './common/errors/domain-exception.filter';
 import { ApprovedProGuard, JwtAuthGuard, RolesGuard } from './common/guards';
 import { PrismaModule } from './infra/prisma/prisma.module';
 import { SecurityModule } from './infra/security/security.module';
+import { StorageModule } from './infra/storage/storage.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { ImagesModule } from './modules/images/images.module';
 import { MeModule } from './modules/me/me.module';
 import { EstimatePolicyModule } from './modules/pricing/estimate-policy.module';
 import { HealthModule } from './health/health.module';
@@ -25,9 +27,11 @@ import { HealthModule } from './health/health.module';
     LoggingModule,
     PrismaModule,
     SecurityModule,
+    StorageModule,
     EstimatePolicyModule,
     AuthModule,
     MeModule,
+    ImagesModule,
     HealthModule,
   ],
   providers: [

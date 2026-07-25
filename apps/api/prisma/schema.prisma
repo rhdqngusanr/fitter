@@ -129,6 +129,7 @@ model User {
 
   profiles          UserProfile[]
   refreshTokens     RefreshToken[]
+  uploadIntents     UploadIntent[]
   referenceRequests ReferenceRequest[]
   portfolioItems    PortfolioItem[]
   sentContacts      ContactRequest[]   @relation("ContactRequester")
@@ -186,6 +187,36 @@ model RefreshToken {
   @@index([familyId])
   @@index([expiresAt])
   @@map("refresh_tokens")
+}
+
+/// 업로드 의도.
+///
+/// 서명 URL을 발급할 때 남기고, 메타데이터가 등록되면 소비 처리한다.
+/// 미소비인 채로 오래 남은 건 고아 파일이므로 정리 배치가 지운다.
+///
+/// 버킷 전체를 리스팅해 DB와 대조하는 방식보다 낫다 — 객체가 늘어도 비용이 일정하다.
+/// 부수 효과가 하나 더 있다. **발급받은 사람만 등록할 수 있다.**
+/// 이게 없으면 남이 올린 storage key를 자기 의뢰에 붙일 수 있고,
+/// 그러면 저작권 신고가 엉뚱한 계정으로 간다.
+///
+/// 근거: brain/20-도메인/이미지 파이프라인.md — 고아 파일
+model UploadIntent {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  storageKey  String   @unique @map("storage_key")
+  namespace   String
+  contentType String   @map("content_type")
+  /// 클라이언트가 신고한 크기. 등록 시 실제 크기와 대조한다.
+  declaredSize Int     @map("declared_size")
+  consumedAt  DateTime? @map("consumed_at") @db.Timestamptz(3)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// 정리 배치가 "미소비 + 오래된 것"을 찾는다.
+  @@index([consumedAt, createdAt])
+  @@index([userId])
+  @@map("upload_intents")
 }
 
 model CustomerProfile {

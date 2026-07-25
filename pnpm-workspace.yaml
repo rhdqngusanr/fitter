@@ -21,3 +21,5 @@ allowBuilds:
   '@prisma/client': true
   '@prisma/engines': true
   '@swc/core': false
+  # bullmq(msgpackr)의 선택적 네이티브 가속기. 없으면 순수 JS로 폴백하므로 켤 이유가 없다.
+  msgpackr-extract: false
