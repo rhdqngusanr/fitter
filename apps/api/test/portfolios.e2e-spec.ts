@@ -180,6 +180,22 @@ describe('포트폴리오 (e2e)', () => {
       expect(found).not.toHaveProperty('storageKey');
     });
 
+    /*
+     * 상세는 컨택 직전 화면이라 "누가 했는가"가 여기서 끝나야 한다.
+     * 그런데 연락처는 여전히 나오면 안 된다 — 컨택이 ACCEPTED가 되기 전까지는.
+     * 신뢰 근거를 늘리면서 연락처를 막는 두 요구가 충돌하는 유일한 지점이다.
+     */
+    it('상세에 시공자 정보가 실리되 연락처는 없다', async () => {
+      const res = await request(server()).get(`/api/portfolios/${publishedId}`).expect(200);
+
+      expect(res.body.pro.businessName).toBeTruthy();
+      expect(res.body.pro).toHaveProperty('careerYears');
+      expect(res.body.pro).toHaveProperty('serviceAreas');
+
+      /* 응답 어디에도 phone 키가 없어야 한다. 중첩 깊이와 무관하게. */
+      expect(JSON.stringify(res.body)).not.toContain('"phone"');
+    });
+
     it('승인이 철회되면 즉시 갤러리에서 사라진다 — 공개 조건은 두 개다', async () => {
       await approvePro(proUserId, false);
 
