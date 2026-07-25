@@ -5,6 +5,7 @@
 import 'dotenv/config';
 import 'reflect-metadata';
 
+import cookieParser from 'cookie-parser';
 import { NestFactory } from '@nestjs/core';
 import { Logger } from 'nestjs-pino';
 
@@ -19,6 +20,8 @@ async function bootstrap(): Promise<void> {
 
   const env = app.get<Env>(ENV);
 
+  /* 리프레시 토큰이 httpOnly 쿠키로 오간다. */
+  app.use(cookieParser());
   app.enableCors({ origin: env.WEB_ORIGIN, credentials: true });
   app.setGlobalPrefix('api');
   /* 클라이언트가 붙어 있는 채로 배포가 갈리지 않도록 종료 훅을 연다. */

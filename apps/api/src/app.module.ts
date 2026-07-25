@@ -1,28 +1,47 @@
 import { Module } from '@nestjs/common';
-import { APP_FILTER } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 
 import { ConfigModule } from './config/config.module';
 import { LoggingModule } from './common/logging/logging.module';
 import { DomainExceptionFilter } from './common/errors/domain-exception.filter';
-import { HealthModule } from './health/health.module';
+import { ApprovedProGuard, JwtAuthGuard, RolesGuard } from './common/guards';
+import { PrismaModule } from './infra/prisma/prisma.module';
+import { SecurityModule } from './infra/security/security.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { MeModule } from './modules/me/me.module';
 import { EstimatePolicyModule } from './modules/pricing/estimate-policy.module';
+import { HealthModule } from './health/health.module';
 
 /**
  * 앱 루트.
  *
  * 여기 있는 건 전부 "바깥 링"이다. 도메인은 @fitter/domain 에 있고 이 파일을 모른다.
  *
- * 앞으로 modules/ 아래에 auth · users · requests · portfolios · contacts ·
- * work-categories · images · notifications 가 붙는다. 각각은 도메인을 호출할 뿐
- * 비즈니스 규칙을 직접 들고 있지 않는다.
- *
  * 근거: brain/30-설계/구조적 원칙.md
  */
 @Module({
-  imports: [ConfigModule, LoggingModule, EstimatePolicyModule, HealthModule],
+  imports: [
+    ConfigModule,
+    LoggingModule,
+    PrismaModule,
+    SecurityModule,
+    EstimatePolicyModule,
+    AuthModule,
+    MeModule,
+    HealthModule,
+  ],
   providers: [
     /* 도메인 에러를 HTTP로 옮기는 지점. 앱 전체에 한 번만 건다. */
     { provide: APP_FILTER, useClass: DomainExceptionFilter },
+
+    /*
+     * 가드 순서가 중요하다. 인증 → 역할 → 승인 순으로 걸린다.
+     * 그리고 **기본값이 "인증 필수"**다. 공개 경로만 @Public()으로 뚫는다.
+     * 반대로 하면 가드를 빠뜨리는 순간 새어나간다.
+     */
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
+    { provide: APP_GUARD, useClass: ApprovedProGuard },
   ],
 })
 export class AppModule {}

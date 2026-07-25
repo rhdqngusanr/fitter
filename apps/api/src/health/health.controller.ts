@@ -1,5 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 
+import { Public } from '../common/decorators';
+
 /**
  * 헬스체크.
  *
@@ -8,6 +10,8 @@ import { Controller, Get } from '@nestjs/common';
  */
 @Controller('health')
 export class HealthController {
+  /* 로드밸런서가 토큰을 들고 오지 않는다. 명시적으로 뚫는다. */
+  @Public()
   @Get()
   check(): { status: 'ok'; service: string } {
     return { status: 'ok', service: 'fitter-api' };

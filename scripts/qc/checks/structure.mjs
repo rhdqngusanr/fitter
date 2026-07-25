@@ -41,7 +41,11 @@ export function run() {
   for (const dir of ['apps', 'packages']) {
     for (const file of collect(dir, ['.ts', '.tsx'])) {
       const rel = short(file);
-      if (rel === ENV_ALLOWED || rel.endsWith('next.config.mjs')) continue;
+      /*
+       * 테스트 하네스는 예외다. 환경변수를 "읽는" 게 아니라 테스트용으로 "채우는" 파일이고,
+       * 그게 그 파일의 존재 이유다. 앱 코드가 검증을 우회하는 것과는 다르다.
+       */
+      if (rel === ENV_ALLOWED || rel.endsWith('next.config.mjs') || /\/test\//.test(rel)) continue;
       for (const hit of findLines(read(file), /process\.env/)) {
         if (isCommentLine(hit.text)) continue; // 규칙을 설명하는 주석은 위반이 아니다
         findings.push(

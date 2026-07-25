@@ -12,19 +12,25 @@ import { z } from 'zod';
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().positive().default(3001),
-  LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
+  /* silent는 테스트용이다. 로그가 시끄러우면 실패한 테스트가 묻힌다. */
+  LOG_LEVEL: z.enum(['silent', 'fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
 
   /** 프론트 오리진. CORS 허용 목록. */
   WEB_ORIGIN: z.string().min(1).default('http://localhost:3000'),
 
+  /**
+   * P4-1에서 필수로 승격했다.
+   * 짧은 시크릿은 서명을 무의미하게 만들므로 길이를 강제한다.
+   */
+  JWT_SECRET: z.string().min(32, 'JWT_SECRET은 32자 이상이어야 합니다.'),
+  DATABASE_URL: z.string().min(1, 'DATABASE_URL이 필요합니다.'),
+
   /* 아래는 해당 Phase에서 필수로 승격한다. */
-  DATABASE_URL: z.string().min(1).optional(),
   STORAGE_BUCKET: z.string().min(1).optional(),
   STORAGE_ENDPOINT: z.string().min(1).optional(),
   STORAGE_ACCESS_KEY_ID: z.string().min(1).optional(),
   STORAGE_SECRET_ACCESS_KEY: z.string().min(1).optional(),
   REDIS_URL: z.string().min(1).optional(),
-  JWT_SECRET: z.string().min(1).optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

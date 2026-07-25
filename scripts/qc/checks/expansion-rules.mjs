@@ -1,4 +1,4 @@
-import { collect, read, short } from '../lib/files.mjs';
+import { collect, isCommentLine, read, short } from '../lib/files.mjs';
 import { finding } from '../lib/report.mjs';
 
 /**
@@ -107,8 +107,14 @@ export function run() {
           }
         }
 
-        /* 정책 상수 단일화 — 용량이 화면마다 다르면 한쪽은 반드시 틀린 값이다 */
-        if (rel !== LIMITS_SOURCE_OF_TRUTH && /\b\d{1,3}MB\b/.test(line)) {
+        /*
+         * 정책 상수 단일화 — 용량이 화면마다 다르면 한쪽은 반드시 틀린 값이다.
+         *
+         * 주석은 건너뛴다. scrypt의 메모리 상한을 설명하는 "32MB" 같은 문장이
+         * 이미지 용량 하드코딩으로 잡히는 오탐이 실제로 났다.
+         * 규칙을 설명하는 문장과 규칙을 어기는 코드는 다르다.
+         */
+        if (rel !== LIMITS_SOURCE_OF_TRUTH && !isCommentLine(line) && /\b\d{1,3}MB\b/.test(line)) {
           findings.push(
             finding({
               severity: target.severity,
