@@ -1,0 +1,52 @@
+# 로컬 개발 환경.
+#
+# 운영에서는 관리형 서비스를 쓴다(Postgres는 Neon, Redis는 Upstash 등).
+# 이 파일의 목적은 "내 PC에서 한 줄로 같은 환경이 뜬다"이지 운영 재현이 아니다.
+#
+#   docker compose up -d      띄우기
+#   docker compose down       내리기 (데이터는 볼륨에 남는다)
+#   docker compose down -v    데이터까지 지우기
+#
+# 근거: brain/50-결정/ADR-001 - 기술 스택 선정.md
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: fitter-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: fitter
+      POSTGRES_PASSWORD: fitter_dev_only
+      POSTGRES_DB: fitter
+      # 한국어 정렬과 대소문자 처리를 운영과 맞춘다
+      POSTGRES_INITDB_ARGS: '--encoding=UTF8'
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      # 마이그레이션이 DB보다 먼저 뜨면 실패한다. 준비될 때까지 기다리게 한다.
+      test: ['CMD-SHELL', 'pg_isready -U fitter -d fitter']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: fitter-redis
+    restart: unless-stopped
+    # BullMQ는 작업 유실을 막기 위해 AOF를 켠 상태를 권장한다. P4-2에서 쓴다.
+    command: ['redis-server', '--appendonly', 'yes']
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  postgres_data:
+  redis_data:

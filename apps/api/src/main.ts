@@ -1,3 +1,8 @@
+/*
+ * .env를 가장 먼저 로드한다. config/env.ts 의 zod 검증이 이 값을 읽는다.
+ * 운영에서는 .env가 없고 플랫폼이 주입한 환경변수를 그대로 쓴다 — dotenv는 조용히 넘어간다.
+ */
+import 'dotenv/config';
 import 'reflect-metadata';
 
 import { NestFactory } from '@nestjs/core';
