@@ -50,6 +50,12 @@ export function run() {
   for (const target of targets) {
     for (const file of collect(target.dir, target.extensions)) {
       const rel = short(file);
+      /*
+       * 테스트는 제외한다. "10MB를 넘으면 거부한다" 같은 **테스트 제목**이
+       * 용량 하드코딩으로 잡히는 오탐이 났다. 테스트가 한도를 언급하는 건 정상이고,
+       * 오히려 그 한도를 검증하고 있다는 뜻이다.
+       */
+      if (/\.(test|spec|e2e-spec)\.tsx?$/.test(rel)) continue;
       const content = read(file);
       const lines = content.split(/\r?\n/);
 
