@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 
 import {
   ConflictError,
@@ -10,10 +10,13 @@ import {
   transition,
   type ContactAction,
   type ContactSnapshot,
+  type NotificationKind,
+  type NotificationPort,
 } from '@fitter/domain';
 import { CONTACT_EXPIRY_DAYS } from '@fitter/shared';
 
 import { REVEALED_PHONE_KEY } from '../../common/interceptors';
+import { NOTIFICATION_PORT } from '../../infra/notification/notification.module';
 import { PrismaService } from '../../infra/prisma/prisma.service';
 import type { CreateContactInput, DeclineInput } from './contact.dto';
 
@@ -32,7 +35,10 @@ import type { CreateContactInput, DeclineInput } from './contact.dto';
 export class ContactsService {
   private readonly logger = new Logger(ContactsService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(NOTIFICATION_PORT) private readonly notifications: NotificationPort,
+  ) {}
 
   async create(actorId: string, actorRole: string | null, input: CreateContactInput) {
     const isProDirection = input.direction === 'PRO_TO_REQUEST';
@@ -308,10 +314,14 @@ export class ContactsService {
   /**
    * 도메인 이벤트 발행.
    *
-   * 지금은 로그로 끝나지만 **발행 지점은 여기 하나다.**
-   * 나중에 알림·큐가 붙어도 상태머신과 이 서비스는 안 바뀐다.
+   * **발행 지점은 여기 하나다.** 상태머신은 알림을 직접 호출하지 않고,
+   * 알림은 포트 뒤에 있어 채널이 바뀌어도 이 서비스는 안 바뀐다.
+   *
+   * 근거: brain/30-설계/구조적 원칙.md 4조
    */
-  private emit(name: string, contactId: string, recipientUserId: string): void {
-    this.logger.log({ event: name, contactId, recipientUserId }, '도메인 이벤트');
+  private emit(kind: NotificationKind, contactId: string, recipientUserId: string): void {
+    this.logger.log({ event: kind, contactId, recipientUserId }, '도메인 이벤트');
+    /* 알림 실패가 전이를 되돌리지 않는다. 기다리지 않고 보낸다. */
+    void this.notifications.send({ kind, recipientUserId, resourceId: contactId });
   }
 }

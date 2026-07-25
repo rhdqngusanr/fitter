@@ -8,9 +8,13 @@ import { ApprovedProGuard, JwtAuthGuard, RolesGuard } from './common/guards';
 import { ContactPrivacyInterceptor } from './common/interceptors';
 import { PrismaModule } from './infra/prisma/prisma.module';
 import { SecurityModule } from './infra/security/security.module';
+import { NotificationModule } from './infra/notification/notification.module';
 import { StorageModule } from './infra/storage/storage.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { AdminModule } from './modules/admin/admin.module';
 import { ContactsModule } from './modules/contacts/contacts.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { ReportsModule } from './modules/reports/reports.module';
 import { ImagesModule } from './modules/images/images.module';
 import { MeModule } from './modules/me/me.module';
 import { PortfoliosModule } from './modules/portfolios/portfolios.module';
@@ -32,6 +36,7 @@ import { HealthModule } from './health/health.module';
     PrismaModule,
     SecurityModule,
     StorageModule,
+    NotificationModule,
     EstimatePolicyModule,
     AuthModule,
     MeModule,
@@ -39,6 +44,9 @@ import { HealthModule } from './health/health.module';
     ReferenceRequestsModule,
     PortfoliosModule,
     ContactsModule,
+    NotificationsModule,
+    ReportsModule,
+    AdminModule,
     HealthModule,
   ],
   providers: [
