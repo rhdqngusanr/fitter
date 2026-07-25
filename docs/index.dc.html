@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<![CDATA[<helmet>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+<style>
+:root{
+  --color-primary-50:#EEF3F8; --color-primary-100:#D8E4EF; --color-primary-200:#B3C9DE; --color-primary-300:#85A7C7;
+  --color-primary-400:#5583AC; --color-primary-500:#2F6390; --color-primary-600:#245176; --color-primary-700:#1C405D; --color-primary-800:#163348;
+  --color-secondary-100:#F3E9E2; --color-secondary-300:#D9AE92; --color-secondary-500:#A8623C; --color-secondary-600:#8B4E2D;
+  --color-bg:#FFFFFF; --color-bg-subtle:#F5F7F9; --color-bg-sunken:#EDF0F3; --color-surface:#FFFFFF; --color-surface-hover:#F5F7F9;
+  --color-text-primary:#171B20; --color-text-secondary:#515A65; --color-text-tertiary:#69737F;
+  --color-success-bg:#E7F3EC; --color-success:#1F7A4C; --color-warning-bg:#FBF1DC; --color-warning:#9A6B0F;
+  --color-border:#DFE4E9; --color-border-strong:#C7CED6; --color-border-focus:#2F6390;
+  --radius-sm:4px; --radius-md:8px; --radius-lg:12px; --radius-full:999px;
+  --shadow-1:0 1px 2px rgba(23,27,32,.06), 0 1px 3px rgba(23,27,32,.08);
+  --font-sans:"Pretendard Variable",Pretendard,-apple-system,system-ui,sans-serif;
+  --font-mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
+}
+body{margin:0;font-family:var(--font-sans);-webkit-font-smoothing:antialiased;background:var(--color-bg-sunken);font-feature-settings:"tnum";}
+*{box-sizing:border-box;}
+a{color:var(--color-primary-500);text-decoration:none;}
+a:hover{color:var(--color-primary-600);}
+:focus-visible{outline:2px solid var(--color-border-focus);outline-offset:2px;border-radius:var(--radius-sm);}
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:var(--color-bg-sunken)">
+
+  <header style="background:var(--color-bg);border-bottom:1px solid var(--color-border)">
+    <div style="max-width:1080px;margin:0 auto;padding:56px 32px 44px;display:flex;flex-direction:column;gap:16px">
+      <span style="display:inline-flex;width:fit-content;align-items:center;height:28px;padding:0 12px;border-radius:var(--radius-full);background:var(--color-primary-50);color:var(--color-primary-600);font-size:13px;font-weight:700">P0 디자인 시안 · 2026.07</span>
+      <h1 style="margin:0;font-size:44px;font-weight:800;line-height:1.15;letter-spacing:-.035em;color:var(--color-text-primary)">Fitter 디자인 시안</h1>
+      <p style="margin:0;max-width:640px;font-size:17px;line-height:1.65;color:var(--color-text-secondary);text-wrap:pretty">반셀프 인테리어 매칭 플랫폼. 고객이 올린 사진이 곧 의뢰가 되고, 시공자는 자기 시공 사진으로 자신을 증명한다. 종합업체 없이 공종 단위로 직접 연결한다.</p>
+      <div style="display:flex;gap:28px;flex-wrap:wrap;padding-top:8px;border-top:1px solid var(--color-border);margin-top:8px">
+        <sc-for list="{{ stats }}" as="s" hint-placeholder-count="3">
+          <span style="display:flex;flex-direction:column;gap:2px">
+            <strong style="font-size:22px;font-weight:800;color:var(--color-text-primary)">{{ s.v }}</strong>
+            <span style="font-size:13px;color:var(--color-text-tertiary)">{{ s.k }}</span>
+          </span>
+        </sc-for>
+      </div>
+    </div>
+  </header>
+
+  <main style="max-width:1080px;margin:0 auto;padding:40px 32px 80px;display:flex;flex-direction:column;gap:32px">
+
+    <section style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:baseline;gap:12px">
+        <h2 style="margin:0;font-size:22px;font-weight:800;letter-spacing:-.02em;color:var(--color-text-primary)">기반</h2>
+        <span style="font-size:14px;color:var(--color-text-tertiary)">컬러·타이포·컴포넌트 토큰</span>
+      </div>
+      <a href="design-system.dc.html" style="display:flex;gap:18px;align-items:center;padding:22px;border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-bg);color:inherit" style-hover="background:var(--color-surface-hover);border-color:var(--color-border-strong)">
+        <span style="display:flex;flex-direction:column;gap:5px;flex:1;min-width:0">
+          <span style="font-size:19px;font-weight:800;letter-spacing:-.015em;color:var(--color-text-primary)">디자인 시스템</span>
+          <span style="font-size:15px;line-height:1.55;color:var(--color-text-secondary)">컬러 42개(다크모드 포함) · 타이포 6단계 · 스페이싱·라운드·그림자 · 버튼/인풋/칩/뱃지/카드/토스트/빈 상태/스켈레톤. 모든 조합의 WCAG 대비율 표기.</span>
+        </span>
+        <span style="flex:none;font-size:15px;font-weight:700;color:var(--color-primary-500)">열기 →</span>
+      </a>
+    </section>
+
+    <section style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:baseline;gap:12px">
+        <h2 style="margin:0;font-size:22px;font-weight:800;letter-spacing:-.02em;color:var(--color-text-primary)">화면 시안</h2>
+        <span style="font-size:14px;color:var(--color-text-tertiary)">각 시안은 390px · 1280px을 나란히 렌더하고, 상단 칩으로 상태를 전환한다</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px">
+        <sc-for list="{{ screens }}" as="s" hint-placeholder-count="7">
+          <a href="{{ s.href }}" style="display:flex;flex-direction:column;gap:10px;padding:20px;border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-bg);color:inherit;height:100%" style-hover="background:var(--color-surface-hover);border-color:var(--color-border-strong)">
+            <span style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+              <span style="font-family:var(--font-mono);font-size:12px;font-weight:700;color:var(--color-primary-500)">{{ s.id }}</span>
+              <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:var(--radius-sm);background:{{ s.roleBg }};color:{{ s.roleFg }};font-size:11px;font-weight:700">{{ s.role }}</span>
+            </span>
+            <span style="font-size:18px;font-weight:800;letter-spacing:-.015em;color:var(--color-text-primary)">{{ s.title }}</span>
+            <span style="font-size:14px;line-height:1.55;color:var(--color-text-secondary);flex:1">{{ s.purpose }}</span>
+            <span style="display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid var(--color-border);padding-top:10px;margin-top:2px">
+              <span style="font-size:12px;color:var(--color-text-tertiary)">상태 {{ s.states }}개</span>
+              <span style="font-size:14px;font-weight:700;color:var(--color-primary-500)">열기 →</span>
+            </span>
+          </a>
+        </sc-for>
+      </div>
+    </section>
+
+    <section style="display:flex;flex-direction:column;gap:12px;border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-bg);padding:24px">
+      <h2 style="margin:0;font-size:18px;font-weight:800;letter-spacing:-.015em;color:var(--color-text-primary)">보는 방법</h2>
+      <sc-for list="{{ tips }}" as="t" hint-placeholder-count="4">
+        <span style="display:flex;gap:10px;align-items:flex-start">
+          <span style="flex:none;width:5px;height:5px;border-radius:999px;background:var(--color-primary-400);margin-top:9px"></span>
+          <span style="font-size:15px;line-height:1.6;color:var(--color-text-secondary)">{{ t }}</span>
+        </span>
+      </sc-for>
+    </section>
+
+    <footer style="display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;padding-top:20px;border-top:1px solid var(--color-border)">
+      <span style="font-size:13px;color:var(--color-text-tertiary)">Fitter · 확정 화면 21개 중 핵심 7개 시안</span>
+      <span style="font-family:var(--font-mono);font-size:12px;color:var(--color-text-tertiary)">P0-3 · 2026.07.25</span>
+    </footer>
+  </main>
+</div>]]>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const cust = { role: "고객", roleBg: "var(--color-primary-50)", roleFg: "var(--color-primary-600)" };
+    const pro = { role: "시공자", roleBg: "var(--color-secondary-100)", roleFg: "var(--color-secondary-600)" };
+    const both = { role: "공통", roleBg: "var(--color-bg-sunken)", roleFg: "var(--color-text-secondary)" };
+
+    return {
+      stats: [
+        { v: "7개", k: "화면 시안" },
+        { v: "59개", k: "설계된 상태" },
+        { v: "390 / 1280", k: "대응 폭" }
+      ],
+      screens: [
+        { ...both, id: "G-01", title: "랜딩", href: "g01-landing.dc.html", states: 5,
+          purpose: "30초 안에 “종합업체 없이 사진으로 시공자를 직접 고른다”를 이해시키고 가입시킨다." },
+        { ...cust, id: "C-01", title: "의뢰 등록", href: "c01-request-create.dc.html", states: 6,
+          purpose: "사진을 올려 의뢰를 완성시킨다. 4스텝 · 임시저장 · 업로드 실패 복구까지. 가장 중요한 화면." },
+        { ...pro, id: "P-04 / P-05", title: "의뢰 목록 · 상세", href: "p04-p05-jobs.dc.html", states: 7,
+          purpose: "시공자가 조건에 맞는 일감만 골라 보고, 제안을 보낸다. 미승인 잠금과 중복 제안 차단 포함." },
+        { ...pro, id: "P-02", title: "포트폴리오 등록", href: "p02-portfolio-upload.dc.html", states: 9,
+          purpose: "사진 15장을 빠르게 올린다. 압축 → 업로드 → 처리 3단계 진행률, 개별 취소·재시도, EXIF 제거 고지." },
+        { ...both, id: "C-04 / C-05", title: "포트폴리오 갤러리 · 상세", href: "c04-c05-gallery.dc.html", states: 8,
+          purpose: "비로그인에 열린 SEO 관문. 사진을 훑다가 시공자에게 관심을 넘긴다. 컨택 시점에만 로그인." },
+        { ...cust, id: "C-06 / C-07", title: "시공자 목록 · 상세", href: "c06-c07-pros.dc.html", states: 8,
+          purpose: "조건으로 후보를 좁히고, 맡겨도 되는 사람인지 판단한다. 연락처는 어떤 상태에서도 마스킹." },
+        { ...both, id: "M-01 / M-02", title: "컨택 목록 · 상세", href: "m01-m02-contacts.dc.html", states: 10,
+          purpose: "요청 → 수락 → 연락처 공개. 상태머신이 화면에 드러나는 곳. 역할 전환으로 양쪽 관점 확인." },
+        { ...both, id: "G-03", title: "역할 선택 온보딩", href: "g03-role-onboarding.dc.html", states: 6,
+          purpose: "계정의 역할 하나를 고르게 한다. 되돌릴 수 없다는 사실과 시공자 승인 심사를 사전 고지." }
+      ],
+      tips: [
+        "각 시안 상단의 회색 칩이 상태 전환기다. 로딩·빈 상태·에러·잠금 같은 상태를 눌러가며 확인하면 된다.",
+        "왼쪽이 모바일 390px, 오른쪽이 데스크톱 1280px이다. 화면이 좁으면 가로로 스크롤된다.",
+        "회색 사선 박스는 전부 사진 자리다. 실제 시공 사진이 들어갈 위치를 뜻한다.",
+        "필터·칩·사진 삭제·스텝 이동은 실제로 동작한다. 눌러봐도 데이터는 저장되지 않는다."
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

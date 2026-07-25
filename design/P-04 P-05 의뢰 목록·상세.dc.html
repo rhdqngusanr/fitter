@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<![CDATA[<helmet>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+<style>
+:root{
+  --color-primary-50:#EEF3F8; --color-primary-100:#D8E4EF; --color-primary-200:#B3C9DE; --color-primary-300:#85A7C7;
+  --color-primary-400:#5583AC; --color-primary-500:#2F6390; --color-primary-600:#245176; --color-primary-700:#1C405D; --color-primary-800:#163348;
+  --color-secondary-100:#F3E9E2; --color-secondary-300:#D9AE92; --color-secondary-500:#A8623C; --color-secondary-600:#8B4E2D;
+  --color-bg:#FFFFFF; --color-bg-subtle:#F5F7F9; --color-bg-sunken:#EDF0F3; --color-surface:#FFFFFF; --color-surface-hover:#F5F7F9;
+  --color-text-primary:#171B20; --color-text-secondary:#515A65; --color-text-tertiary:#69737F; --color-text-inverse:#FFFFFF;
+  --color-success-bg:#E7F3EC; --color-success:#1F7A4C; --color-warning-bg:#FBF1DC; --color-warning:#9A6B0F;
+  --color-danger-bg:#FBEAE7; --color-danger:#B03A2E;
+  --color-border:#DFE4E9; --color-border-strong:#C7CED6; --color-border-focus:#2F6390;
+  --color-scrim:rgba(14,17,20,.56);
+  --radius-sm:4px; --radius-md:8px; --radius-lg:12px; --radius-xl:16px; --radius-full:999px;
+  --shadow-1:0 1px 2px rgba(23,27,32,.06), 0 1px 3px rgba(23,27,32,.08);
+  --shadow-2:0 2px 6px rgba(23,27,32,.06), 0 6px 16px rgba(23,27,32,.10);
+  --shadow-3:0 8px 20px rgba(23,27,32,.10), 0 20px 44px rgba(23,27,32,.14);
+  --font-sans:"Pretendard Variable",Pretendard,-apple-system,system-ui,sans-serif;
+  --font-mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
+}
+body{margin:0;font-family:var(--font-sans);-webkit-font-smoothing:antialiased;background:var(--color-bg-sunken);font-feature-settings:"tnum";}
+*{box-sizing:border-box;}
+a{color:var(--color-primary-500);text-decoration:none;}
+a:hover{color:var(--color-primary-600);text-decoration:underline;}
+button,input,select,textarea{font-family:inherit;}
+:focus-visible{outline:2px solid var(--color-border-focus);outline-offset:2px;border-radius:var(--radius-sm);}
+@keyframes fit-shimmer{0%{background-position:-320px 0}100%{background-position:320px 0}}
+@keyframes fit-spin{to{transform:rotate(360deg)}}
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:var(--color-bg-sunken);padding:24px 0 80px">
+
+  <div style="padding:0 24px;display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;justify-content:space-between">
+      <div style="display:flex;align-items:baseline;gap:10px">
+        <span style="font-size:20px;font-weight:800;letter-spacing:-.02em;color:var(--color-text-primary)">{{ screenTitle }}</span>
+        <span style="font-size:13px;color:var(--color-text-tertiary)">{{ screenSub }}</span>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <sc-for list="{{ stateTabs }}" as="t" hint-placeholder-count="6">
+          <button onClick="{{ t.onClick }}" aria-pressed="{{ t.active }}" style="height:34px;padding:0 13px;border-radius:var(--radius-full);border:1px solid {{ t.border }};background:{{ t.bg }};color:{{ t.fg }};font-size:13px;font-weight:700;cursor:pointer">{{ t.label }}</button>
+        </sc-for>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <span style="font-size:12px;font-weight:700;color:var(--color-text-tertiary)">SCREEN</span>
+      <sc-for list="{{ screenTabs }}" as="s" hint-placeholder-count="2">
+        <button onClick="{{ s.onClick }}" aria-pressed="{{ s.active }}" style="height:30px;padding:0 12px;border-radius:var(--radius-full);border:1px solid {{ s.border }};background:{{ s.bg }};color:{{ s.fg }};font-size:12px;font-weight:700;cursor:pointer">{{ s.label }}</button>
+      </sc-for>
+    </div>
+    <p style="margin:0;font-size:13px;line-height:1.6;color:var(--color-text-secondary);max-width:980px">{{ stateNote }}</p>
+  </div>
+
+  <div style="margin:24px 0 0;padding:0 24px 12px;display:flex;gap:28px;align-items:flex-start;overflow-x:auto">
+
+    <!-- ── 모바일 390 ── -->
+    <div style="flex:0 0 auto;display:flex;flex-direction:column;gap:10px">
+      <span style="font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:var(--color-text-tertiary)">MOBILE 390</span>
+      <div style="width:390px;height:844px;display:flex;flex-direction:column;background:var(--color-bg);border:1px solid var(--color-border-strong);border-radius:var(--radius-xl);overflow:hidden;box-shadow:var(--shadow-2)">
+
+        <sc-if value="{{ isList }}" hint-placeholder-val="{{ true }}">
+          <header style="flex:none;height:56px;border-bottom:1px solid var(--color-border);padding:0 16px;display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:18px;font-weight:800;letter-spacing:-.02em;color:var(--color-text-primary)">의뢰 찾기</span>
+            <span style="display:flex;align-items:center;gap:10px">
+              <span style="font-size:13px;color:var(--color-text-tertiary)">{{ countLabel }}</span>
+              <span style="width:32px;height:32px;border-radius:var(--radius-full);background:var(--color-primary-100);color:var(--color-primary-700);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">김도</span>
+            </span>
+          </header>
+
+          <sc-if value="{{ locked }}" hint-placeholder-val="{{ false }}">
+            <div style="flex:none;margin:12px 16px 0;border:1px solid var(--color-warning);background:var(--color-warning-bg);border-radius:var(--radius-md);padding:12px 14px;display:flex;flex-direction:column;gap:6px">
+              <strong style="font-size:14px;font-weight:800;color:var(--color-warning)">승인 대기 중입니다</strong>
+              <span style="font-size:13px;line-height:1.5;color:var(--color-text-secondary)">사업자·자격 확인이 끝나면 제안을 보낼 수 있습니다. 보통 1영업일 걸립니다.</span>
+              <button style="height:40px;margin-top:4px;border:1px solid var(--color-warning);border-radius:var(--radius-md);background:var(--color-surface);color:var(--color-warning);font-size:14px;font-weight:700;cursor:pointer">서류 확인하기</button>
+            </div>
+          </sc-if>
+
+          <div style="flex:none;padding:12px 0 10px;border-bottom:1px solid var(--color-border)">
+            <div style="display:flex;gap:8px;overflow-x:auto;padding:0 16px;scrollbar-width:none">
+              <sc-for list="{{ filters }}" as="f" hint-placeholder-count="6">
+                <button onClick="{{ f.onClick }}" aria-pressed="{{ f.active }}" style="flex:none;height:36px;padding:0 15px;border-radius:var(--radius-full);border:1px solid {{ f.border }};background:{{ f.bg }};color:{{ f.fg }};font-size:14px;font-weight:600;cursor:pointer">{{ f.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+
+          <main style="flex:1;overflow-y:auto;padding:12px 16px 16px">{{ mobileList }}</main>
+        </sc-if>
+
+        <sc-if value="{{ isDetail }}" hint-placeholder-val="{{ false }}">
+          <header style="flex:none;height:56px;border-bottom:1px solid var(--color-border);padding:0 8px;display:flex;align-items:center;gap:4px">
+            <button aria-label="목록으로" onClick="{{ goList }}" style="width:44px;height:44px;border:none;background:transparent;color:var(--color-text-secondary);font-size:20px;cursor:pointer;border-radius:var(--radius-md)" style-hover="background:var(--color-bg-subtle)">←</button>
+            <span style="flex:1;font-size:16px;font-weight:700;color:var(--color-text-primary)">의뢰 상세</span>
+            <button aria-label="신고" style="width:44px;height:44px;border:none;background:transparent;color:var(--color-text-tertiary);font-size:17px;cursor:pointer;border-radius:var(--radius-md)" style-hover="background:var(--color-bg-subtle)">⋯</button>
+          </header>
+
+          <main style="flex:1;overflow-y:auto">
+            {{ mobileGallery }}
+            <div style="padding:16px;display:flex;flex-direction:column;gap:16px">
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <div style="display:flex;gap:6px;flex-wrap:wrap">
+                  <sc-for list="{{ detailBadges }}" as="b" hint-placeholder-count="2">
+                    <span style="display:inline-flex;align-items:center;height:24px;padding:0 9px;border-radius:var(--radius-sm);background:{{ b.bg }};color:{{ b.fg }};font-size:11px;font-weight:700">{{ b.label }}</span>
+                  </sc-for>
+                </div>
+                <h1 style="margin:0;font-size:24px;font-weight:800;line-height:1.3;letter-spacing:-.02em;color:var(--color-text-primary)">성북구 24평 도배 + 장판</h1>
+                <span style="font-size:14px;color:var(--color-text-tertiary)">3시간 전 등록 · 조회 47 · 제안 2건</span>
+              </div>
+
+              <div style="border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-bg-subtle);padding:4px 14px">
+                <sc-for list="{{ detailRows }}" as="r" hint-placeholder-count="6">
+                  <div style="display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--color-border)">
+                    <span style="font-size:13px;color:var(--color-text-tertiary)">{{ r.k }}</span>
+                    <span style="font-size:13px;font-weight:700;color:var(--color-text-primary);text-align:right">{{ r.v }}</span>
+                  </div>
+                </sc-for>
+              </div>
+
+              <sc-if value="{{ outOfArea }}" hint-placeholder-val="{{ false }}">
+                <div style="border:1px solid var(--color-warning);background:var(--color-warning-bg);border-radius:var(--radius-md);padding:12px 14px;display:flex;flex-direction:column;gap:4px">
+                  <strong style="font-size:14px;font-weight:800;color:var(--color-warning)">내 활동 지역 밖입니다</strong>
+                  <span style="font-size:13px;line-height:1.5;color:var(--color-text-secondary)">성북구는 등록된 활동 지역(강남·서초·송파)에 없습니다. 제안은 보낼 수 있지만 출장비를 미리 알려주세요.</span>
+                </div>
+              </sc-if>
+
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <span style="font-size:15px;font-weight:700;color:var(--color-text-primary)">고객이 덧붙인 말</span>
+                <p style="margin:0;font-size:15px;line-height:1.65;color:var(--color-text-secondary);text-wrap:pretty">거주 중이라 주말 시공을 원합니다. 아이 방은 합지로, 거실만 실크로 하고 싶어요. 몰딩은 지금 색 그대로 두려고 합니다.</p>
+              </div>
+
+              <div style="border-top:1px solid var(--color-border);padding-top:14px;display:flex;align-items:center;gap:12px">
+                <span style="width:44px;height:44px;border-radius:var(--radius-full);background:var(--color-bg-sunken);color:var(--color-text-secondary);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800">윤</span>
+                <span style="display:flex;flex-direction:column;gap:2px">
+                  <span style="font-size:15px;font-weight:700;color:var(--color-text-primary)">윤지수 고객</span>
+                  <span style="font-size:13px;color:var(--color-text-tertiary)">의뢰 3건 · 컨택 수락률 67%</span>
+                </span>
+              </div>
+            </div>
+          </main>
+
+          <div style="flex:none;border-top:1px solid var(--color-border);background:var(--color-bg);padding:10px 16px 14px;display:flex;flex-direction:column;gap:8px">
+            {{ mobileCta }}
+          </div>
+        </sc-if>
+      </div>
+    </div>
+
+    <!-- ── 데스크톱 1280 ── -->
+    <div style="flex:0 0 1280px;width:1280px;display:flex;flex-direction:column;gap:10px">
+      <span style="font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:var(--color-text-tertiary)">DESKTOP 1280</span>
+      <div style="background:var(--color-bg);border:1px solid var(--color-border-strong);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-2)">
+
+        <header style="height:68px;border-bottom:1px solid var(--color-border);padding:0 40px;display:flex;align-items:center;justify-content:space-between;gap:24px">
+          <div style="display:flex;align-items:center;gap:28px">
+            <span style="font-size:21px;font-weight:800;letter-spacing:-.02em;color:var(--color-text-primary)">Fitter</span>
+            <nav aria-label="시공자 메뉴" style="display:flex;gap:20px">
+              <a href="#" style="font-size:15px;font-weight:700;color:var(--color-primary-500)">의뢰 찾기</a>
+              <a href="#" style="font-size:15px;font-weight:600;color:var(--color-text-secondary)">내 포트폴리오</a>
+              <a href="#" style="font-size:15px;font-weight:600;color:var(--color-text-secondary)">컨택</a>
+            </nav>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px">
+            <span style="font-size:14px;color:var(--color-text-secondary)">{{ countLabel }}</span>
+            <span style="display:flex;align-items:center;gap:8px">
+              <span style="width:36px;height:36px;border-radius:var(--radius-full);background:var(--color-primary-100);color:var(--color-primary-700);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800">김도</span>
+              <span style="font-size:15px;font-weight:700;color:var(--color-text-primary)">김도배</span>
+              <sc-if value="{{ locked }}" hint-placeholder-val="{{ false }}">
+                <span style="display:inline-flex;align-items:center;height:24px;padding:0 9px;border-radius:var(--radius-sm);background:var(--color-warning-bg);color:var(--color-warning);font-size:11px;font-weight:700">승인 대기</span>
+              </sc-if>
+            </span>
+          </div>
+        </header>
+
+        <sc-if value="{{ isList }}" hint-placeholder-val="{{ true }}">
+          <div style="display:grid;grid-template-columns:272px minmax(0,1fr);min-height:720px">
+            <aside aria-label="필터" style="border-right:1px solid var(--color-border);background:var(--color-bg-subtle);padding:28px 24px;display:flex;flex-direction:column;gap:22px">
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <span style="font-size:13px;font-weight:800;color:var(--color-text-primary)">공종</span>
+                <div style="display:flex;flex-wrap:wrap;gap:8px">
+                  <sc-for list="{{ filters }}" as="f" hint-placeholder-count="6">
+                    <button onClick="{{ f.onClick }}" aria-pressed="{{ f.active }}" style="height:34px;padding:0 13px;border-radius:var(--radius-full);border:1px solid {{ f.border }};background:{{ f.bg }};color:{{ f.fg }};font-size:13px;font-weight:600;cursor:pointer">{{ f.label }}</button>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--color-border);padding-top:18px">
+                <span style="font-size:13px;font-weight:800;color:var(--color-text-primary)">지역</span>
+                <label style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--color-text-secondary);cursor:pointer">
+                  <input type="checkbox" checked="{{ myAreaOnly }}" onChange="{{ toggleArea }}" style="width:18px;height:18px;accent-color:#2F6390;margin:0" />
+                  <span>내 활동 지역만</span>
+                </label>
+                <span style="font-size:12px;line-height:1.5;color:var(--color-text-tertiary)">등록된 지역: 서울 성북·강북·노원</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--color-border);padding-top:18px">
+                <span style="font-size:13px;font-weight:800;color:var(--color-text-primary)">희망 시기</span>
+                <sc-for list="{{ timeFilters }}" as="t" hint-placeholder-count="3">
+                  <label style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--color-text-secondary);cursor:pointer">
+                    <input type="radio" name="timing" checked="{{ t.active }}" onChange="{{ t.onClick }}" style="width:18px;height:18px;accent-color:#2F6390;margin:0" />
+                    <span>{{ t.label }}</span>
+                  </label>
+                </sc-for>
+              </div>
+              <button onClick="{{ resetFilters }}" style="margin-top:auto;height:44px;border:1px solid var(--color-border-strong);border-radius:var(--radius-md);background:var(--color-surface);color:var(--color-text-secondary);font-size:14px;font-weight:700;cursor:pointer" style-hover="background:var(--color-surface-hover)">필터 초기화</button>
+            </aside>
+
+            <main style="padding:28px 40px 40px;display:flex;flex-direction:column;gap:18px">
+              <sc-if value="{{ locked }}" hint-placeholder-val="{{ false }}">
+                <div style="border:1px solid var(--color-warning);background:var(--color-warning-bg);border-radius:var(--radius-md);padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:20px">
+                  <span style="display:flex;flex-direction:column;gap:3px">
+                    <strong style="font-size:16px;font-weight:800;color:var(--color-warning)">승인 대기 중 — 열람은 되지만 제안은 보낼 수 없습니다</strong>
+                    <span style="font-size:14px;color:var(--color-text-secondary)">사업자등록증과 시공 이력 확인이 끝나면 바로 열립니다. 보통 1영업일.</span>
+                  </span>
+                  <button style="flex:none;height:44px;padding:0 18px;border:1px solid var(--color-warning);border-radius:var(--radius-md);background:var(--color-surface);color:var(--color-warning);font-size:14px;font-weight:700;cursor:pointer">서류 확인하기</button>
+                </div>
+              </sc-if>
+              <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px">
+                <h1 style="margin:0;font-size:26px;font-weight:800;letter-spacing:-.02em;color:var(--color-text-primary)">{{ listHeading }}</h1>
+                <div style="display:flex;gap:8px">
+                  <sc-for list="{{ sorts }}" as="s" hint-placeholder-count="3">
+                    <button onClick="{{ s.onClick }}" aria-pressed="{{ s.active }}" style="height:34px;padding:0 13px;border-radius:var(--radius-full);border:1px solid {{ s.border }};background:{{ s.bg }};color:{{ s.fg }};font-size:13px;font-weight:600;cursor:pointer">{{ s.label }}</button>
+                  </sc-for>
+                </div>
+              </div>
+              {{ desktopList }}
+            </main>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isDetail }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:24px 40px 40px;display:flex;flex-direction:column;gap:18px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <button onClick="{{ goList }}" style="height:36px;padding:0 12px;border:1px solid var(--color-border-strong);border-radius:var(--radius-md);background:var(--color-surface);color:var(--color-text-secondary);font-size:14px;font-weight:700;cursor:pointer" style-hover="background:var(--color-surface-hover)">← 의뢰 목록</button>
+              <span style="font-size:14px;color:var(--color-text-tertiary)">3시간 전 등록 · 조회 47 · 제안 2건</span>
+            </div>
+
+            <div style="display:grid;grid-template-columns:minmax(0,1fr) 372px;gap:28px;align-items:flex-start">
+              <div style="display:flex;flex-direction:column;gap:20px">
+                {{ desktopGallery }}
+                <div style="display:flex;flex-direction:column;gap:10px">
+                  <div style="display:flex;gap:6px;flex-wrap:wrap">
+                    <sc-for list="{{ detailBadges }}" as="b" hint-placeholder-count="2">
+                      <span style="display:inline-flex;align-items:center;height:26px;padding:0 10px;border-radius:var(--radius-sm);background:{{ b.bg }};color:{{ b.fg }};font-size:12px;font-weight:700">{{ b.label }}</span>
+                    </sc-for>
+                  </div>
+                  <h1 style="margin:0;font-size:32px;font-weight:800;line-height:1.25;letter-spacing:-.025em;color:var(--color-text-primary)">성북구 24평 도배 + 장판</h1>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+                  <sc-for list="{{ detailRows }}" as="r" hint-placeholder-count="6">
+                    <div style="border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-bg-subtle);padding:12px 14px;display:flex;flex-direction:column;gap:4px">
+                      <span style="font-size:12px;color:var(--color-text-tertiary)">{{ r.k }}</span>
+                      <span style="font-size:15px;font-weight:700;color:var(--color-text-primary)">{{ r.v }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--color-border);padding-top:18px">
+                  <span style="font-size:17px;font-weight:700;color:var(--color-text-primary)">고객이 덧붙인 말</span>
+                  <p style="margin:0;font-size:16px;line-height:1.7;color:var(--color-text-secondary);max-width:620px;text-wrap:pretty">거주 중이라 주말 시공을 원합니다. 아이 방은 합지로, 거실만 실크로 하고 싶어요. 몰딩은 지금 색 그대로 두려고 합니다.</p>
+                </div>
+                <div style="border-top:1px solid var(--color-border);padding-top:18px;display:flex;align-items:center;gap:14px">
+                  <span style="width:48px;height:48px;border-radius:var(--radius-full);background:var(--color-bg-sunken);color:var(--color-text-secondary);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800">윤</span>
+                  <span style="display:flex;flex-direction:column;gap:2px">
+                    <span style="font-size:16px;font-weight:700;color:var(--color-text-primary)">윤지수 고객</span>
+                    <span style="font-size:14px;color:var(--color-text-tertiary)">의뢰 3건 · 컨택 수락률 67% · 평균 응답 5시간</span>
+                  </span>
+                </div>
+              </div>
+
+              <aside style="position:sticky;top:24px;display:flex;flex-direction:column;gap:14px;border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-surface);padding:22px;box-shadow:var(--shadow-1)">
+                <sc-if value="{{ outOfArea }}" hint-placeholder-val="{{ false }}">
+                  <div style="border:1px solid var(--color-warning);background:var(--color-warning-bg);border-radius:var(--radius-md);padding:12px 14px;display:flex;flex-direction:column;gap:4px">
+                    <strong style="font-size:14px;font-weight:800;color:var(--color-warning)">내 활동 지역 밖</strong>
+                    <span style="font-size:13px;line-height:1.5;color:var(--color-text-secondary)">등록 지역: 강남·서초·송파. 출장비를 미리 알려주세요.</span>
+                  </div>
+                </sc-if>
+                {{ desktopProposal }}
+              </aside>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+</div>]]>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440},&quot;initialScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;list&quot;,&quot;detail&quot;],&quot;default&quot;:&quot;list&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;initialView&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;default&quot;,&quot;loading&quot;,&quot;empty&quot;,&quot;locked&quot;,&quot;proposed&quot;,&quot;closed&quot;,&quot;sending&quot;],&quot;default&quot;:&quot;default&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  state = { screen: "list", view: "default", cat: "도배", sort: "최신순", timing: "전체", myAreaOnly: true, msg: "" };
+
+  jobs() {
+    return [
+      { id: 1, title: "성북구 24평 도배 + 장판", region: "성북구 정릉동", size: "24평 · 아파트", cat: "도배", timing: "8월 중순", photos: 6, ago: "3시간 전", proposals: 2, isNew: true, grade: "중급" },
+      { id: 2, title: "노원구 32평 거실 강마루", region: "노원구 상계동", size: "32평 · 아파트", cat: "바닥·장판", timing: "8월 초", photos: 4, ago: "5시간 전", proposals: 0, isNew: true, grade: "고급" },
+      { id: 3, title: "강북구 19평 욕실 타일 전체", region: "강북구 미아동", size: "19평 · 빌라", cat: "타일", timing: "2주 이내", photos: 9, ago: "어제", proposals: 5, isNew: false, grade: "보급" },
+      { id: 4, title: "성북구 28평 아이방·안방 도배", region: "성북구 길음동", size: "28평 · 아파트", cat: "도배", timing: "미정", photos: 3, ago: "어제", proposals: 1, isNew: false, grade: "중급" },
+      { id: 5, title: "도봉구 24평 주방 상부장 교체", region: "도봉구 창동", size: "24평 · 아파트", cat: "목공", timing: "9월 초", photos: 5, ago: "2일 전", proposals: 3, isNew: false, grade: "중급" },
+      { id: 6, title: "중랑구 34평 거실 매입등 시공", region: "중랑구 면목동", size: "34평 · 아파트", cat: "조명·전기", timing: "8월 중순", photos: 2, ago: "3일 전", proposals: 0, isNew: false, grade: "보급" }
+    ];
+  }
+
+  renderVals() {
+    const R = React.createElement;
+    const { screen, view, cat, sort, timing, myAreaOnly } = this.state;
+    const isList = screen === "list";
+
+    const tabs = [
+      ["default", "기본"], ["loading", "로딩"], ["empty", "의뢰 0건"],
+      ["locked", "미승인 잠금"], ["proposed", "이미 제안함"], ["closed", "마감된 의뢰"], ["sending", "제안 전송 중"]
+    ];
+    const notes = {
+      default: "기본. 시공자는 현장에서 폰으로 훑는다 — 카드 한 줄에 지역·평형·공종·시기가 다 있어야 스크롤로 판단이 끝난다.",
+      loading: "첫 진입 스켈레톤. 필터 바는 즉시 렌더되어 로딩 중에도 조건을 바꿀 수 있다.",
+      empty: "조건에 맞는 의뢰 0건. 콜드스타트 기본 상태이므로 “알림 받기”로 이탈 대신 대기를 만든다.",
+      locked: "승인 대기 시공자. 열람은 허용하되 제안 버튼을 잠근다 — 아예 막으면 승인 동기가 사라진다.",
+      proposed: "이미 제안한 의뢰. 중복 제안을 막고 보낸 내용과 상태를 대신 보여준다.",
+      closed: "고객이 마감했거나 다른 시공자를 선택한 의뢰. 내용은 남기고 제안만 닫는다.",
+      sending: "제안 전송 중. 버튼 잠금 + 스피너로 이중 전송을 막는다."
+    };
+    const stateTabs = tabs.map(([k, label]) => ({
+      label, active: view === k,
+      bg: view === k ? "var(--color-primary-500)" : "var(--color-surface)",
+      fg: view === k ? "#FFFFFF" : "var(--color-text-secondary)",
+      border: view === k ? "var(--color-primary-500)" : "var(--color-border-strong)",
+      onClick: () => this.setState({
+        view: k,
+        screen: ["proposed", "closed", "sending"].includes(k) ? "detail" : (k === "empty" || k === "loading" ? "list" : this.state.screen)
+      })
+    }));
+
+    const screenTabs = [["list", "P-04 의뢰 목록"], ["detail", "P-05 의뢰 상세"]].map(([k, label]) => ({
+      label, active: screen === k,
+      bg: screen === k ? "var(--color-primary-500)" : "var(--color-surface)",
+      fg: screen === k ? "#FFFFFF" : "var(--color-text-secondary)",
+      border: screen === k ? "var(--color-primary-500)" : "var(--color-border-strong)",
+      onClick: () => this.setState({ screen: k })
+    }));
+
+    const chip = (label, active, onClick) => ({
+      label, active, onClick,
+      bg: active ? "var(--color-primary-500)" : "var(--color-surface)",
+      fg: active ? "#FFFFFF" : "var(--color-text-secondary)",
+      border: active ? "var(--color-primary-500)" : "var(--color-border-strong)"
+    });
+
+    const catList = ["전체", "도배", "바닥·장판", "타일", "목공", "조명·전기", "욕실"];
+    const filters = catList.map(c => chip(c, cat === c, () => this.setState({ cat: c })));
+    const sorts = ["최신순", "시기 임박순", "제안 적은 순"].map(s => chip(s, sort === s, () => this.setState({ sort: s })));
+    const timeFilters = ["전체", "2주 이내", "8월", "9월 이후"].map(t => chip(t, timing === t, () => this.setState({ timing: t })));
+
+    const list = this.jobs().filter(j => cat === "전체" || j.cat === cat);
+    const stripe = "repeating-linear-gradient(135deg,#C4CAD1 0 10px,#B9C0C7 10px 20px)";
+    const shimmer = {
+      background: "linear-gradient(90deg, var(--color-bg-sunken) 0%, var(--color-bg-subtle) 40%, var(--color-bg-sunken) 80%)",
+      backgroundSize: "320px 100%", animation: "fit-shimmer 1.4s linear infinite", borderRadius: "var(--radius-sm)"
+    };
+
+    const jobCard = (j, wide) => R("button", {
+      key: j.id, onClick: () => this.setState({ screen: "detail", view: "default" }),
+      style: { display: "flex", gap: wide ? "16px" : "12px", textAlign: "left", width: "100%", padding: wide ? "14px" : "12px",
+        border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", background: "var(--color-bg)", cursor: "pointer" }
+    },
+      R("span", { style: { position: "relative", flex: "none", width: wide ? "132px" : "96px", aspectRatio: "4/3", borderRadius: "var(--radius-sm)", background: stripe, overflow: "hidden", display: "block" } },
+        R("span", { style: { position: "absolute", right: "5px", bottom: "5px", background: "var(--color-scrim)", color: "#FFFFFF", fontSize: "10px", fontWeight: 700, padding: "2px 6px", borderRadius: "var(--radius-sm)" } }, "+" + (j.photos - 1))),
+      R("span", { style: { display: "flex", flexDirection: "column", gap: "5px", minWidth: 0, flex: 1 } },
+        R("span", { style: { display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" } },
+          R("span", { style: { display: "inline-flex", alignItems: "center", height: "22px", padding: "0 8px", borderRadius: "var(--radius-sm)", background: "var(--color-primary-50)", color: "var(--color-primary-600)", fontSize: "11px", fontWeight: 700 } }, j.cat),
+          j.isNew && R("span", { style: { display: "inline-flex", alignItems: "center", height: "22px", padding: "0 8px", borderRadius: "var(--radius-sm)", background: "var(--color-success-bg)", color: "var(--color-success)", fontSize: "11px", fontWeight: 700 } }, "신규"),
+          j.proposals === 0 && R("span", { style: { display: "inline-flex", alignItems: "center", height: "22px", padding: "0 8px", borderRadius: "var(--radius-sm)", background: "var(--color-warning-bg)", color: "var(--color-warning)", fontSize: "11px", fontWeight: 700 } }, "제안 0건")),
+        R("span", { style: { fontSize: wide ? "17px" : "15px", fontWeight: 800, lineHeight: 1.35, color: "var(--color-text-primary)", letterSpacing: "-.01em" } }, j.title),
+        R("span", { style: { fontSize: wide ? "14px" : "13px", color: "var(--color-text-secondary)" } }, j.region + " · " + j.size + " · " + j.grade + " 자재"),
+        R("span", { style: { fontSize: "13px", color: "var(--color-text-tertiary)" } }, j.timing + " 희망 · " + j.ago + " · 제안 " + j.proposals + "건")),
+      wide && R("span", { style: { flex: "none", alignSelf: "center", display: "flex", alignItems: "center", height: "44px", padding: "0 16px", borderRadius: "var(--radius-md)", background: "var(--color-primary-500)", color: "#FFFFFF", fontSize: "14px", fontWeight: 700 } }, "보기")
+    );
+
+    const skeleton = (n, wide) => R("div", { style: { display: "flex", flexDirection: "column", gap: "10px" } },
+      Array.from({ length: n }, (_, i) => R("div", { key: i, style: { display: "flex", gap: "12px", padding: "12px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)" } },
+        R("div", { style: { ...shimmer, width: wide ? "132px" : "96px", aspectRatio: "4/3", flex: "none" } }),
+        R("div", { style: { display: "flex", flexDirection: "column", gap: "8px", flex: 1, paddingTop: "4px" } },
+          R("div", { style: { ...shimmer, height: "18px", width: "62%" } }),
+          R("div", { style: { ...shimmer, height: "13px", width: "45%" } }),
+          R("div", { style: { ...shimmer, height: "13px", width: "34%" } })))));
+
+    const emptyList = wide => R("div", {
+      style: { border: "1px dashed var(--color-border-strong)", borderRadius: "var(--radius-lg)", background: "var(--color-bg-subtle)",
+        padding: wide ? "56px 40px" : "40px 20px", display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", textAlign: "center" }
+    },
+      R("div", { style: { width: "44px", height: "44px", borderRadius: "var(--radius-md)", background: "var(--color-bg-sunken)", border: "1px solid var(--color-border)" } }),
+      R("strong", { style: { fontSize: wide ? "20px" : "17px", fontWeight: 800, color: "var(--color-text-primary)" } }, "조건에 맞는 의뢰가 아직 없습니다"),
+      R("span", { style: { fontSize: wide ? "15px" : "14px", lineHeight: 1.55, color: "var(--color-text-secondary)", maxWidth: "420px" } },
+        "새 의뢰가 올라오면 알려드립니다. 그동안 포트폴리오를 채워두면 고객이 먼저 문의합니다."),
+      R("div", { style: { display: "flex", gap: "8px", marginTop: "6px", flexWrap: "wrap", justifyContent: "center" } },
+        R("button", { style: { height: "48px", padding: "0 20px", border: "none", borderRadius: "var(--radius-md)", background: "var(--color-primary-500)", color: "#FFFFFF", fontSize: "15px", fontWeight: 800, cursor: "pointer" } }, "새 의뢰 알림 받기"),
+        R("button", { style: { height: "48px", padding: "0 20px", border: "1px solid var(--color-border-strong)", borderRadius: "var(--radius-md)", background: "var(--color-surface)", color: "var(--color-text-primary)", fontSize: "15px", fontWeight: 700, cursor: "pointer" } }, "포트폴리오 등록")));
+
+    const filterEmpty = R("div", { style: { border: "1px dashed var(--color-border-strong)", borderRadius: "var(--radius-md)", background: "var(--color-bg-subtle)", padding: "32px 20px", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", textAlign: "center" } },
+      R("strong", { style: { fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)" } }, cat + " 의뢰가 지금은 없습니다"),
+      R("span", { style: { fontSize: "14px", color: "var(--color-text-secondary)" } }, "다른 공종을 보거나 전체로 돌아가세요."),
+      R("button", { onClick: () => this.setState({ cat: "전체" }), style: { height: "44px", padding: "0 18px", marginTop: "4px", border: "1px solid var(--color-border-strong)", borderRadius: "var(--radius-md)", background: "var(--color-surface)", color: "var(--color-text-primary)", fontSize: "14px", fontWeight: 700, cursor: "pointer" } }, "전체 보기"));
+
+    const renderList = wide => {
+      if (view === "loading") return skeleton(wide ? 5 : 4, wide);
+      if (view === "empty") return emptyList(wide);
+      if (!list.length) return filterEmpty;
+      return R("div", { style: { display: "flex", flexDirection: "column", gap: "10px" } }, list.map(j => jobCard(j, wide)));
+    };
+
+    const gallery = wide => wide
+      ? R("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gridTemplateRows: "repeat(2,152px)", gap: "8px" } },
+          R("div", { style: { gridRow: "span 2", borderRadius: "var(--radius-md)", background: stripe, position: "relative" } },
+            R("span", { style: { position: "absolute", left: "10px", top: "10px", background: "rgba(255,255,255,.94)", color: "#171B20", fontSize: "11px", fontWeight: 700, padding: "3px 8px", borderRadius: "var(--radius-sm)" } }, "고객 레퍼런스 1/6")),
+          R("div", { style: { borderRadius: "var(--radius-md)", background: stripe } }),
+          R("div", { style: { borderRadius: "var(--radius-md)", background: stripe, position: "relative" } },
+            R("span", { style: { position: "absolute", inset: 0, background: "var(--color-scrim)", color: "#FFFFFF", fontSize: "17px", fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "var(--radius-md)" } }, "+4")))
+      : R("div", { style: { position: "relative", aspectRatio: "4/3", background: stripe } },
+          R("span", { style: { position: "absolute", right: "10px", bottom: "10px", background: "var(--color-scrim)", color: "#FFFFFF", fontSize: "12px", fontWeight: 700, padding: "4px 9px", borderRadius: "var(--radius-full)" } }, "1 / 6"));
+
+    const locked = view === "locked";
+    const proposed = view === "proposed";
+    const closed = view === "closed";
+    const sending = view === "sending";
+
+    const ctaBtn = (label, opts) => R("button", {
+      disabled: !!opts.disabled,
+      style: { width: "100%", height: "52px", border: opts.outline ? "1px solid var(--color-border-strong)" : "none", borderRadius: "var(--radius-md)",
+        background: opts.bg, color: opts.fg, fontSize: "17px", fontWeight: 800, cursor: opts.cursor || "pointer",
+        display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" } },
+      opts.spinner && R("span", { style: { width: "16px", height: "16px", borderRadius: "999px", border: "2px solid rgba(255,255,255,.35)", borderTopColor: "#FFFFFF", animation: "fit-spin .7s linear infinite", flex: "none" } }),
+      R("span", null, label));
+
+    const statusNote = (text, tone) => R("div", { style: { display: "flex", alignItems: "center", gap: "8px", padding: "12px 14px", borderRadius: "var(--radius-md)", background: tone.bg, border: "1px solid " + tone.border } },
+      R("span", { style: { fontSize: "13px", lineHeight: 1.5, fontWeight: 600, color: tone.fg } }, text));
+
+    const mobileCta = closed
+      ? R(React.Fragment, null,
+          statusNote("고객이 이 의뢰를 마감했습니다. 다른 시공자가 선택되었습니다.", { bg: "var(--color-bg-sunken)", border: "var(--color-border)", fg: "var(--color-text-secondary)" }),
+          ctaBtn("마감된 의뢰", { bg: "var(--color-bg-sunken)", fg: "var(--color-text-tertiary)", cursor: "not-allowed", disabled: true }))
+      : proposed
+      ? R(React.Fragment, null,
+          statusNote("7월 24일 제안 보냄 · 고객 응답 대기 중", { bg: "var(--color-warning-bg)", border: "var(--color-warning-bg)", fg: "var(--color-warning)" }),
+          ctaBtn("보낸 제안 보기", { bg: "var(--color-surface)", fg: "var(--color-text-primary)", outline: true }))
+      : locked
+      ? R(React.Fragment, null,
+          statusNote("승인이 끝나면 제안을 보낼 수 있습니다.", { bg: "var(--color-warning-bg)", border: "var(--color-warning-bg)", fg: "var(--color-warning)" }),
+          ctaBtn("제안 보내기", { bg: "var(--color-bg-sunken)", fg: "var(--color-text-tertiary)", cursor: "not-allowed", disabled: true }))
+      : ctaBtn(sending ? "보내는 중" : "제안 보내기", { bg: sending ? "var(--color-primary-600)" : "var(--color-primary-500)", fg: "#FFFFFF", cursor: sending ? "progress" : "pointer", spinner: sending, disabled: sending });
+
+    const desktopProposal = closed
+      ? R("div", { style: { display: "flex", flexDirection: "column", gap: "12px" } },
+          R("strong", { style: { fontSize: "17px", fontWeight: 800, color: "var(--color-text-primary)" } }, "마감된 의뢰입니다"),
+          R("span", { style: { fontSize: "14px", lineHeight: 1.6, color: "var(--color-text-secondary)" } }, "7월 25일 고객이 다른 시공자를 선택했습니다. 비슷한 조건의 의뢰를 계속 받아보세요."),
+          ctaBtn("비슷한 의뢰 보기", { bg: "var(--color-surface)", fg: "var(--color-text-primary)", outline: true }))
+      : proposed
+      ? R("div", { style: { display: "flex", flexDirection: "column", gap: "12px" } },
+          R("span", { style: { display: "inline-flex", width: "fit-content", alignItems: "center", height: "26px", padding: "0 10px", borderRadius: "var(--radius-sm)", background: "var(--color-warning-bg)", color: "var(--color-warning)", fontSize: "12px", fontWeight: 700 } }, "제안 보냄 · 응답 대기"),
+          R("strong", { style: { fontSize: "17px", fontWeight: 800, color: "var(--color-text-primary)" } }, "이미 제안한 의뢰입니다"),
+          R("div", { style: { border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", background: "var(--color-bg-subtle)", padding: "14px", fontSize: "14px", lineHeight: 1.6, color: "var(--color-text-secondary)" } },
+            "“거실 실크, 아이방 합지로 진행 가능합니다. 토요일 시공 가능하고 자재 포함 견적은 현장 확인 후 말씀드리겠습니다.”"),
+          R("span", { style: { fontSize: "13px", color: "var(--color-text-tertiary)" } }, "7월 24일 오후 4시 · 참고 포트폴리오 2건 첨부"),
+          ctaBtn("컨택 상세 보기", { bg: "var(--color-surface)", fg: "var(--color-text-primary)", outline: true }))
+      : R("div", { style: { display: "flex", flexDirection: "column", gap: "12px" } },
+          R("strong", { style: { fontSize: "17px", fontWeight: 800, color: "var(--color-text-primary)" } }, "이 의뢰에 제안하기"),
+          R("span", { style: { fontSize: "14px", lineHeight: 1.6, color: "var(--color-text-secondary)" } }, "가능 일정과 방식만 간단히 적어주세요. 금액은 현장 확인 후 정해도 됩니다."),
+          R("textarea", {
+            rows: 5, disabled: locked || sending, value: this.state.msg,
+            onChange: e => this.setState({ msg: e.target.value }),
+            placeholder: "예) 거실 실크 + 아이방 합지로 가능합니다. 토요일 시공 가능합니다.",
+            style: { padding: "12px 14px", border: "1px solid var(--color-border-strong)", borderRadius: "var(--radius-md)", background: locked ? "var(--color-bg-sunken)" : "var(--color-bg)", fontSize: "15px", lineHeight: 1.55, resize: "vertical", outline: "none", color: "var(--color-text-primary)" } }),
+          R("div", { style: { display: "flex", flexDirection: "column", gap: "8px", borderTop: "1px solid var(--color-border)", paddingTop: "12px" } },
+            R("span", { style: { fontSize: "13px", fontWeight: 700, color: "var(--color-text-secondary)" } }, "참고 포트폴리오 첨부"),
+            R("div", { style: { display: "flex", gap: "8px" } },
+              R("div", { style: { width: "56px", height: "56px", borderRadius: "var(--radius-sm)", background: stripe, border: "2px solid var(--color-primary-500)" } }),
+              R("div", { style: { width: "56px", height: "56px", borderRadius: "var(--radius-sm)", background: stripe, border: "2px solid var(--color-primary-500)" } }),
+              R("div", { style: { width: "56px", height: "56px", borderRadius: "var(--radius-sm)", background: stripe, border: "1px solid var(--color-border)", opacity: .55 } }),
+              R("button", { style: { width: "56px", height: "56px", borderRadius: "var(--radius-sm)", border: "1px dashed var(--color-border-strong)", background: "var(--color-bg-subtle)", color: "var(--color-text-secondary)", fontSize: "18px", cursor: "pointer" } }, "+"))),
+          locked && statusNote("승인이 끝나면 제안을 보낼 수 있습니다. 보통 1영업일.", { bg: "var(--color-warning-bg)", border: "var(--color-warning-bg)", fg: "var(--color-warning)" }),
+          ctaBtn(sending ? "보내는 중" : "제안 보내기", locked
+            ? { bg: "var(--color-bg-sunken)", fg: "var(--color-text-tertiary)", cursor: "not-allowed", disabled: true }
+            : { bg: sending ? "var(--color-primary-600)" : "var(--color-primary-500)", fg: "#FFFFFF", cursor: sending ? "progress" : "pointer", spinner: sending, disabled: sending }),
+          R("span", { style: { fontSize: "12px", lineHeight: 1.5, color: "var(--color-text-tertiary)" } }, "제안을 보내면 고객에게 알림이 갑니다. 연락처는 고객이 수락한 뒤에 열립니다."));
+
+    return {
+      screenTitle: isList ? "P-04 의뢰 목록" : "P-05 의뢰 상세",
+      screenSub: isList ? "PRO(승인됨) · 내 조건에 맞는 일감만 골라 본다" : "PRO(승인됨) · 이 일감을 할지 판단하고 제안을 보낸다",
+      stateTabs, stateNote: notes[view], screenTabs,
+      isList, isDetail: !isList,
+      goList: () => this.setState({ screen: "list", view: view === "loading" || view === "empty" ? view : "default" }),
+      filters, sorts, timeFilters,
+      myAreaOnly, toggleArea: () => this.setState(s => ({ myAreaOnly: !s.myAreaOnly })),
+      resetFilters: () => this.setState({ cat: "전체", timing: "전체", sort: "최신순", myAreaOnly: true }),
+      countLabel: view === "empty" ? "새 의뢰 0건" : "새 의뢰 " + list.filter(j => j.isNew).length + "건",
+      listHeading: view === "empty" ? "조건에 맞는 의뢰 0건" : list.length + "건 · " + sort,
+      mobileList: renderList(false), desktopList: renderList(true),
+      mobileGallery: gallery(false), desktopGallery: gallery(true),
+      locked, outOfArea: view === "closed" || view === "proposed" ? false : !myAreaOnly,
+      detailBadges: closed
+        ? [{ label: "마감됨", bg: "var(--color-bg-sunken)", fg: "var(--color-text-tertiary)" }, { label: "도배 + 바닥·장판", bg: "var(--color-primary-50)", fg: "var(--color-primary-600)" }]
+        : proposed
+        ? [{ label: "제안 보냄", bg: "var(--color-warning-bg)", fg: "var(--color-warning)" }, { label: "도배 + 바닥·장판", bg: "var(--color-primary-50)", fg: "var(--color-primary-600)" }]
+        : [{ label: "신규", bg: "var(--color-success-bg)", fg: "var(--color-success)" }, { label: "도배 + 바닥·장판", bg: "var(--color-primary-50)", fg: "var(--color-primary-600)" }],
+      detailRows: [
+        { k: "지역", v: "성북구 정릉동" },
+        { k: "규모", v: "24평 · 아파트" },
+        { k: "희망 시기", v: "8월 중순" },
+        { k: "자재 등급", v: "중급" },
+        { k: "거주 여부", v: "거주 중 · 주말 선호" },
+        { k: "사진", v: "6장" }
+      ],
+      mobileCta, desktopProposal
+    };
+  }
+}
+</script>
+</body>
+</html>
