@@ -12,8 +12,12 @@ packages:
 # @swc/core 는 의도적으로 false 다. 이 개발 환경의 Windows Application Control 정책이
 # 서명되지 않은 네이티브 모듈 로드를 차단해서 쓸 수 없고, 실제로 쓰지도 않는다.
 # 테스트는 네이티브 바이너리가 필요 없는 ts-jest로 돈다.
+#   prisma         쿼리 엔진 바이너리. 없으면 마이그레이션도 클라이언트 생성도 안 된다
 allowBuilds:
   sharp: true
   esbuild: true
   unrs-resolver: true
+  prisma: true
+  '@prisma/client': true
+  '@prisma/engines': true
   '@swc/core': false
