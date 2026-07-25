@@ -1,0 +1,17 @@
+{
+  "name": "@fitter/shared",
+  "version": "0.1.0",
+  "private": true,
+  "description": "web과 api가 함께 쓰는 타입과 상수. 도메인 용어집이 코드가 되는 자리.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch --preserveWatchOutput",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}
