@@ -12,9 +12,14 @@ import { ValidationError } from './errors';
 /** 1평 = 400/121 ㎡ (약 3.3058). 상수를 흩뿌리지 않고 여기 하나만 둔다. */
 export const SQUARE_METERS_PER_PYEONG = 400 / 121;
 
-/** 현실적인 주거·상가 범위. 벗어나면 오타이거나 장난이다. */
+/**
+ * 현실적인 주거·상가 범위. 벗어나면 오타이거나 장난이다.
+ *
+ * 상한이 500인 이유는 반셀프 인테리어에서 그보다 큰 의뢰가 사실상 없기 때문이다.
+ * 상가라도 500평이면 대형이고, 상한이 낮을수록 오타(240 → 2400)를 더 잘 잡는다.
+ */
 export const MIN_PYEONG = 1;
-export const MAX_PYEONG = 1000;
+export const MAX_PYEONG = 500;
 
 export function pyeongToSquareMeters(pyeong: number): number {
   assertValidPyeong(pyeong);
