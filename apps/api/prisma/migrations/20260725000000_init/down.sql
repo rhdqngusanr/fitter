@@ -47,3 +47,6 @@ DROP TYPE IF EXISTS "PortfolioStatus";
 DROP TYPE IF EXISTS "RequestStatus";
 DROP TYPE IF EXISTS "ProfileType";
 DROP TYPE IF EXISTS "AuthProvider";
+
+-- 적용 기록도 지운다. 안 지우면 prisma migrate deploy가 "이미 적용됨"으로 보고 건너뛴다.
+DELETE FROM "_prisma_migrations" WHERE migration_name = '20260725000000_init';

@@ -1,3 +1,9 @@
+/*
+ * Prisma CLI는 .env를 자동으로 읽지만 Client 런타임은 읽지 않는다.
+ * 시드는 평범한 Node 프로세스라 직접 로드해야 한다.
+ */
+import 'dotenv/config';
+
 import { PrismaClient } from '@prisma/client';
 
 import { WORK_CATEGORY_SEEDS } from '@fitter/shared';
