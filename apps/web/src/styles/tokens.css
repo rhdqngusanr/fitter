@@ -1,0 +1,110 @@
+/*
+ * 디자인 토큰.
+ *
+ * `design/Fitter 디자인 시스템 v1.dc.html` 에서 그대로 가져왔다.
+ * **화면마다 색을 다시 정하지 않는다** — 시안 검수에서 하드코딩된 색이 100곳 넘게
+ * 발견됐고, 그게 다크모드를 나중에 켤 수 없게 만든 원인이었다.
+ *
+ * 근거: brain/30-설계/디자인 원칙.md · brain/30-설계/시안 검수 결과.md
+ */
+
+:root {
+  --color-primary-50: #eef3f8;
+  --color-primary-100: #d8e4ef;
+  --color-primary-200: #b3c9de;
+  --color-primary-300: #85a7c7;
+  --color-primary-400: #5583ac;
+  --color-primary-500: #2f6390;
+  --color-primary-600: #245176;
+  --color-primary-700: #1c405d;
+  --color-primary-800: #163348;
+
+  --color-secondary-100: #f3e9e2;
+  --color-secondary-300: #d9ae92;
+  --color-secondary-500: #a8623c;
+  --color-secondary-600: #8b4e2d;
+
+  --color-bg: #ffffff;
+  --color-bg-subtle: #f5f7f9;
+  --color-bg-sunken: #edf0f3;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f5f7f9;
+
+  --color-text-primary: #171b20;
+  --color-text-secondary: #515a65;
+  --color-text-tertiary: #69737f;
+  --color-text-inverse: #ffffff;
+
+  --color-success-bg: #e7f3ec;
+  --color-success: #1f7a4c;
+  --color-warning-bg: #fbf1dc;
+  --color-warning: #9a6b0f;
+  --color-danger-bg: #fbeae7;
+  --color-danger: #b03a2e;
+
+  --color-border: #dfe4e9;
+  --color-border-strong: #c7ced6;
+  /*
+   * 포커스 링은 primary와 같은 색이면 primary 버튼 위에서 보이지 않는다.
+   * 시안 검수 8번이 지적한 접근성 결함이라 여기서 다른 색으로 분리한다.
+   */
+  --color-focus-ring: #a8623c;
+
+  /* 사진 위에 흰 글자를 얹을 때 쓰는 어두운 막. 사진 밝기와 무관하게 대비를 보장한다. */
+  --color-scrim: rgba(14, 17, 20, 0.56);
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 999px;
+
+  --shadow-sm: 0 1px 2px rgba(23, 27, 32, 0.06);
+  --shadow-md: 0 4px 12px rgba(23, 27, 32, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family:
+    'Pretendard',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    system-ui,
+    sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* 키보드 사용자에게만 링을 보여준다. 마우스 클릭에는 나타나지 않는다. */
+:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+/* 터치 타깃 최소 44px. 화면마다 다시 정하지 않는다. */
+button,
+a[role='button'] {
+  min-height: 44px;
+}

@@ -143,6 +143,20 @@ describe('탐색과 필터 (e2e)', () => {
       expect(res.body.items[0]).not.toHaveProperty('storageKey');
     });
 
+    /*
+     * 회귀 방지. 연락처 인터셉터가 객체를 재조립하면서 Prisma Decimal의 프로토타입을
+     * 벗겨내는 바람에 평수가 `{"s":1,"e":1,"d":[24]}` 로 나갔고, 화면에는 `NaN평` 이 찍혔다.
+     * 타입이 잡아주지 못하는 종류의 버그라 응답 모양을 직접 본다.
+     */
+    it('평수는 숫자로 읽을 수 있는 값이다 — Decimal 내부 표현이 새지 않는다', async () => {
+      const res = await request(server()).get('/api/reference-requests').set(asPro()).expect(200);
+      const found = res.body.items.find((i: { areaPyeong: unknown }) => i.areaPyeong !== null) as
+        { areaPyeong: unknown } | undefined;
+      expect(found).toBeDefined();
+      expect(typeof found?.areaPyeong).not.toBe('object');
+      expect(Number(found?.areaPyeong)).toBe(24);
+    });
+
     it('DRAFT는 목록에 새지 않는다 — 미완성 의뢰에 제안이 들어가면 안 된다', async () => {
       const draft = await request(server())
         .post('/api/reference-requests')
