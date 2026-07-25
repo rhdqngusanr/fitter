@@ -364,6 +364,34 @@ export class PortfoliosService {
         },
         categories: { select: { workCategory: { select: { code: true, nameKo: true } } } },
         region: { select: { code: true, sigunguName: true } },
+        /*
+         * 누가 시공했는가. 상세는 컨택 직전 화면이라 신뢰 판단이 여기서 끝나야 한다.
+         * 카드보다 근거를 더 준다 — 소개글과 활동 지역이 붙는다.
+         * `phone` 은 여기서 실려도 인터셉터가 지운다. 컨택이 ACCEPTED 여야 나간다.
+         */
+        pro: {
+          select: {
+            id: true,
+            nickname: true,
+            profiles: {
+              where: { type: 'PRO' },
+              take: 1,
+              select: {
+                proProfile: {
+                  select: {
+                    businessName: true,
+                    intro: true,
+                    careerYears: true,
+                    isApproved: true,
+                    serviceAreas: {
+                      select: { region: { select: { code: true, sigunguName: true } } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     });
     if (!item) throw new NotFoundError('포트폴리오를 찾을 수 없습니다.');
@@ -381,13 +409,22 @@ export class PortfoliosService {
       }
     }
 
-    const { categories, ...rest } = item;
+    const { categories, pro, ...rest } = item;
+    const proProfile = pro.profiles[0]?.proProfile;
     return {
       ...rest,
       areaM2: item.areaPyeong === null ? null : pyeongToSquareMeters(Number(item.areaPyeong)),
       categories: categories.map((c) => c.workCategory),
       /* 공개하지 않은 금액은 키 자체를 뺀다. null을 넣으면 "없다"와 "안 밝힌다"가 섞인다. */
       actualCost: item.isCostPublic ? item.actualCost : undefined,
+      pro: {
+        id: pro.id,
+        businessName: proProfile?.businessName ?? pro.nickname,
+        intro: proProfile?.intro ?? null,
+        careerYears: proProfile?.careerYears ?? 0,
+        isApproved: proProfile?.isApproved ?? false,
+        serviceAreas: proProfile?.serviceAreas.map((a) => a.region) ?? [],
+      },
     };
   }
 

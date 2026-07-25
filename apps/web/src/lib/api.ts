@@ -7,6 +7,8 @@
  * 근거: brain/70-산출물/API 명세.md
  */
 
+import type { HousingType, MaterialGrade } from '@fitter/shared';
+
 import { API_BASE_URL, IMAGE_BASE_URL } from './env';
 
 /** 스토리지 키를 화면에서 쓸 URL로 바꾼다. 운영에서는 R2 공개 도메인이 된다. */
@@ -81,4 +83,42 @@ export interface GalleryResponse {
   hasAnyContent: boolean;
   items: GalleryItem[];
   nextCursor: string | null;
+}
+
+export interface PortfolioImage {
+  id: string;
+  thumb400Key: string | null;
+  thumb1200Key: string | null;
+  /** before/after 대비가 실력을 가장 설득력 있게 보여준다. */
+  phase: 'BEFORE' | 'AFTER' | 'PROGRESS' | null;
+  isCover: boolean;
+}
+
+export interface PortfolioDetail {
+  id: string;
+  title: string;
+  description: string | null;
+  areaPyeong: string | null;
+  /** ㎡는 서버가 평에서 파생한다. 파생 경로는 하나여야 한다. */
+  areaM2: number | null;
+  /* enum은 @fitter/shared 가 정본이다. 화면이 문자열로 받아 두면 라벨 맵과 어긋난다. */
+  housingType: HousingType | null;
+  materialGrade: MaterialGrade | null;
+  workDays: number | null;
+  workedAt: string | null;
+  viewCount: number;
+  isCostPublic: boolean;
+  /** 공개하지 않았으면 키 자체가 없다. `null` 과 구분된다. */
+  actualCost?: number;
+  images: PortfolioImage[];
+  categories: { code: string; nameKo: string }[];
+  region: { code: string; sigunguName: string } | null;
+  pro: {
+    id: string;
+    businessName: string;
+    intro: string | null;
+    careerYears: number;
+    isApproved: boolean;
+    serviceAreas: { code: string; sigunguName: string }[];
+  };
 }
