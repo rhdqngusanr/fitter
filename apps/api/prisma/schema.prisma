@@ -425,10 +425,11 @@ model PortfolioItem {
   description String?
   status    PortfolioStatus @default(DRAFT)
 
-  areaPyeong Decimal @map("area_pyeong") @db.Decimal(6, 2)
+  /// DRAFT는 미완성이라 nullable이다. 완성 판정은 publish 한 곳에서만 한다.
+  areaPyeong Decimal? @map("area_pyeong") @db.Decimal(6, 2)
 
   housingType   HousingType?   @map("housing_type")
-  regionCode    String         @map("region_code") @db.Char(5)
+  regionCode    String?        @map("region_code") @db.Char(5)
   workDays      Int?           @map("work_days")
   workedAt      DateTime?      @map("worked_at") @db.Date
   materialGrade MaterialGrade? @map("material_grade")
@@ -445,7 +446,7 @@ model PortfolioItem {
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(3)
 
   pro        User                    @relation(fields: [proUserId], references: [id], onDelete: Restrict)
-  region     Region                  @relation(fields: [regionCode], references: [code], onDelete: Restrict)
+  region     Region?                 @relation(fields: [regionCode], references: [code], onDelete: Restrict)
   images     PortfolioImage[]
   categories PortfolioItemCategory[]
   contacts   ContactRequest[]
