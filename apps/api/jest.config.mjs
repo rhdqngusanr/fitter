@@ -9,6 +9,7 @@ export default {
   rootDir: '.',
   roots: ['<rootDir>/src', '<rootDir>/test'],
   testRegex: '\\.(spec|e2e-spec)\\.ts$',
+  setupFiles: ['<rootDir>/test/setup-env.ts'],
   clearMocks: true,
   /* e2e는 앱을 실제로 띄우므로 기본 5초로는 모자랄 수 있다. */
   testTimeout: 20000,

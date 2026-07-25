@@ -13,6 +13,7 @@ import { type DomainErrorCode, isDomainError } from '@fitter/domain';
  * 근거: brain/30-설계/구조적 원칙.md 1조
  */
 const STATUS_BY_CODE: Readonly<Record<DomainErrorCode, HttpStatus>> = {
+  UNAUTHENTICATED: HttpStatus.UNAUTHORIZED,
   NOT_FOUND: HttpStatus.NOT_FOUND,
   FORBIDDEN: HttpStatus.FORBIDDEN,
   CONFLICT: HttpStatus.CONFLICT,

@@ -8,6 +8,7 @@
  */
 
 export type DomainErrorCode =
+  | 'UNAUTHENTICATED'
   | 'NOT_FOUND'
   | 'FORBIDDEN'
   | 'CONFLICT'

@@ -128,6 +128,7 @@ model User {
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(3)
 
   profiles          UserProfile[]
+  refreshTokens     RefreshToken[]
   referenceRequests ReferenceRequest[]
   portfolioItems    PortfolioItem[]
   sentContacts      ContactRequest[]   @relation("ContactRequester")
@@ -158,6 +159,33 @@ model UserProfile {
 
   @@unique([userId, type])
   @@map("user_profiles")
+}
+
+/// 리프레시 토큰.
+///
+/// 액세스 토큰은 무상태로 검증하지만 리프레시는 **회전과 재사용 탐지**가 필요해서 저장한다.
+/// 토큰 자체가 아니라 해시를 저장한다 — DB가 유출돼도 그걸로 로그인할 수 없어야 한다.
+/// 비밀번호가 아니라 고엔트로피 난수라서 느린 KDF 대신 sha256으로 충분하다.
+///
+/// familyId는 같은 로그인에서 파생된 토큰들을 묶는다. 이미 쓴 토큰이 다시 제시되면
+/// 탈취로 보고 그 계열 전체를 폐기한다. 정상 사용자도 로그아웃되지만 그게 맞다.
+///
+/// 근거: brain/50-결정/ADR-002 - 인증과 권한 모델.md 결정 1
+model RefreshToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  tokenHash String    @unique @map("token_hash")
+  familyId  String    @map("family_id") @db.Uuid
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz(3)
+  revokedAt DateTime? @map("revoked_at") @db.Timestamptz(3)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, revokedAt])
+  @@index([familyId])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
 }
 
 model CustomerProfile {
@@ -270,11 +298,9 @@ model ReferenceRequest {
   description    String?
   status         RequestStatus @default(DRAFT)
 
-  /// 확장 규약 1조. 자유 텍스트 금지.
-  areaPyeong Decimal  @map("area_pyeong") @db.Decimal(6, 2)
-  /// GENERATED ALWAYS 컬럼이다(마이그레이션 SQL 참조).
-  /// Prisma에 optional로 선언해 INSERT에서 빠지게 한다. 애플리케이션이 계산해 넣으면 언젠가 어긋난다.
-  areaM2     Decimal? @map("area_m2") @db.Decimal(8, 2)
+  /// 확장 규약 1조. 자유 텍스트 금지. CHECK 제약으로 범위도 막는다.
+  /// ㎡는 저장하지 않고 도메인의 pyeongToSquareMeters 로 파생한다 — 파생 경로는 하나여야 한다.
+  areaPyeong Decimal @map("area_pyeong") @db.Decimal(6, 2)
 
   housingType    HousingType    @map("housing_type")
   regionCode     String         @map("region_code") @db.Char(5)
@@ -354,8 +380,7 @@ model PortfolioItem {
   description String?
   status    PortfolioStatus @default(DRAFT)
 
-  areaPyeong Decimal  @map("area_pyeong") @db.Decimal(6, 2)
-  areaM2     Decimal? @map("area_m2") @db.Decimal(8, 2)
+  areaPyeong Decimal @map("area_pyeong") @db.Decimal(6, 2)
 
   housingType   HousingType?   @map("housing_type")
   regionCode    String         @map("region_code") @db.Char(5)
