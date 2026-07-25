@@ -49,8 +49,31 @@ export const proProfileSchema = z.object({
 });
 export type ProProfileInput = z.infer<typeof proProfileSchema>;
 
+/**
+ * 목록 필터.
+ *
+ * 공종과 지역은 **복수 선택이 OR**다. "도배 또는 타일"이지 "도배이면서 타일"이 아니다.
+ * 후자는 콘텐츠가 적은 초기에 거의 항상 0건이 된다.
+ *
+ * 평수·주거형태 필터는 백로그 B-06으로 미뤘다. 데이터는 정확히 받고 있으므로
+ * 나중에 파라미터만 열면 된다 — 안 받은 데이터는 소급되지 않지만 안 만든 필터는 만들면 된다.
+ */
+const csv = z
+  .string()
+  .max(300)
+  .transform((value) =>
+    value
+      .split(',')
+      .map((v) => v.trim())
+      .filter(Boolean),
+  );
+
 export const galleryQuerySchema = z.object({
   cursor: z.string().max(500).optional(),
   limit: z.coerce.number().int().min(1).max(50).optional(),
+  categories: csv.optional(),
+  regions: csv.optional(),
+  /* popular은 조회수 순이다. 초기엔 데이터가 없어 latest와 거의 같다. */
+  sort: z.enum(['latest', 'popular']).default('latest'),
 });
 export type GalleryQueryInput = z.infer<typeof galleryQuerySchema>;

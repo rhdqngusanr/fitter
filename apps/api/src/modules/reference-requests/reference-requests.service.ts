@@ -257,6 +257,87 @@ export class ReferenceRequestsService {
     };
   }
 
+  /**
+   * 시공자가 보는 의뢰 목록.
+   *
+   * `PUBLISHED`만 보인다 — **DRAFT가 여기 새면 미완성 의뢰에 제안이 들어간다.**
+   * 마감(`CLOSED`)과 삭제도 제외한다.
+   */
+  async browse(options: {
+    cursor?: string;
+    limit?: number;
+    categories?: string[];
+    regions?: string[];
+  }) {
+    const { cursor, limit = 20, categories, regions } = options;
+    const decoded = decodeCursor(cursor);
+
+    const publicScope = { status: 'PUBLISHED' as const, deletedAt: null };
+    const filters = {
+      ...(categories?.length
+        ? { categories: { some: { workCategory: { code: { in: categories } } } } }
+        : {}),
+      ...(regions?.length ? { regionCode: { in: regions } } : {}),
+    };
+
+    const rows = await this.prisma.referenceRequest.findMany({
+      where: {
+        ...publicScope,
+        ...filters,
+        ...(decoded
+          ? {
+              OR: [
+                { createdAt: { lt: decoded.createdAt } },
+                { createdAt: decoded.createdAt, id: { lt: decoded.id } },
+              ],
+            }
+          : {}),
+      },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      take: limit + 1,
+      select: {
+        id: true,
+        title: true,
+        areaPyeong: true,
+        housingType: true,
+        isOccupied: true,
+        desiredStartAt: true,
+        createdAt: true,
+        images: {
+          where: { deletedAt: null, isCover: true },
+          select: { thumb400Key: true },
+          take: 1,
+        },
+        _count: { select: { images: true, contacts: true } },
+        categories: { select: { workCategory: { select: { code: true, nameKo: true } } } },
+        region: { select: { code: true, sigunguName: true } },
+      },
+    });
+
+    const hasMore = rows.length > limit;
+    const items = hasMore ? rows.slice(0, limit) : rows;
+    const last = items.at(-1);
+
+    let hasAnyContent = true;
+    if (items.length === 0) {
+      hasAnyContent =
+        (await this.prisma.referenceRequest.count({ where: publicScope, take: 1 })) > 0;
+    }
+
+    return {
+      hasAnyContent,
+      items: items.map(({ images, _count, categories, ...rest }) => ({
+        ...rest,
+        coverThumbKey: images[0]?.thumb400Key ?? null,
+        photoCount: _count.images,
+        /* 제안이 몇 건 들어갔는지. 시공자가 경쟁 정도를 판단하는 근거다. */
+        contactCount: _count.contacts,
+        categories: categories.map((c) => c.workCategory),
+      })),
+      nextCursor: hasMore && last ? encodeCursor(last.createdAt, last.id) : null,
+    };
+  }
+
   private async findOwned(userId: string, id: string) {
     const request = await this.prisma.referenceRequest.findFirst({
       where: { id, deletedAt: null },

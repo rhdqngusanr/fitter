@@ -6,9 +6,11 @@ import { ReferenceRequestsService } from './reference-requests.service';
 import {
   attachImageSchema,
   draftRequestSchema,
+  browseQuerySchema,
   listQuerySchema,
   type AttachImageInput,
   type DraftRequestInput,
+  type BrowseQueryInput,
   type ListQueryInput,
 } from './reference-request.dto';
 
@@ -78,6 +80,19 @@ export class ReferenceRequestsController {
     @Query(new ZodValidationPipe(listQuerySchema)) query: ListQueryInput,
   ) {
     return this.requests.listMine(actor.id, query.cursor, query.limit);
+  }
+
+  /**
+   * 시공자가 일감을 고르는 목록.
+   *
+   * **승인된 시공자만** 볼 수 있다. 미승인은 의뢰 열람까지는 되지만
+   * 제안을 못 보내므로 목록을 보여줄 이유가 얇다 — 다만 대기 중 할 일을 남겨두려고
+   * 열람은 허용한다(엔티티 - User와 역할).
+   */
+  @Roles('PRO')
+  @Get('reference-requests')
+  async browse(@Query(new ZodValidationPipe(browseQuerySchema)) query: BrowseQueryInput) {
+    return this.requests.browse(query);
   }
 
   /**

@@ -205,22 +205,46 @@ export class PortfoliosService {
    * 포트폴리오 사진은 시공자 본인의 작업물이라 공개·색인 권리를 확보할 수 있고,
    * 여기가 콜드스타트를 뚫을 유일한 유입 통로다.
    */
-  async gallery(cursor?: string, limit = 20) {
+  async gallery(
+    options: {
+      cursor?: string;
+      limit?: number;
+      categories?: string[];
+      regions?: string[];
+      sort?: 'latest' | 'popular';
+    } = {},
+  ) {
+    const { cursor, limit = 20, categories, regions, sort = 'latest' } = options;
     const decoded = decodeCursor(cursor);
-    const rows = await this.prisma.portfolioItem.findMany({
-      where: {
-        status: 'PUBLISHED',
-        deletedAt: null,
-        /* 공개 조건 두 번째 — 소속 시공자가 승인됨. 이걸 빠뜨리면 미승인이 노출된다. */
-        pro: {
-          profiles: {
-            some: {
-              type: 'PRO',
-              deletedAt: null,
-              proProfile: { isApproved: true, isDormant: false },
-            },
+
+    /** 필터를 뺀 기본 공개 조건. 빈 상태 분기에서 재사용한다. */
+    const publicScope = {
+      status: 'PUBLISHED' as const,
+      deletedAt: null,
+      /* 공개 조건 두 번째 — 소속 시공자가 승인됨. 이걸 빠뜨리면 미승인이 노출된다. */
+      pro: {
+        profiles: {
+          some: {
+            type: 'PRO' as const,
+            deletedAt: null,
+            proProfile: { isApproved: true, isDormant: false },
           },
         },
+      },
+    };
+
+    const filters = {
+      /* 복수 선택은 OR다. some 이 그걸 표현한다. */
+      ...(categories?.length
+        ? { categories: { some: { workCategory: { code: { in: categories } } } } }
+        : {}),
+      ...(regions?.length ? { regionCode: { in: regions } } : {}),
+    };
+
+    const rows = await this.prisma.portfolioItem.findMany({
+      where: {
+        ...publicScope,
+        ...filters,
         ...(decoded
           ? {
               OR: [
@@ -230,7 +254,10 @@ export class PortfoliosService {
             }
           : {}),
       },
-      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      orderBy:
+        sort === 'popular'
+          ? [{ viewCount: 'desc' }, { createdAt: 'desc' }, { id: 'desc' }]
+          : [{ createdAt: 'desc' }, { id: 'desc' }],
       take: limit + 1,
       select: {
         id: true,
@@ -268,7 +295,22 @@ export class PortfoliosService {
     const items = hasMore ? rows.slice(0, limit) : rows;
     const last = items.at(-1);
 
+    /*
+     * 빈 상태를 두 갈래로 나누기 위한 신호.
+     *
+     * "필터 때문에 0건"과 "서비스에 아직 아무것도 없어서 0건"은 완전히 다른 화면이다.
+     * 전자는 조건을 넓히라고 안내하고, 후자는 모집 모드로 바꿔야 한다.
+     * 시안 검수 6·7번이 지적한 지점이라 UI가 판단할 수 있게 API가 알려준다.
+     *
+     * 결과가 비었을 때만 한 번 더 조회한다 — 평상시에는 비용이 0이다.
+     */
+    let hasAnyContent = true;
+    if (items.length === 0) {
+      hasAnyContent = (await this.prisma.portfolioItem.count({ where: publicScope, take: 1 })) > 0;
+    }
+
     return {
+      hasAnyContent,
       items: items.map(({ images, _count, categories, pro, ...rest }) => ({
         ...rest,
         coverThumbKey: images[0]?.thumb400Key ?? null,
