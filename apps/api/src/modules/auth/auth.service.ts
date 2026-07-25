@@ -5,10 +5,10 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ConflictError, type PasswordHasherPort } from '@fitter/domain';
 import type { Role } from '@fitter/shared';
 
-import type { PrismaService } from '../../infra/prisma/prisma.service';
+import { PrismaService } from '../../infra/prisma/prisma.service';
 import { PASSWORD_HASHER } from '../../infra/security/security.module';
 import { UnauthenticatedError } from '../../common/errors/unauthenticated.error';
-import type { TokenService } from './token.service';
+import { TokenService } from './token.service';
 
 export interface AuthResult {
   readonly accessToken: string;

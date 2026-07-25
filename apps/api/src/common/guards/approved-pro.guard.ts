@@ -1,12 +1,12 @@
 import type { CanActivate, ExecutionContext } from '@nestjs/common';
 import { Injectable } from '@nestjs/common';
-import type { Reflector } from '@nestjs/core';
+import { Reflector } from '@nestjs/core';
 import type { Request } from 'express';
 
 import { ForbiddenError, assertCanPerform } from '@fitter/domain';
 
 import { APPROVED_PRO_KEY, type RequestUser } from '../decorators';
-import type { PrismaService } from '../../infra/prisma/prisma.service';
+import { PrismaService } from '../../infra/prisma/prisma.service';
 
 /**
  * 승인된 시공자만 통과시킨다.
