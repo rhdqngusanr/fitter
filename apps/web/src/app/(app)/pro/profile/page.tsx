@@ -85,7 +85,14 @@ export default function ProProfilePage() {
   const [openToWork, setOpenToWork] = useState(true);
 
   const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
+  /**
+   * 저장 완료 토스트. `wasOnboarding` 은 **저장을 누른 시점의** 신규 여부다.
+   *
+   * 저장하면 `profile` 이 갈리고 `isNew` 가 false 가 되므로, 그 값으로 토스트를 그리면
+   * **버튼이 약속한 곳과 다른 데를 가리킨다** — "저장하고 의뢰 보러 가기"를 눌렀는데
+   * 토스트가 "포트폴리오 올리러 가기"를 내밀었다. 브라우저에서 그렇게 됐다.
+   */
+  const [saved, setSaved] = useState<{ wasOnboarding: boolean } | null>(null);
   const [error, setError] = useState<string | null>(null);
   /* 서버가 400 으로 지목한 필드. 시안의 `검증 오류` 상태가 이걸 쓴다. */
   const [invalidFields, setInvalidFields] = useState<string[]>([]);
@@ -190,7 +197,7 @@ export default function ProProfilePage() {
     if (!profile || saving) return;
     setSaving(true);
     setError(null);
-    setSaved(false);
+    setSaved(null);
     setInvalidFields([]);
 
     try {
@@ -222,8 +229,10 @@ export default function ProProfilePage() {
         }),
       });
 
+      /* 버튼을 누른 시점의 신규 여부를 기억한다. setProfile 뒤에는 알 수 없다. */
+      const wasOnboarding = isNew;
       setProfile(next);
-      setSaved(true);
+      setSaved({ wasOnboarding });
     } catch (err: unknown) {
       if (err instanceof ApiError) {
         setError(err.message);
@@ -660,8 +669,8 @@ export default function ProProfilePage() {
       {saved && (
         <div className="prof-toast" role="status">
           <span>프로필을 저장했습니다</span>
-          <Link href={isNew ? '/jobs' : '/portfolios/new'}>
-            {isNew ? '의뢰 보러 가기' : '포트폴리오 올리러 가기'}
+          <Link href={saved.wasOnboarding ? '/jobs' : '/portfolios/new'}>
+            {saved.wasOnboarding ? '의뢰 보러 가기' : '포트폴리오 올리러 가기'}
           </Link>
         </div>
       )}
