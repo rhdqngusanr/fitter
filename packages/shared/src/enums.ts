@@ -86,6 +86,13 @@ export type ImageSourceType = (typeof IMAGE_SOURCE_TYPES)[number];
 export const IMAGE_PHASES = ['BEFORE', 'AFTER', 'PROCESS'] as const;
 export type ImagePhase = (typeof IMAGE_PHASES)[number];
 
+/** before/after 대비가 실력을 가장 설득력 있게 보여준다. 그래서 단계를 코드로 받는다. */
+export const IMAGE_PHASE_LABELS: Readonly<Record<ImagePhase, string>> = {
+  BEFORE: '시공 전',
+  AFTER: '시공 후',
+  PROCESS: '작업 중',
+};
+
 /** 화면에 표시할 한국어 라벨. DB에는 위의 코드만 저장한다. */
 export const HOUSING_TYPE_LABELS: Readonly<Record<HousingType, string>> = {
   APARTMENT: '아파트',
