@@ -32,3 +32,22 @@ export const CLIENT_RESIZE_MAX_WIDTH = 2000;
 
 /** 컨택 무응답 만료. 판정을 배치로 할지 조회 시점에 할지는 아직 미결(열린 질문 Q4). */
 export const CONTACT_EXPIRY_DAYS = 7;
+
+/*
+ * 면적 상수.
+ *
+ * 규칙(변환 함수·검증)은 `packages/domain` 에 있고 여기에는 **숫자만** 둔다.
+ * 웹이 domain 을 import 할 수 없기 때문이다(의존 방향은 항상 안쪽이다).
+ * 그렇다고 화면에서 3.3058 을 다시 적으면 정본이 둘로 갈라진다.
+ * domain 도 여기서 가져다 쓴다.
+ */
+
+/** 1평 = 400/121 ㎡ (약 3.3058). */
+export const SQUARE_METERS_PER_PYEONG = 400 / 121;
+
+/**
+ * 현실적인 주거·상가 범위. 벗어나면 오타이거나 장난이다.
+ * 상한이 낮을수록 오타(240 → 2400)를 더 잘 잡는다.
+ */
+export const MIN_PYEONG = 1;
+export const MAX_PYEONG = 500;

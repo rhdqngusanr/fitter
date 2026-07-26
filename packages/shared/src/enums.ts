@@ -34,6 +34,20 @@ export type ContactDirection = (typeof CONTACT_DIRECTIONS)[number];
 export const REQUEST_STATUSES = ['DRAFT', 'PUBLISHED', 'CLOSED', 'HIDDEN'] as const;
 export type RequestStatus = (typeof REQUEST_STATUSES)[number];
 
+/**
+ * 화면에 쓰는 한글 라벨.
+ *
+ * DB에는 코드만 들어간다. 한글은 여기서만 붙인다 —
+ * 화면마다 "공개됨"과 "게시중"으로 갈라지는 걸 막는다.
+ */
+export const REQUEST_STATUS_LABELS: Readonly<Record<RequestStatus, string>> = {
+  DRAFT: '작성 중',
+  PUBLISHED: '공개 중',
+  /* "종료"가 아니라 "마감"이다. 의뢰가 끝난 게 아니라 더 안 받는다는 뜻이다. */
+  CLOSED: '마감',
+  HIDDEN: '숨김',
+};
+
 export const PORTFOLIO_STATUSES = ['DRAFT', 'PUBLISHED', 'HIDDEN'] as const;
 export type PortfolioStatus = (typeof PORTFOLIO_STATUSES)[number];
 
