@@ -83,9 +83,19 @@ export function SiteHeader() {
                   </a>
                 )}
                 {user.profileType === 'PRO' && (
-                  <a href="/portfolios/mine" className="site-header__mine">
-                    내 사례
-                  </a>
+                  <>
+                    {/*
+                      시공자에게는 일감 찾기가 첫 메뉴다 — 시안(P-04)의 시공자 내비가
+                      `의뢰 찾기 · 내 포트폴리오 · 컨택` 순이다. 이 화면이 없어서
+                      서비스가 한쪽으로만 돌고 있었다.
+                    */}
+                    <a href="/jobs" className="site-header__mine">
+                      의뢰 찾기
+                    </a>
+                    <a href="/portfolios/mine" className="site-header__mine">
+                      내 사례
+                    </a>
+                  </>
                 )}
                 <a href="/contacts" className="site-header__mine">
                   문의
