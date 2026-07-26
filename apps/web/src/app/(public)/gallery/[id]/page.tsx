@@ -3,7 +3,13 @@ import { notFound } from 'next/navigation';
 
 import { HOUSING_TYPE_LABELS, MATERIAL_GRADE_LABELS } from '@fitter/shared';
 
-import { api, imageUrl, ApiError, type PortfolioDetail } from '../../../../lib/api';
+import {
+  api,
+  imageUrl,
+  ApiError,
+  type PortfolioDetail,
+  type PortfolioImage,
+} from '../../../../lib/api';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -88,13 +94,13 @@ export default async function PortfolioDetailPage({ params }: PageProps) {
             marginBottom: 'var(--space-6)',
           }}
         >
-          <Photo image={before} caption="시공 전" alt={`${item.title} 시공 전`} />
-          <Photo image={after} caption="시공 후" alt={`${item.title} 시공 후`} />
+          <Photo image={before} priority caption="시공 전" alt={`${item.title} 시공 전`} />
+          <Photo image={after} priority caption="시공 후" alt={`${item.title} 시공 후`} />
         </div>
       ) : (
         lead && (
           <div style={{ marginBottom: 'var(--space-6)' }}>
-            <Photo image={lead} alt={item.title} />
+            <Photo image={lead} priority alt={item.title} />
           </div>
         )
       )}
@@ -257,21 +263,33 @@ function Photo({
   image,
   caption,
   alt,
+  priority,
 }: {
-  image: { thumb1200Key: string | null; thumb400Key: string | null };
+  image: PortfolioImage;
   caption?: string;
   alt: string;
+  /** 첫 화면에 보이는 사진. 늦게 불러오면 그게 곧 체감 로딩 시간이 된다. */
+  priority?: boolean;
 }) {
   const src = imageUrl(image.thumb1200Key ?? image.thumb400Key);
   if (!src) return null;
   return (
     <figure style={{ margin: 0, position: 'relative' }}>
+      {/*
+        width·height 를 적어야 브라우저가 사진이 도착하기 전에 자리를 잡는다.
+        없으면 높이 0으로 그렸다가 사진이 오는 순간 아래 글이 통째로 밀린다.
+        CSS 로 폭을 100% 로 늘리므로 height:auto 를 같이 줘야 비율이 안 깨진다.
+      */}
       <img
         src={src}
         alt={caption ? `${alt} ${caption}` : alt}
-        loading="lazy"
+        width={image.width ?? undefined}
+        height={image.height ?? undefined}
+        loading={priority ? 'eager' : 'lazy'}
+        fetchPriority={priority ? 'high' : undefined}
         style={{
           width: '100%',
+          height: 'auto',
           display: 'block',
           borderRadius: 'var(--radius-md)',
           background: 'var(--color-bg-sunken)',

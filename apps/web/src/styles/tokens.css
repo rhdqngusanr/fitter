@@ -1,8 +1,11 @@
 /*
  * 디자인 토큰.
  *
- * `design/Fitter 디자인 시스템 v1.dc.html` 에서 그대로 가져왔다.
- * **화면마다 색을 다시 정하지 않는다** — 시안 검수에서 하드코딩된 색이 100곳 넘게
+ * **정본은 `design/Fitter 디자인 시스템 v1.dc.html` 이고 이 파일은 그 사본이다.**
+ * 변수 이름을 여기서 바꾸지 마라 — 바꾸는 순간 시안과 대조가 불가능해진다.
+ * 실제로 한 번 그렇게 어긋났다(`--shadow-1/2/3` 을 `--shadow-sm/md` 로 고쳤었다).
+ *
+ * 화면마다 색을 다시 정하지도 않는다. 시안 검수에서 하드코딩된 색이 100곳 넘게
  * 발견됐고, 그게 다크모드를 나중에 켤 수 없게 만든 원인이었다.
  *
  * 근거: brain/30-설계/디자인 원칙.md · brain/30-설계/시안 검수 결과.md
@@ -45,10 +48,12 @@
   --color-border: #dfe4e9;
   --color-border-strong: #c7ced6;
   /*
-   * 포커스 링은 primary와 같은 색이면 primary 버튼 위에서 보이지 않는다.
-   * 시안 검수 8번이 지적한 접근성 결함이라 여기서 다른 색으로 분리한다.
+   * 시안은 이 값이 --color-primary-500 과 같았다. 그러면 primary 버튼 위에서
+   * 포커스 링이 보이지 않는다 — 시안 검수 8번이 지적한 접근성 결함이라
+   * **이름은 시안 그대로 두고 값만** secondary 계열로 바꿨다.
+   * 이름까지 바꾸면 시안과 대조가 안 된다.
    */
-  --color-focus-ring: #a8623c;
+  --color-border-focus: #a8623c;
 
   /* 사진 위에 흰 글자를 얹을 때 쓰는 어두운 막. 사진 밝기와 무관하게 대비를 보장한다. */
   --color-scrim: rgba(14, 17, 20, 0.56);
@@ -67,10 +72,67 @@
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
+  --radius-xl: 16px;
   --radius-full: 999px;
 
-  --shadow-sm: 0 1px 2px rgba(23, 27, 32, 0.06);
-  --shadow-md: 0 4px 12px rgba(23, 27, 32, 0.08);
+  --shadow-1: 0 1px 2px rgba(23, 27, 32, 0.06), 0 1px 3px rgba(23, 27, 32, 0.08);
+  --shadow-2: 0 2px 6px rgba(23, 27, 32, 0.06), 0 6px 16px rgba(23, 27, 32, 0.1);
+  --shadow-3: 0 8px 20px rgba(23, 27, 32, 0.1), 0 20px 44px rgba(23, 27, 32, 0.14);
+
+  --font-sans:
+    'Pretendard Variable', Pretendard, -apple-system, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+}
+
+/*
+ * 다크 모드. 같은 변수명, 다른 값.
+ *
+ * 지금 쓰지 않더라도 토큰은 처음부터 갖고 있어야 한다. 나중에 켜려고 하면
+ * 그때는 이미 화면마다 색이 하드코딩돼 있어서 못 켠다.
+ * 다크에서 primary 를 밝게 올린 이유는 어두운 배경에서 AA 를 지키기 위해서다.
+ */
+[data-theme='dark'] {
+  --color-primary-50: #152430;
+  --color-primary-100: #1b3243;
+  --color-primary-200: #28516e;
+  --color-primary-300: #3f7ba4;
+  --color-primary-400: #5991c1;
+  --color-primary-500: #6fa3cf;
+  --color-primary-600: #8db8dc;
+  --color-primary-700: #b0cee8;
+  --color-primary-800: #d3e4f2;
+
+  --color-secondary-100: #2e211a;
+  --color-secondary-300: #8b5b3f;
+  --color-secondary-500: #d69a74;
+  --color-secondary-600: #e4b394;
+
+  --color-bg: #12161a;
+  --color-bg-subtle: #171c21;
+  --color-bg-sunken: #0d1114;
+  --color-surface: #1a1f25;
+  --color-surface-hover: #232930;
+
+  --color-text-primary: #e9edf1;
+  --color-text-secondary: #a9b3bd;
+  --color-text-tertiary: #8b96a2;
+  --color-text-inverse: #12161a;
+
+  --color-success-bg: #14291f;
+  --color-success: #4fb07a;
+  --color-warning-bg: #2a2314;
+  --color-warning: #d9a63c;
+  --color-danger-bg: #2c1a18;
+  --color-danger: #e8776a;
+
+  --color-border: #313941;
+  --color-border-strong: #414b55;
+  --color-border-focus: #d69a74;
+  --color-scrim: rgba(0, 0, 0, 0.64);
+
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-2: 0 4px 14px rgba(0, 0, 0, 0.45);
+  --shadow-3: 0 12px 34px rgba(0, 0, 0, 0.55);
 }
 
 * {
@@ -79,27 +141,38 @@
 
 body {
   margin: 0;
-  background: var(--color-bg);
+  background: var(--color-bg-sunken);
   color: var(--color-text-primary);
-  font-family:
-    'Pretendard',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    system-ui,
-    sans-serif;
+  font-family: var(--font-sans);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  /*
+   * 금액·평수·공사일수처럼 숫자가 세로로 늘어서는 화면이라 고정폭 숫자를 쓴다.
+   * 안 쓰면 3,100,000 과 850,000 의 자릿수가 어긋나 보인다. 시안이 요구한 설정이다.
+   */
+  font-feature-settings: 'tnum';
 }
 
 a {
-  color: inherit;
+  color: var(--color-primary-500);
   text-decoration: none;
+}
+
+a:hover {
+  color: var(--color-primary-600);
+  text-decoration: underline;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
 }
 
 /* 키보드 사용자에게만 링을 보여준다. 마우스 클릭에는 나타나지 않는다. */
 :focus-visible {
-  outline: 2px solid var(--color-focus-ring);
+  outline: 2px solid var(--color-border-focus);
   outline-offset: 2px;
 }
 
@@ -107,4 +180,26 @@ a {
 button,
 a[role='button'] {
   min-height: 44px;
+}
+
+/*
+ * 본문 바로가기.
+ *
+ * 화면 밖으로 밀어두되 `display:none` 은 쓰지 않는다 — 그러면 포커스도 못 받아서
+ * 링크가 있으나 마나가 된다. 탭으로 포커스가 오면 왼쪽 위에 나타난다.
+ */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-primary-600);
+  color: var(--color-text-inverse);
+  font-weight: 600;
+  border-radius: 0 0 var(--radius-md) 0;
+}
+
+.skip-link:focus {
+  left: 0;
 }

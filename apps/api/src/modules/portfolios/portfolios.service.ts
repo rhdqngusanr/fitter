@@ -381,7 +381,20 @@ export class PortfoliosService {
         images: {
           where: { deletedAt: null },
           orderBy: { sortOrder: 'asc' },
-          select: { id: true, thumb400Key: true, thumb1200Key: true, phase: true, isCover: true },
+          /*
+           * width·height 를 같이 준다. 화면이 이걸로 자리를 미리 잡아야
+           * 사진이 늦게 도착해도 글이 아래로 밀리지 않는다(레이아웃 이동).
+           * 원본 비율이라 썸네일에 그대로 적용해도 맞다.
+           */
+          select: {
+            id: true,
+            thumb400Key: true,
+            thumb1200Key: true,
+            phase: true,
+            isCover: true,
+            width: true,
+            height: true,
+          },
         },
         categories: { select: { workCategory: { select: { code: true, nameKo: true } } } },
         region: { select: { code: true, sigunguName: true } },

@@ -16,13 +16,14 @@
  * design/ 은 warn 이다. 시안은 고치지 않기로 했고 판단은 이미 시안 검수 결과에 남았다.
  * 같은 실수가 코드에서 나오면 그때는 error 다.
  */
+import * as designTokens from './checks/design-tokens.mjs';
 import * as expansionRules from './checks/expansion-rules.mjs';
 import * as glossary from './checks/glossary.mjs';
 import * as structure from './checks/structure.mjs';
 import * as vault from './checks/vault.mjs';
 import { printReport } from './lib/report.mjs';
 
-const CHECKS = [vault, glossary, expansionRules, structure];
+const CHECKS = [vault, glossary, expansionRules, structure, designTokens];
 
 const errorsOnly = process.argv.includes('--errors');
 
