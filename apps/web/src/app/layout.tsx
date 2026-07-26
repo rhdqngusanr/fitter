@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 
+import { SiteHeader } from '../components/SiteHeader';
+import { SessionProvider } from '../lib/session';
+
 import '../styles/tokens.css';
 
 export const metadata: Metadata = {
@@ -12,38 +15,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ko">
       <body>
-        <header
-          style={{
-            borderBottom: '1px solid var(--color-border)',
-            background: 'var(--color-surface)',
-            position: 'sticky',
-            top: 0,
-            zIndex: 10,
-          }}
-        >
-          <nav
-            style={{
-              maxWidth: 1120,
-              margin: '0 auto',
-              padding: '0 var(--space-4)',
-              height: 60,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--space-6)',
-            }}
-          >
-            <a
-              href="/"
-              style={{ fontWeight: 700, fontSize: 20, color: 'var(--color-primary-600)' }}
-            >
-              Fitter
-            </a>
-            <a href="/gallery" style={{ color: 'var(--color-text-secondary)' }}>
-              시공 사례
-            </a>
-          </nav>
-        </header>
-        {children}
+        {/*
+          세션은 최상위에 둔다. 공개 화면(갤러리)도 로그인 여부에 따라 상단 바가 바뀌고,
+          여기서만 감싸면 새로고침 복원이 앱 전체에서 한 번만 돈다.
+        */}
+        <SessionProvider>
+          <SiteHeader />
+          {children}
+        </SessionProvider>
       </body>
     </html>
   );
