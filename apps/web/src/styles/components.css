@@ -219,19 +219,47 @@
 
 /* ─────────────────────────── 사이트 푸터 ─────────────────────────── */
 
+/*
+ * 푸터는 **모바일과 데스크톱의 배치가 다르다.**
+ *
+ * 구현이 오래 모바일 시안 하나만 따르고 있었다 — 어느 폭에서든 세로로 쌓았다.
+ * 시안의 데스크톱 푸터는 2단이다: 왼쪽에 로고+고지(max 560px), 오른쪽에 링크 줄.
+ * 1200px 폭에서 세로로 쌓으면 12px 글자 세 줄이 화면 왼쪽에 매달려서
+ * 페이지가 끝나지 않고 흐지부지 끊긴 것처럼 보인다.
+ *
+ * 모바일 퍼스트로 쓰고 1024px 에서 데스크톱 값으로 덮는다(CODE-GUIDE 브레이크포인트).
+ */
 .site-footer {
   border-top: 1px solid var(--color-border);
   background: var(--color-bg);
   margin-top: var(--space-16);
 }
 
+/*
+ * 랜딩만 예외다. 마지막 CTA 밴드가 푸터 바로 위에 오는데 시안은 그 사이에 여백이 없다.
+ * 64px 을 그대로 두면 짙은 밴드와 푸터 사이에 흰 띠가 생겨서 밴드가 잘린 것처럼 보인다.
+ * `#main` 과 푸터는 형제라서 `:has()` 로 랜딩만 골라낼 수 있다.
+ */
+#main:has(.landing-band) + .site-footer {
+  margin-top: 0;
+}
+
+/* 모바일 시안: padding 24/16/40 · 세로 · gap 8 */
 .site-footer__inner {
   max-width: 1280px;
   margin: 0 auto;
-  padding: var(--space-6) var(--space-10) var(--space-10);
+  padding: var(--space-6) var(--space-4) var(--space-10);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+}
+
+.site-footer__brand {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  /* 한 줄이 너무 길면 고지가 안 읽힌다. 시안의 데스크톱 값이 560px 다. */
+  max-width: 560px;
 }
 
 .site-footer__logo {
@@ -240,10 +268,9 @@
   color: var(--color-text-primary);
 }
 
-/* 통신판매중개자 고지. 시안은 12px/1.6 tertiary 다 — 읽히되 주인공이 아니어야 한다. */
+/* 통신판매중개자 고지. 읽히되 주인공이 아니어야 한다. */
 .site-footer__notice {
   margin: 0;
-  max-width: 640px;
   font-size: 12px;
   line-height: 1.6;
   color: var(--color-text-tertiary);
@@ -251,14 +278,35 @@
 
 .site-footer__links {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-3);
   margin-top: var(--space-1);
   font-size: 12px;
+  height: fit-content;
 }
 
-@media (max-width: 768px) {
+/* 데스크톱 시안: padding 32/40/40 · 2단 space-between · gap 24 · 한 단씩 큰 글자 */
+@media (min-width: 1024px) {
   .site-footer__inner {
-    padding: var(--space-6) var(--space-4) var(--space-10);
+    flex-direction: row;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-6);
+    padding: var(--space-8) var(--space-10) var(--space-10);
+  }
+
+  .site-footer__logo {
+    font-size: 16px;
+  }
+
+  .site-footer__notice {
+    font-size: 13px;
+  }
+
+  .site-footer__links {
+    gap: var(--space-5);
+    margin-top: 0;
+    font-size: 13px;
   }
 }
 
@@ -365,6 +413,33 @@
 }
 
 .btn--ghost.btn--sm {
+  padding: 0 12px;
+}
+
+/*
+ * 조용한 버튼. 시안 G-01 헤더의 `로그인` 이 이것이다.
+ *
+ * ghost 와 다르다 — ghost 는 글자가 primary-500(파랑)이라 옆의 `시작하기`(파란 면)와
+ * 나란히 서면 파란 것이 둘이 된다. 그러면 어느 쪽이 주 행동인지 안 읽힌다.
+ * CODE-GUIDE 2번("주 행동 버튼은 화면당 1개")이 요구하는 게 이 구분이다.
+ * 시안은 `로그인` 을 text-secondary + hover bg-subtle 로 그렸다. 그 값 그대로다.
+ */
+.btn--quiet {
+  background: transparent;
+  color: var(--color-text-secondary);
+}
+
+.btn--quiet:hover:not([disabled]) {
+  background: var(--color-bg-subtle);
+  color: var(--color-text-primary);
+}
+
+/* 테두리가 없으므로 ghost 와 같은 좁은 좌우 패딩을 쓴다. */
+.btn--quiet.btn--md {
+  padding: 0 14px;
+}
+
+.btn--quiet.btn--sm {
   padding: 0 12px;
 }
 
@@ -586,6 +661,20 @@
   width: 52px;
   height: 52px;
   font-size: 17px;
+}
+
+/* 화면 시안의 큰 아바타. G-01 신뢰 카드 · C-06 시공자 카드가 이 크기다. */
+.avatar--56 {
+  width: 56px;
+  height: 56px;
+  font-size: 17px;
+}
+
+/* C-07 프로필 머리의 아바타. 이 화면에서 사람이 주인공이라 한 단이 아니라 두 단 크다. */
+.avatar--88 {
+  width: 88px;
+  height: 88px;
+  font-size: 28px;
 }
 
 /* ─────────────────────────── 사진 카드 ─────────────────────────── */
@@ -920,12 +1009,93 @@
   margin: 0;
   font-size: 26px;
   font-weight: 700;
+  /* 시안의 섹션 제목은 행간을 안 준다(= normal ≈ 1.2). 두 줄짜리 제목이 붙어 보여야 한다. */
+  line-height: 1.2;
   letter-spacing: -0.02em;
 }
 
 .landing-more {
   font-size: 14px;
   font-weight: 700;
+}
+
+/*
+ * 그리드 섹션 헤더. 제목 왼쪽, 공종 칩 오른쪽.
+ *
+ * **시안 데스크톱은 칩을 이 줄 안에 둔다.** 히어로 바로 아래 독립 줄로 빼면 칩이
+ * 그리드가 아니라 히어로에 붙은 것처럼 읽히고, 무엇을 거르는 필터인지 모호해진다.
+ * 모바일 시안만 칩을 독립 가로 스크롤 줄로 뺀다 — 390px 에서는 한 줄에 둘 다 못 들어간다.
+ */
+.landing-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+/*
+ * **제목은 줄지 않는다.** 이것이 없으면 칩이 제목을 밀어낸다.
+ *
+ * 시안은 칩이 7개라 한 줄에 여유롭게 들어가지만 우리 정본은 13종이다([[도메인 용어집]]).
+ * flex 기본값(`flex-shrink:1`)이면 칩 줄이 제 내용 폭을 요구하면서 제목을 눌러
+ * `이번 주 올라온 시 / 공` 으로 쪼갠다. 실제로 그렇게 깨져 있었다.
+ * 제목이 먼저고 칩은 남는 폭을 쓴다 — 모자라면 칩이 스크롤한다.
+ */
+.landing-section-head .landing-h2 {
+  flex: none;
+  white-space: nowrap;
+}
+
+/*
+ * 헤더 안의 칩은 줄바꿈하지 않고 가로로 스크롤한다.
+ * 훑는 목록이라 가로 스크롤이 맞다 — 폼에서 고르는 칩과는 규칙이 다르다.
+ *
+ * 오른쪽 정렬을 `justify-content:flex-end` 가 아니라 `margin-left:auto` 로 한다.
+ * flex-end 는 내용이 넘칠 때 **앞쪽**을 잘라내고 그 부분은 스크롤로도 닿지 않는다 —
+ * 첫 칩인 `전체` 가 반쯤 잘린 채 누를 수 없었다. auto 마진은 그 문제가 없다.
+ */
+.landing-section-head .chip-row {
+  flex: 0 1 auto;
+  margin-left: auto;
+  min-width: 0;
+  padding-bottom: 0;
+}
+
+/*
+ * `전체 보기` 는 모바일에만 있다.
+ *
+ * 시안 데스크톱 헤더에는 이 링크가 없고 칩이 그 자리를 쓴다 — 칩을 누르면 그 공종으로
+ * 걸러진 갤러리로 가므로 역할이 겹친다. 390px 에는 칩이 다음 줄로 내려가서 헤더 오른쪽이
+ * 비므로 거기에 링크를 둔다.
+ */
+.landing-section-head .landing-more {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  /* 모바일은 시안대로 제목 줄과 칩 줄을 나눈다. */
+  .landing-section-head {
+    flex-wrap: wrap;
+  }
+
+  .landing-section-head .landing-more {
+    display: inline;
+  }
+
+  /*
+   * **모바일에서는 칩이 제목보다 위에 온다.** 시안의 390 프레임이 그렇다.
+   *
+   * 데스크톱은 `제목 ─── 칩` 한 줄이라 칩이 제목에 딸린 필터로 읽히지만,
+   * 모바일에서 칩을 제목 아래로 내리면 그 아래 그리드에 붙어 보여서
+   * "무엇을 거르는 필터인가"가 다시 모호해진다. 위에 두면 거르고 → 결과를 보는 순서가 된다.
+   */
+  .landing-section-head .chip-row {
+    flex: 1 0 100%;
+    justify-content: flex-start;
+    order: -1;
+    margin-bottom: var(--space-1);
+  }
 }
 
 /*
@@ -1089,6 +1259,17 @@
   border-radius: var(--radius-sm);
   background: var(--color-bg-sunken);
   overflow: hidden;
+}
+
+/*
+ * 사진 자리 표시. 시안이 사진 자리에 쓰는 사선 줄무늬 그대로다.
+ *
+ * 색을 토큰으로 빼지 않은 이유는 이게 의미를 가진 색이 아니라 **"여기가 사진 자리"**를
+ * 알리는 무늬이기 때문이다. 콜드스타트의 예시 카드에서만 쓴다 — 실제 사진이 있으면
+ * 사진이 이 자리를 덮는다.
+ */
+.landing-procard__strip span[data-placeholder] {
+  background: repeating-linear-gradient(135deg, #c4cad1 0 10px, #b9c0c7 10px 20px);
 }
 
 .landing-procard__strip img {
@@ -3447,10 +3628,17 @@
 }
 
 /* 하단 고정 바에서 버튼이 잠긴 이유를 말한다. 잠긴 이유를 모르면 사람은 화면을 떠난다. */
+/*
+ * 되돌릴 수 없다는 고지. 시안은 14px · 행간 1.6 · 폭 520px 로 못 박았다 —
+ * 이 화면에서 유일하게 "다시 못 바꾼다"를 말하는 문장이라 읽히는 크기여야 하고,
+ * 가운데 정렬이라 폭을 안 묶으면 한 줄이 화면 끝까지 늘어져 눈이 못 따라간다.
+ */
 .onboard__hint {
   display: block;
-  margin-bottom: var(--space-2);
-  font-size: 13px;
+  max-width: 520px;
+  margin: 0 auto var(--space-2);
+  font-size: 14px;
+  line-height: 1.6;
   color: var(--color-text-tertiary);
   text-align: center;
 }
@@ -3967,27 +4155,237 @@
 
 /* ─────────────────────────── 시공자 목록·상세 (C-06 · C-07) ─────────────────────────── */
 
+/*
+ * ── 시공자 목록 (C-06) ──
+ *
+ * **시안의 데스크톱은 2단이다** — 좌측 272px 필터 사이드바 + 본문.
+ * 구현은 갤러리와 똑같이 상단 가로 칩 두 줄이었다. 그래서 두 화면이 구별되지 않았고,
+ * 무엇보다 시안이 사이드바에 둔 것들(조건 토글·필터 초기화)이 갈 곳이 없었다.
+ *
+ * 왜 갤러리와 다른 형태인가. 갤러리는 **사진을 훑는** 화면이라 필터가 얇게 위에 얹히지만,
+ * 여기는 **사람을 좁히는** 화면이다. 조건을 여러 개 걸어놓고 결과를 보는 동안
+ * 무엇을 걸었는지가 계속 보여야 한다. 위에 있으면 스크롤하는 순간 사라진다.
+ */
+.pros {
+  display: grid;
+  grid-template-columns: 272px minmax(0, 1fr);
+  /* 사이드바가 프레임 끝에 닿아야 2단으로 읽힌다. `.shell` 을 쓰지 않는 이유다. */
+  max-width: 1280px;
+  margin: 0 auto;
+  min-height: 760px;
+}
+
+.pros__aside {
+  border-right: 1px solid var(--color-border);
+  background: var(--color-bg-subtle);
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.pros__group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 두 번째 그룹부터는 구분선으로 나눈다. 시안의 공종/지역/조건 사이가 그렇다. */
+.pros__group + .pros__group {
+  border-top: 1px solid var(--color-border);
+  padding-top: 18px;
+}
+
+.pros__group-label {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--color-text-primary);
+}
+
+.pros__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/*
+ * 지역·조건은 칩이 아니라 **목록 줄**이다.
+ *
+ * 시안이 여기만 라디오·체크박스로 그린 이유가 있다. 공종은 훑으면서 고르는 것이라
+ * 알약이 맞지만, 지역과 조건은 "켜져 있는가"를 확인하는 것이라 왼쪽에 표시가 세로로
+ * 정렬돼야 한 눈에 읽힌다. 알약 열두 개를 흩어놓으면 무엇이 켜졌는지 세어봐야 한다.
+ */
+.pros__checks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.pros__check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+.pros__check:hover {
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+
+/*
+ * 표시는 그려서 만든다. 진짜 `<input>` 이 아니라 링크이기 때문이다 —
+ * 이 화면은 JS 없이 서버에서 거르므로 상태 변경이 곧 이동이다.
+ * 시안의 accent-color(#2F6390)가 곧 primary-500 이다.
+ */
+.pros__box {
+  position: relative;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+.pros__check[aria-pressed='true'] {
+  color: var(--color-text-primary);
+  font-weight: 700;
+}
+
+.pros__check[aria-pressed='true'] .pros__box {
+  border-color: var(--color-primary-500);
+  background: var(--color-primary-500);
+}
+
+/*
+ * 체크 표시. 두 변만 남긴 사각형을 45도 돌려 갈고리를 만든다.
+ * 대각선 두 줄을 겹치면 체크가 아니라 **가위표**가 된다 — 그건 "해제"로 읽힌다.
+ */
+.pros__check[aria-pressed='true'] .pros__box::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 1px;
+  width: 5px;
+  height: 9px;
+  border: solid #ffffff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* 시안의 초기화 버튼은 44px 다 — 사이드바 맨 아래에 혼자 서 있어서 md(40)보다 크다. */
+.pros__reset {
+  margin-top: auto;
+  height: 44px;
+}
+
+.pros__main {
+  padding: 28px var(--space-10) var(--space-10);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.pros__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.pros__title {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.pros__h1 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+/*
+ * 시안에는 이 문장이 없다. 시안의 C-06 은 로그인 상태이고 우리 `/pros` 는 공개·색인 대상이라
+ * 제목이 `시공자 4명` 뿐이면 검색 결과에 아무 내용이 없다. 한 줄만 덧붙인다.
+ */
+.pros__lead {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-text-tertiary);
+}
+
+.pros__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* 모바일 시안은 사이드바가 없다. 필터가 본문 위 가로 칩으로 접힌다. */
+@media (max-width: 1023px) {
+  .pros {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+  }
+
+  .pros__aside {
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+    padding: var(--space-4);
+    gap: var(--space-4);
+  }
+
+  .pros__main {
+    padding: var(--space-5) var(--space-4) var(--space-10);
+  }
+}
+
+/* ── 시공자 카드 ── */
+
+/*
+ * 시안의 카드는 **위아래 두 덩어리**다: 사람 줄(아바타·이름·조건·프로필 보기) + 사진 석 장.
+ * 구현은 사진을 사람 정보 안쪽에 넣어서 넉 장이 작게 깔렸었다.
+ * 사진이 카드 폭 전체를 3등분해야 "말 대신 증거"라는 이 카드의 목적이 산다.
+ */
 .pro-card {
   display: flex;
-  gap: var(--space-4);
-  align-items: flex-start;
+  flex-direction: column;
+  gap: var(--space-3);
   width: 100%;
-  padding: var(--space-4);
+  padding: 18px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-bg);
   color: inherit;
+  transition:
+    border-color 0.12s,
+    box-shadow 0.12s;
 }
 
 .pro-card:hover {
-  background: var(--color-surface-hover);
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-1);
   text-decoration: none;
+}
+
+.pro-card__top {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
 }
 
 .pro-card__body {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: var(--space-1);
   flex: 1;
   min-width: 0;
 }
@@ -4000,7 +4398,7 @@
 }
 
 .pro-card__name {
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 800;
   letter-spacing: -0.01em;
 }
@@ -4011,20 +4409,59 @@
 }
 
 .pro-card__area {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--color-text-tertiary);
 }
 
-/* 최근 사례 넉 장. 목록에서 실력을 보여주는 건 이것뿐이다. */
-.pro-card__strip {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-  margin-top: var(--space-1);
+/*
+ * `프로필 보기`. 카드 전체가 링크인데도 시안이 버튼을 그린 이유는,
+ * 카드가 어디로 가는지 눌러보기 전에 알려주기 위해서다. 실제 링크는 카드 하나다.
+ */
+.pro-card__go {
+  flex: none;
+  display: flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-primary-500);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
 }
 
-.pro-card__strip span {
-  aspect-ratio: 1;
+.pro-card:hover .pro-card__go {
+  background: var(--color-primary-600);
+}
+
+/* 최근 사례 석 장. 목록에서 실력을 보여주는 건 이것뿐이다. */
+.pro-card__strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+/*
+ * 사진이 석 장보다 적을 때. 시안의 그리드는 3장을 전제한다.
+ *
+ * 2장을 3칸에 넣으면 오른쪽 한 칸이 비어서 **사진을 못 불러온 것처럼** 보이고,
+ * 칸 수만 2로 줄이면 사진이 카드를 꽉 채워 시안의 두 배 크기가 된다.
+ * 그래서 칸 수를 줄이면서 **줄 전체의 폭도 같이 줄인다** — 사진 한 장의 크기가
+ * 장수와 무관하게 시안과 같아진다(약 290×217).
+ */
+.pro-card__strip--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: 600px;
+}
+
+.pro-card__strip--1 {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 297px;
+}
+
+.pro-card__shot {
+  position: relative;
+  aspect-ratio: 4 / 3;
   border-radius: var(--radius-sm);
   background: var(--color-bg-sunken);
   overflow: hidden;
@@ -4037,16 +4474,67 @@
   display: block;
 }
 
+/* 남은 장수. 시안은 마지막 칸을 스크림으로 덮고 `+22` 를 올린다. */
+.pro-card__more {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-scrim);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+}
+
 /* 사례가 없는 시공자. 시안이 이 상태를 따로 그렸다 — 막지 말고 설명하라. */
 .pro-card__fresh {
-  padding: 10px 12px;
-  margin-top: var(--space-1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  text-align: center;
+  padding: 28px 18px;
   border: 1px dashed var(--color-border-strong);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   background: var(--color-bg-subtle);
-  font-size: 12px;
-  line-height: 1.5;
+}
+
+.pro-card__fresh-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.pro-card__fresh-body {
+  max-width: 380px;
+  font-size: 13px;
+  line-height: 1.55;
   color: var(--color-text-secondary);
+}
+
+@media (max-width: 767px) {
+  .pro-card {
+    padding: var(--space-3);
+  }
+
+  .pro-card__name {
+    font-size: 16px;
+  }
+
+  .pro-card__meta,
+  .pro-card__area {
+    font-size: 13px;
+  }
+
+  /* 모바일 시안은 `프로필 보기` 를 숨기고 카드 전체를 누르게 한다. 44px 버튼이 이름을 밀어낸다. */
+  .pro-card__go {
+    display: none;
+  }
+
+  .pro-card__shot {
+    aspect-ratio: 1;
+  }
 }
 
 /* ── C-07 프로필 ── */
@@ -4054,15 +4542,28 @@
 .pro-detail {
   max-width: 1280px;
   margin: 0 auto;
-  padding: var(--space-6) var(--space-10) var(--space-10);
+  padding: var(--space-6) var(--space-10) var(--space-12);
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: var(--space-5);
+}
+
+/*
+ * 목록으로 돌아가는 버튼. 시안은 36px 다 — sm(32)보다 한 단 크다.
+ * 이 화면에서 유일한 되돌아가기라 목록 안 반복 액션과 같은 크기면 안 된다.
+ */
+.pro-detail__back {
+  width: fit-content;
+  height: 36px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  color: var(--color-text-secondary);
 }
 
 .pro-detail__body {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 340px;
+  grid-template-columns: minmax(0, 1fr) 372px;
   gap: 28px;
   align-items: start;
 }
@@ -4070,24 +4571,25 @@
 .pro-detail__main {
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  gap: var(--space-6);
   min-width: 0;
 }
 
 .pro-detail__head {
   display: flex;
-  gap: 14px;
+  gap: 18px;
   align-items: flex-start;
 }
 
 .pro-detail__name {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 800;
-  letter-spacing: -0.015em;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
 }
 
 .pro-detail__meta {
-  font-size: 15px;
+  font-size: 16px;
   color: var(--color-text-secondary);
 }
 
@@ -4096,33 +4598,59 @@
   color: var(--color-text-tertiary);
 }
 
-/* 신뢰 지표 칸. 우리가 실제로 아는 숫자만 넣는다. */
+/*
+ * 이 화면의 섹션 제목은 20px 다.
+ *
+ * `.detail-note__title`(17px)은 C-05 사례 상세의 값이다. 두 화면이 같은 클래스를 쓰는데
+ * 시안이 서로 다른 크기를 준 이유가 있다 — C-05 는 사진이 주인공이라 글 제목이 물러나고,
+ * 여기는 **사람을 판단하는 근거들의 목차**라서 각 묶음이 또렷하게 나뉘어야 한다.
+ */
+.pro-detail .detail-note__title {
+  font-size: 20px;
+  letter-spacing: -0.015em;
+}
+
+/*
+ * 신뢰 지표 칸. 우리가 실제로 아는 숫자만 넣는다.
+ *
+ * 시안은 4칸이지만 우리는 셋이다(시공 건수·응답 시간·수락률 집계가 없다).
+ * `auto-fit` 을 쓰면 개수가 늘어도 칸 폭이 유지된다 — 4칸이 되는 날 CSS 를 안 고쳐도 된다.
+ */
 .pro-stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-2);
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: var(--space-3);
 }
 
 .pro-stat {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  align-items: center;
-  padding: 12px 10px;
+  gap: var(--space-1);
+  padding: 14px 16px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-bg-subtle);
 }
 
 .pro-stat__v {
-  font-size: 17px;
+  font-size: 22px;
   font-weight: 800;
 }
 
 .pro-stat__k {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--color-text-tertiary);
-  text-align: center;
+}
+
+/*
+ * 확인된 정보. 시안은 **2열**이다 — 네 줄을 한 줄씩 쌓으면 옆의 넓은 여백이 그대로 남고
+ * 이 묶음만 화면 아래로 길게 늘어진다.
+ */
+.pro-verified-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 var(--space-8);
+  max-width: 660px;
 }
 
 .pro-verified {
@@ -4131,6 +4659,20 @@
   gap: var(--space-3);
   padding: 9px 0;
   border-bottom: 1px solid var(--color-border);
+}
+
+@media (max-width: 767px) {
+  .pro-detail {
+    padding: var(--space-5) var(--space-4) var(--space-10);
+  }
+
+  .pro-detail__name {
+    font-size: 24px;
+  }
+
+  .pro-verified-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .pro-verified__k {
@@ -4500,6 +5042,12 @@ select.input {
    여기 있는 건 이 화면에만 있는 것들이다.
    ───────────────────────────────────────────────────────────────── */
 
+/*
+ * **폭은 `.shell`(1280) 이다.** 전에는 `.shell--content`(1000)를 썼는데,
+ * 이 화면은 본문 + 340px 패널의 2단이라 1000px 에서는 본문이 628px 로 눌린다.
+ * 시안은 1200px 안에서 828 + 340 이다 — 왼쪽에 공종 칩 13개가 깔리는 화면이라
+ * 본문이 좁아지면 칩이 네 줄이 되고 폼이 세로로 길어진다.
+ */
 .prof {
   padding: var(--space-8) 0 var(--space-12);
 }
@@ -5089,12 +5637,39 @@ select.input {
   color: var(--color-text-tertiary);
 }
 
+/*
+ * 시안의 제목은 **34px** 다. 이 화면에서 가장 큰 글자이고 그래야 하는 이유가 있다 —
+ * 내 의뢰 상세는 "내가 올린 그 의뢰가 맞나"를 0.5초 안에 확인하는 화면이다.
+ */
 .req__h1 {
   margin: 0;
-  font-size: 28px;
+  font-size: 34px;
   font-weight: 800;
-  letter-spacing: -0.025em;
+  line-height: 1.25;
+  letter-spacing: -0.03em;
   color: var(--color-text-primary);
+  text-wrap: pretty;
+}
+
+/*
+ * 우측 패널은 **380px** 다. `.split` 의 기본값(340)이 아니다 —
+ * 이 패널에는 제안 현황과 마감 버튼이 들어가서 다른 화면의 패널보다 담는 게 많다.
+ */
+.req .split {
+  grid-template-columns: minmax(0, 1fr) 380px;
+}
+
+@media (max-width: 900px) {
+  .req .split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .req__h1 {
+    font-size: 26px;
+    letter-spacing: -0.025em;
+  }
 }
 
 .req__sub {
@@ -5163,27 +5738,41 @@ select.input {
   color: var(--color-text-primary);
 }
 
+/* 시안은 3열 고정이다. auto-fit 은 값 개수에 따라 열 수가 흔들려서 화면마다 달라 보인다. */
 .req-specs__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-4);
 }
 
+@media (max-width: 767px) {
+  .req-specs__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/*
+ * 조건 하나가 **칸**이다. 시안은 각 항목을 옅은 면 위에 올렸다 —
+ * 라벨과 값만 늘어놓으면 여섯 항목이 한 덩어리 글로 읽혀서 무엇이 몇 개인지 안 보인다.
+ */
 .req-spec {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
 }
 
+/* 라벨은 굵지 않다. 시안은 라벨 13 보통 · 값 15 굵게 — 굵기로 무엇이 답인지 가른다. */
 .req-spec__label {
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 13px;
   color: var(--color-text-tertiary);
 }
 
 .req-spec__value {
-  font-size: var(--text-body);
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
   color: var(--color-text-primary);
 }
 
@@ -6350,6 +6939,21 @@ select.input {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+}
+
+/*
+ * 섹션 이름표. **알약이 아니라 모노 글자다.**
+ *
+ * 구현이 히어로의 파란 알약(`.landing-eyebrow`)을 그대로 갖다 썼는데 시안은 여기를
+ * `font-mono / 12px / 자간 .1em / tertiary` 로 그렸다. 둘의 역할이 다르다 —
+ * 히어로의 알약은 서비스를 한마디로 규정하는 라벨이고, 이건 섹션 머리표다.
+ * 머리표에 색면을 주면 아래 제목보다 먼저 읽혀서 위계가 뒤집힌다.
+ */
+.how__eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  color: var(--color-text-tertiary);
 }
 
 .how__sub {

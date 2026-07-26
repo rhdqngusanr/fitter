@@ -1,0 +1,146 @@
+/* Fitter Design System v1 — components
+   fitter-tokens.css 뒤에 로드. 시안의 인라인 스타일을 클래스로 정본화한 것이다. */
+
+/* ── 타이포 ────────────────────────────── */
+.fit-display{font-size:var(--text-display);font-weight:800;letter-spacing:-.035em;line-height:1.15;margin:0;}
+.fit-h1{font-size:var(--text-h1);font-weight:800;letter-spacing:-.025em;line-height:1.25;margin:0;}
+.fit-h2{font-size:var(--text-h2);font-weight:700;letter-spacing:-.015em;line-height:1.3;margin:0;}
+.fit-h3{font-size:var(--text-h3);font-weight:700;line-height:1.4;margin:0;}
+.fit-body{font-size:var(--text-body);line-height:1.6;color:var(--color-text-secondary);margin:0;text-wrap:pretty;}
+.fit-caption{font-size:var(--text-caption);line-height:1.5;color:var(--color-text-tertiary);margin:0;}
+.fit-mono{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:var(--color-text-tertiary);}
+
+/* ── 버튼 ──────────────────────────────
+   .fit-btn + 변형(.is-primary|.is-secondary|.is-ghost|.is-danger) + 크기(.is-sm|.is-md|.is-lg)
+   모바일 기본은 .is-lg, 데스크톱 인라인은 .is-md. */
+.fit-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  height:var(--control-h-md);padding:0 18px;
+  border:none;border-radius:var(--radius-md);
+  font-size:15px;font-weight:700;line-height:1;cursor:pointer;white-space:nowrap;
+  transition:background var(--dur-fast) var(--ease),border-color var(--dur-fast) var(--ease),color var(--dur-fast) var(--ease);
+}
+.fit-btn.is-sm{height:var(--control-h-sm);padding:0 14px;font-size:13px;border-radius:var(--radius-sm);}
+.fit-btn.is-lg{height:var(--control-h-lg);padding:0 22px;font-size:16px;}
+.fit-btn.is-block{width:100%;}
+.fit-btn.is-primary{background:var(--color-primary-500);color:#FFFFFF;}
+.fit-btn.is-primary:hover{background:var(--color-primary-600);}
+.fit-btn.is-primary:active{background:var(--color-primary-700);}
+.fit-btn.is-secondary{background:var(--color-surface);color:var(--color-text-primary);border:1px solid var(--color-border-strong);}
+.fit-btn.is-secondary:hover{background:var(--color-surface-hover);border-color:var(--color-text-tertiary);}
+.fit-btn.is-ghost{background:transparent;color:var(--color-primary-500);}
+.fit-btn.is-ghost:hover{background:var(--color-primary-50);}
+.fit-btn.is-danger{background:transparent;color:var(--color-danger);}
+.fit-btn.is-danger:hover{background:var(--color-danger-bg);}
+.fit-btn:disabled{background:var(--color-bg-sunken);color:var(--color-text-tertiary);border-color:transparent;cursor:not-allowed;}
+
+/* 모바일 하단 고정 CTA 바 */
+.fit-cta-bar{
+  position:sticky;bottom:0;z-index:var(--z-header);
+  display:flex;gap:8px;padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+  background:var(--color-bg);border-top:1px solid var(--color-border);
+}
+.fit-cta-bar .fit-btn{flex:1;height:52px;font-size:17px;font-weight:800;}
+
+/* ── 칩 / 뱃지 ─────────────────────────── */
+.fit-chip{
+  flex:none;display:inline-flex;align-items:center;height:36px;padding:0 15px;
+  border:1px solid var(--color-border-strong);border-radius:var(--radius-full);
+  background:var(--color-surface);color:var(--color-text-secondary);
+  font-size:14px;font-weight:600;cursor:pointer;transition:all var(--dur-fast) var(--ease);
+}
+.fit-chip:hover{background:var(--color-surface-hover);}
+.fit-chip[aria-pressed="true"],.fit-chip.is-active{
+  background:var(--color-primary-500);border-color:var(--color-primary-500);color:#FFFFFF;
+}
+.fit-chip-row{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;}
+.fit-chip-row::-webkit-scrollbar{display:none;}
+
+.fit-badge{
+  display:inline-flex;align-items:center;height:26px;padding:0 10px;
+  border-radius:var(--radius-full);background:var(--color-primary-50);color:var(--color-primary-600);
+  font-size:12px;font-weight:700;white-space:nowrap;
+}
+.fit-badge.is-success{background:var(--color-success-bg);color:var(--color-success);}
+.fit-badge.is-warning{background:var(--color-warning-bg);color:var(--color-warning);}
+.fit-badge.is-danger{background:var(--color-danger-bg);color:var(--color-danger);}
+.fit-badge.is-neutral{background:var(--color-bg-sunken);color:var(--color-text-secondary);}
+
+/* ── 폼 ────────────────────────────────── */
+.fit-field{display:flex;flex-direction:column;gap:6px;}
+.fit-label{font-size:14px;font-weight:700;color:var(--color-text-primary);}
+.fit-hint{font-size:13px;color:var(--color-text-tertiary);}
+.fit-error{font-size:13px;font-weight:600;color:var(--color-danger);}
+.fit-input,.fit-select,.fit-textarea{
+  width:100%;height:var(--control-h-lg);padding:0 14px;
+  border:1px solid var(--color-border-strong);border-radius:var(--radius-md);
+  background:var(--color-surface);color:var(--color-text-primary);font-size:16px; /* iOS 확대 방지 */
+  transition:border-color var(--dur-fast) var(--ease),box-shadow var(--dur-fast) var(--ease);
+}
+.fit-textarea{height:auto;min-height:120px;padding:12px 14px;line-height:1.55;resize:vertical;}
+.fit-input::placeholder,.fit-textarea::placeholder{color:var(--color-text-tertiary);}
+.fit-input:focus,.fit-select:focus,.fit-textarea:focus{
+  outline:none;border-color:var(--color-border-focus);box-shadow:0 0 0 3px var(--color-primary-50);
+}
+.fit-input[aria-invalid="true"]{border-color:var(--color-danger);}
+.fit-input:disabled,.fit-textarea:disabled{background:var(--color-bg-sunken);color:var(--color-text-tertiary);}
+
+/* ── 카드 / 표면 ───────────────────────── */
+.fit-card{
+  background:var(--color-surface);border:1px solid var(--color-border);
+  border-radius:var(--radius-lg);padding:var(--space-5);
+}
+.fit-card.is-raised{box-shadow:var(--shadow-1);}
+.fit-card.is-interactive{cursor:pointer;transition:border-color var(--dur-fast) var(--ease),box-shadow var(--dur-fast) var(--ease);}
+.fit-card.is-interactive:hover{border-color:var(--color-border-strong);box-shadow:var(--shadow-2);}
+.fit-divider{height:1px;background:var(--color-border);border:0;margin:0;}
+
+/* 사진 카드 — 그림자 대신 보더 (그림자는 사진과 충돌) */
+.fit-photo-card{border:1px solid var(--color-border);border-radius:var(--radius-md);overflow:hidden;background:var(--color-surface);}
+.fit-photo-card img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;}
+.fit-photo-grid{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr));}
+@media (min-width:1024px){ .fit-photo-grid{gap:16px;grid-template-columns:repeat(4,minmax(0,1fr));} }
+/* 사진 위 텍스트는 반드시 스크림 위에 */
+.fit-photo-scrim{position:absolute;inset:0;background:linear-gradient(to top,var(--color-scrim) 0%,rgba(14,17,20,0) 58%);}
+
+/* ── 헤더 / 시트 / 모달 ────────────────── */
+.fit-header{
+  position:sticky;top:0;z-index:var(--z-header);height:56px;padding:0 16px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--color-border);
+}
+@media (min-width:1024px){ .fit-header{height:68px;padding:0 40px;} }
+.fit-scrim{position:fixed;inset:0;z-index:var(--z-sheet);background:var(--color-scrim);}
+.fit-sheet{
+  position:fixed;left:0;right:0;bottom:0;z-index:var(--z-modal);
+  background:var(--color-bg);border-radius:var(--radius-xl) var(--radius-xl) 0 0;
+  box-shadow:var(--shadow-3);padding:20px 16px calc(20px + env(safe-area-inset-bottom));
+}
+.fit-modal{
+  background:var(--color-bg);border-radius:var(--radius-lg);box-shadow:var(--shadow-3);
+  padding:24px;width:min(520px,calc(100vw - 32px));
+}
+
+/* ── 상태: 로딩 / 빈 상태 ──────────────── */
+.fit-skeleton{
+  border-radius:var(--radius-sm);
+  background:linear-gradient(90deg,var(--color-bg-sunken) 0%,var(--color-bg-subtle) 50%,var(--color-bg-sunken) 100%);
+  background-size:320px 100%;animation:fit-shimmer 1.1s linear infinite;
+}
+.fit-spinner{
+  width:16px;height:16px;border-radius:50%;
+  border:2px solid rgba(255,255,255,.45);border-top-color:#FFFFFF;
+  animation:fit-spin .7s linear infinite;
+}
+.fit-empty{
+  display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;
+  padding:44px 32px;border:1px dashed var(--color-border-strong);
+  border-radius:var(--radius-lg);background:var(--color-bg-subtle);
+}
+@media (max-width:640px){ .fit-empty{padding:28px 20px;} }
+
+/* ── 레이아웃 ──────────────────────────── */
+.fit-page{max-width:1280px;margin:0 auto;padding:0 16px;}
+@media (min-width:1024px){ .fit-page{padding:0 40px;} }
+.fit-stack{display:flex;flex-direction:column;gap:var(--space-4);}
+.fit-row{display:flex;align-items:center;gap:var(--space-2);}

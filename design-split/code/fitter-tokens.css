@@ -1,0 +1,77 @@
+/* Fitter Design System v1 — tokens
+   시안(design/*.dc.html)에 박혀 있던 값의 정본. 하드코딩 금지, 항상 var() 로 참조. */
+
+:root{
+  /* primary — 브랜드/주행동 */
+  --color-primary-50:#EEF3F8; --color-primary-100:#D8E4EF; --color-primary-200:#B3C9DE; --color-primary-300:#85A7C7;
+  --color-primary-400:#5583AC; --color-primary-500:#2F6390; --color-primary-600:#245176; --color-primary-700:#1C405D; --color-primary-800:#163348;
+  /* secondary — 강조/뱃지 (테라코타) */
+  --color-secondary-100:#F3E9E2; --color-secondary-300:#D9AE92; --color-secondary-500:#A8623C; --color-secondary-600:#8B4E2D;
+  /* surface */
+  --color-bg:#FFFFFF; --color-bg-subtle:#F5F7F9; --color-bg-sunken:#EDF0F3; --color-surface:#FFFFFF; --color-surface-hover:#F5F7F9;
+  /* text */
+  --color-text-primary:#171B20; --color-text-secondary:#515A65; --color-text-tertiary:#69737F; --color-text-inverse:#FFFFFF;
+  /* status */
+  --color-success-bg:#E7F3EC; --color-success:#1F7A4C; --color-warning-bg:#FBF1DC; --color-warning:#9A6B0F;
+  --color-danger-bg:#FBEAE7; --color-danger:#B03A2E;
+  /* line */
+  --color-border:#DFE4E9; --color-border-strong:#C7CED6; --color-border-focus:#2F6390;
+  --color-scrim:rgba(14,17,20,.56);
+
+  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-5:20px; --space-6:24px;
+  --space-8:32px; --space-10:40px; --space-12:48px; --space-16:64px;
+
+  --radius-sm:4px; --radius-md:8px; --radius-lg:12px; --radius-xl:16px; --radius-full:999px;
+
+  --shadow-1:0 1px 2px rgba(23,27,32,.06), 0 1px 3px rgba(23,27,32,.08);
+  --shadow-2:0 2px 6px rgba(23,27,32,.06), 0 6px 16px rgba(23,27,32,.10);
+  --shadow-3:0 8px 20px rgba(23,27,32,.10), 0 20px 44px rgba(23,27,32,.14);
+
+  --font-sans:"Pretendard Variable",Pretendard,-apple-system,system-ui,sans-serif;
+  --font-mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
+
+  --text-display:40px; --text-h1:28px; --text-h2:22px; --text-h3:17px; --text-body:16px; --text-caption:13px;
+
+  /* 컨트롤 높이 — 모바일 기본 lg(48), 데스크톱 인라인 md(40), 최소 터치 44 */
+  --control-h-sm:32px; --control-h-md:40px; --control-h-lg:48px; --control-h-touch:44px;
+
+  --dur-fast:.12s; --dur-base:.18s; --ease:cubic-bezier(.2,.6,.3,1);
+  --z-header:10; --z-sheet:40; --z-modal:50; --z-toast:60;
+}
+
+/* 모바일에서 타입 스케일만 한 단계 낮춘다 */
+@media (max-width:640px){
+  :root{ --text-display:32px; --text-h1:24px; --text-h2:20px; --text-h3:16px; --text-body:15px; }
+}
+
+[data-theme="dark"]{
+  --color-primary-50:#152430; --color-primary-100:#1B3243; --color-primary-200:#28516E; --color-primary-300:#3F7BA4;
+  --color-primary-400:#5991C1; --color-primary-500:#6FA3CF; --color-primary-600:#8DB8DC; --color-primary-700:#B0CEE8; --color-primary-800:#D3E4F2;
+  --color-secondary-100:#2E211A; --color-secondary-300:#8B5B3F; --color-secondary-500:#D69A74; --color-secondary-600:#E4B394;
+  --color-bg:#12161A; --color-bg-subtle:#171C21; --color-bg-sunken:#0D1114; --color-surface:#1A1F25; --color-surface-hover:#232930;
+  --color-text-primary:#E9EDF1; --color-text-secondary:#A9B3BD; --color-text-tertiary:#8B96A2; --color-text-inverse:#12161A;
+  --color-success-bg:#14291F; --color-success:#4FB07A; --color-warning-bg:#2A2314; --color-warning:#D9A63C;
+  --color-danger-bg:#2C1A18; --color-danger:#E8776A;
+  --color-border:#313941; --color-border-strong:#414B55; --color-border-focus:#6FA3CF;
+  --color-scrim:rgba(0,0,0,.64);
+  --shadow-1:0 1px 2px rgba(0,0,0,.40); --shadow-2:0 4px 14px rgba(0,0,0,.45); --shadow-3:0 12px 34px rgba(0,0,0,.55);
+}
+
+/* base reset — 시안의 body 설정과 동일 */
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:var(--font-sans);
+  font-size:var(--text-body);
+  color:var(--color-text-primary);
+  background:var(--color-bg);
+  -webkit-font-smoothing:antialiased;
+  font-feature-settings:"tnum"; /* 숫자·치수·금액 정렬 */
+}
+button,input,select,textarea{font-family:inherit;}
+a{color:var(--color-primary-500);text-decoration:none;}
+a:hover{color:var(--color-primary-600);text-decoration:underline;}
+:focus-visible{outline:2px solid var(--color-border-focus);outline-offset:2px;border-radius:var(--radius-sm);}
+
+@keyframes fit-shimmer{0%{background-position:-320px 0}100%{background-position:320px 0}}
+@keyframes fit-spin{to{transform:rotate(360deg)}}

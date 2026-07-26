@@ -78,7 +78,7 @@ export default async function ProDetailPage({ params }: PageProps) {
   return (
     <main className="pro-detail">
       <div className="detail-back">
-        <a href="/pros" className="btn btn--secondary btn--sm">
+        <a href="/pros" className="btn btn--secondary pro-detail__back">
           ← 시공자 찾기
         </a>
         <span className="detail-back__meta">
@@ -91,7 +91,7 @@ export default async function ProDetailPage({ params }: PageProps) {
       <div className="pro-detail__body">
         <div className="pro-detail__main">
           <div className="pro-detail__head">
-            <Avatar name={pro.businessName} size={52} />
+            <Avatar name={pro.businessName} size={88} />
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6, minWidth: 0 }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
                 <strong className="pro-detail__name">{pro.businessName}</strong>
@@ -134,27 +134,12 @@ export default async function ProDetailPage({ params }: PageProps) {
             </div>
           </div>
 
-          {pro.intro && (
-            <section className="detail-note">
-              <span className="detail-note__title">시공자 소개</span>
-              <p className="detail-note__body">{pro.intro}</p>
-            </section>
-          )}
-
-          <section className="detail-note">
-            <span className="detail-note__title">확인된 정보</span>
-            <div>
-              <Verified k="사업자 확인" ok />
-              <Verified k="관리자 승인" ok />
-              <Verified k="비용 공개 사례" ok={pro.hasCostPublic} />
-              {/*
-                리뷰는 [[ADR-011]]이 최고 ROI 로 꼽았지만 아직 만들지 않았다.
-                "없음"이라고 적는 이유는 있는 척하지 않기 위해서다.
-              */}
-              <Verified k="완료 확인·리뷰" ok={false} note="준비 중" />
-            </div>
-          </section>
-
+          {/*
+            **포트폴리오가 소개보다 먼저 온다.** 시안의 순서가 그렇고 이유가 있다 —
+            이 화면은 "이 사람에게 맡겨도 되는가"를 묻는데, 그 답은 본인이 쓴 소개글보다
+            본인이 한 작업이 먼저 한다. 구현은 소개·확인된 정보를 앞에 두고 사진을
+            맨 아래 깔고 있었다. 글 세 덩어리를 지나야 결과물이 나왔다.
+          */}
           <section className="detail-note">
             <span className="detail-note__title">포트폴리오 {pro.portfolioCount}건</span>
             {pro.portfolios.length === 0 ? (
@@ -186,6 +171,28 @@ export default async function ProDetailPage({ params }: PageProps) {
                 ))}
               </ul>
             )}
+          </section>
+
+          {pro.intro && (
+            <section className="detail-note">
+              <span className="detail-note__title">시공자 소개</span>
+              <p className="detail-note__body">{pro.intro}</p>
+            </section>
+          )}
+
+          <section className="detail-note">
+            <span className="detail-note__title">확인된 정보</span>
+            {/* 시안은 이 네 줄을 2열로 놓는다. 한 줄씩 쌓으면 옆 여백이 그대로 비어 있다. */}
+            <div className="pro-verified-grid">
+              <Verified k="사업자 확인" ok />
+              <Verified k="관리자 승인" ok />
+              <Verified k="비용 공개 사례" ok={pro.hasCostPublic} />
+              {/*
+                리뷰는 [[ADR-011]]이 최고 ROI 로 꼽았지만 아직 만들지 않았다.
+                "없음"이라고 적는 이유는 있는 척하지 않기 위해서다.
+              */}
+              <Verified k="완료 확인·리뷰" ok={false} note="준비 중" />
+            </div>
           </section>
         </div>
 

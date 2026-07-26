@@ -126,39 +126,39 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── 공종 칩 ────────────────────────────────────── */}
-      <section className="shell" style={{ paddingBottom: 'var(--space-4)' }}>
-        <div className="chip-row" role="group" aria-label="공종">
-          {WORK_CATEGORY_SEEDS.map((category) => (
-            <a
-              key={category.code}
-              href={`/gallery?categories=${category.code}`}
-              className="chip"
-              aria-pressed={false}
-            >
-              {category.nameKo}
-            </a>
-          ))}
-        </div>
-      </section>
-
       {/* ── 최근 시공 ──────────────────────────────────── */}
       <section className="shell" style={{ paddingBottom: 'var(--space-12)' }}>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'baseline',
-            justifyContent: 'space-between',
-            gap: 'var(--space-4)',
-            marginBottom: 'var(--space-4)',
-          }}
-        >
+        {/*
+          시안 데스크톱은 공종 칩을 **이 헤더 줄 안에** 둔다. 히어로 바로 아래 독립 줄로
+          빼면 칩이 그리드가 아니라 히어로에 붙은 것처럼 읽혀서 무엇을 거르는 필터인지
+          모호해진다. 모바일에서만 칩이 다음 줄로 내려간다 — 390px 에 둘 다 안 들어간다.
+        */}
+        <div className="landing-section-head">
           <h2 className="landing-h2">{cold ? '곧 채워집니다' : '이번 주 올라온 시공'}</h2>
           {!cold && (
             <a href="/gallery" className="landing-more">
               전체 보기
             </a>
           )}
+          <div className="chip-row" role="group" aria-label="공종">
+            {/*
+              `전체` 가 맨 앞에 온다. 시안의 칩 줄은 항상 이걸로 시작하고, 이게 없으면
+              필터를 걸었다가 되돌아올 곳이 화면에 없다.
+            */}
+            <a href="/gallery" className="chip" aria-pressed={false}>
+              전체
+            </a>
+            {WORK_CATEGORY_SEEDS.map((category) => (
+              <a
+                key={category.code}
+                href={`/gallery?categories=${category.code}`}
+                className="chip"
+                aria-pressed={false}
+              >
+                {category.nameKo}
+              </a>
+            ))}
+          </div>
         </div>
 
         {cold ? (
@@ -220,37 +220,38 @@ export default async function HomePage() {
       */}
       <HowSection />
 
-      {/* ── 판단 근거 ──────────────────────────────────── */}
-      {!cold && lead && (
-        /*
-          좌우 여백은 `.shell` 이 정한다. 여기서 padding 을 통째로 인라인으로 쓰면
-          모바일 분기(16px)까지 덮어써서 데스크톱 여백이 그대로 남는다.
-        */
-        <section style={{ padding: '48px 0' }}>
-          <div className="shell landing-trust">
-            <div className="landing-trust__copy">
-              <h2 className="landing-h2">
-                맡겨도 되는 사람인지,
-                <br />
-                카드 한 장에서 판단합니다
-              </h2>
-              <p className="landing-trust__lead">
-                승인 여부, 경력, 활동 지역, 비용 공개 여부. 판단에 필요한 것만 앞에 둡니다. 연락처는
-                양쪽이 수락한 뒤에 열립니다.
-              </p>
-              <div
-                style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)', marginTop: 6 }}
-              >
-                <span className="badge badge--verified">사업자·자격 확인</span>
-                <span className="badge badge--success">비용 공개</span>
-                <span className="badge badge--info">수락 후 연락처 공개</span>
-              </div>
-            </div>
+      {/*
+        ── 판단 근거 ────────────────────────────────────
+        좌우 여백은 `.shell` 이 정한다. 여기서 padding 을 통째로 인라인으로 쓰면
+        모바일 분기(16px)까지 덮어써서 데스크톱 여백이 그대로 남는다.
 
-            <ProCard lead={lead} items={recent.items} />
+        **콜드스타트에서도 이 섹션은 사라지지 않는다.** 시안이 그렇게 그렸고 이유가 있다 —
+        이 서비스가 무엇을 근거로 사람을 고르게 하는지는 사진이 0장이어도 설명해야 하는
+        내용이다. 여기를 숨기면 `이용 방법` 다음이 곧바로 마지막 CTA 라 랜딩이 훅 끝난다.
+        대신 카드에 `예시` 뱃지를 달아 실적으로 오해받지 않게 한다.
+      */}
+      <section style={{ padding: '48px 0' }}>
+        <div className="shell landing-trust">
+          <div className="landing-trust__copy">
+            <h2 className="landing-h2">
+              맡겨도 되는 사람인지,
+              <br />
+              카드 한 장에서 판단합니다
+            </h2>
+            <p className="landing-trust__lead">
+              승인 여부, 경력, 활동 지역, 비용 공개 여부. 판단에 필요한 것만 앞에 둡니다. 연락처는
+              양쪽이 수락한 뒤에 열립니다.
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)', marginTop: 6 }}>
+              <span className="badge badge--verified">사업자·자격 확인</span>
+              <span className="badge badge--success">비용 공개</span>
+              <span className="badge badge--info">수락 후 연락처 공개</span>
+            </div>
           </div>
-        </section>
-      )}
+
+          {lead ? <ProCard lead={lead} items={recent.items} /> : <ExampleProCard />}
+        </div>
+      </section>
 
       {/* ── 마지막 CTA ─────────────────────────────────── */}
       <section className="landing-band">
@@ -352,6 +353,61 @@ function ColdCollage() {
             <span className="landing-cold__note">모집 중</span>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * 콜드스타트용 예시 카드.
+ *
+ * **`예시` 뱃지가 이 컴포넌트의 핵심이다.** 시안이 빈 상태에서도 판단 근거 섹션을 유지하되
+ * 이 뱃지를 켜도록 그렸다. 뱃지 없이 그리면 없는 시공자를 있는 것처럼 광고하는 게 되고,
+ * 섹션째 숨기면 "무엇을 보고 고르는가"라는 이 서비스의 핵심 설명이 사라진다.
+ *
+ * 숫자는 넣지 않는다. 시안은 `시공 87건 · 평균 응답 3시간` 을 썼지만 그건 실적처럼 읽히고,
+ * API 에 그 집계 자체가 없어서 진짜가 되어도 채울 수 없는 칸이다.
+ */
+function ExampleProCard() {
+  return (
+    <div className="landing-procard">
+      <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+        <span className="avatar avatar--52" aria-hidden="true">
+          예시
+        </span>
+        <span style={{ display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0 }}>
+          <span
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--space-2)',
+              flexWrap: 'wrap',
+            }}
+          >
+            <strong className="landing-procard__name">시공자 카드</strong>
+            <span className="badge badge--verified">승인 시공자</span>
+            {/* 시안의 `예시` 뱃지가 bg-sunken + text-tertiary 다. muted 가 그 값이다. */}
+            <span className="badge badge--muted">예시</span>
+          </span>
+          <span className="landing-procard__meta">공종 · 경력 연차</span>
+          <span className="landing-procard__area">활동 지역</span>
+        </span>
+      </div>
+
+      <div className="landing-procard__strip" aria-hidden="true">
+        {[0, 1, 2, 3].map((i) => (
+          <span key={i} data-placeholder="" />
+        ))}
+      </div>
+
+      <div className="landing-procard__foot">
+        <span className="landing-procard__phone">
+          연락처 <span style={{ fontFamily: 'var(--font-mono)' }}>010-••••-••••</span> · 수락 후
+          공개
+        </span>
+        <a href="/signup" className="btn btn--primary btn--md">
+          시공자로 등록하기
+        </a>
       </div>
     </div>
   );

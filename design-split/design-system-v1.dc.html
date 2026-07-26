@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<![CDATA[<helmet>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+<style>
+:root{
+  --color-primary-50:#EEF3F8; --color-primary-100:#D8E4EF; --color-primary-200:#B3C9DE; --color-primary-300:#85A7C7;
+  --color-primary-400:#5583AC; --color-primary-500:#2F6390; --color-primary-600:#245176; --color-primary-700:#1C405D; --color-primary-800:#163348;
+  --color-secondary-100:#F3E9E2; --color-secondary-300:#D9AE92; --color-secondary-500:#A8623C; --color-secondary-600:#8B4E2D;
+  --color-bg:#FFFFFF; --color-bg-subtle:#F5F7F9; --color-bg-sunken:#EDF0F3; --color-surface:#FFFFFF; --color-surface-hover:#F5F7F9;
+  --color-text-primary:#171B20; --color-text-secondary:#515A65; --color-text-tertiary:#69737F; --color-text-inverse:#FFFFFF;
+  --color-success-bg:#E7F3EC; --color-success:#1F7A4C; --color-warning-bg:#FBF1DC; --color-warning:#9A6B0F;
+  --color-danger-bg:#FBEAE7; --color-danger:#B03A2E;
+  --color-border:#DFE4E9; --color-border-strong:#C7CED6; --color-border-focus:#2F6390;
+  --color-scrim:rgba(14,17,20,.56);
+  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-5:20px; --space-6:24px; --space-8:32px; --space-10:40px; --space-12:48px; --space-16:64px;
+  --radius-sm:4px; --radius-md:8px; --radius-lg:12px; --radius-xl:16px; --radius-full:999px;
+  --shadow-1:0 1px 2px rgba(23,27,32,.06), 0 1px 3px rgba(23,27,32,.08);
+  --shadow-2:0 2px 6px rgba(23,27,32,.06), 0 6px 16px rgba(23,27,32,.10);
+  --shadow-3:0 8px 20px rgba(23,27,32,.10), 0 20px 44px rgba(23,27,32,.14);
+  --font-sans:"Pretendard Variable",Pretendard,-apple-system,system-ui,sans-serif;
+  --font-mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
+  /* 아래 02 TYPE 섹션의 6행이 정본이다. 여기에 선언이 없어서 구현이 화면마다 숫자를 직접 적고 있었다. */
+  --text-display:40px; --text-h1:28px; --text-h2:22px; --text-h3:17px; --text-body:16px; --text-caption:13px;
+}
+/* 02 TYPE 의 "괄호 안은 모바일(390px) 값". caption 은 모바일 값이 따로 없다. */
+@media (max-width:768px){
+  :root{ --text-display:32px; --text-h1:24px; --text-h2:20px; --text-h3:16px; --text-body:15px; }
+}
+[data-theme="dark"]{
+  --color-primary-50:#152430; --color-primary-100:#1B3243; --color-primary-200:#28516E; --color-primary-300:#3F7BA4;
+  --color-primary-400:#5991C1; --color-primary-500:#6FA3CF; --color-primary-600:#8DB8DC; --color-primary-700:#B0CEE8; --color-primary-800:#D3E4F2;
+  --color-secondary-100:#2E211A; --color-secondary-300:#8B5B3F; --color-secondary-500:#D69A74; --color-secondary-600:#E4B394;
+  --color-bg:#12161A; --color-bg-subtle:#171C21; --color-bg-sunken:#0D1114; --color-surface:#1A1F25; --color-surface-hover:#232930;
+  --color-text-primary:#E9EDF1; --color-text-secondary:#A9B3BD; --color-text-tertiary:#8B96A2; --color-text-inverse:#12161A;
+  --color-success-bg:#14291F; --color-success:#4FB07A; --color-warning-bg:#2A2314; --color-warning:#D9A63C;
+  --color-danger-bg:#2C1A18; --color-danger:#E8776A;
+  --color-border:#313941; --color-border-strong:#414B55; --color-border-focus:#6FA3CF;
+  --color-scrim:rgba(0,0,0,.64);
+  --shadow-1:0 1px 2px rgba(0,0,0,.40); --shadow-2:0 4px 14px rgba(0,0,0,.45); --shadow-3:0 12px 34px rgba(0,0,0,.55);
+}
+body{margin:0;font-family:var(--font-sans);-webkit-font-smoothing:antialiased;background:var(--color-bg-sunken);}
+*{box-sizing:border-box;}
+a{color:var(--color-primary-500);text-decoration:none;}
+a:hover{color:var(--color-primary-600);text-decoration:underline;}
+button,input,select,textarea{font-family:inherit;}
+@keyframes fit-shimmer{0%{background-position:-320px 0}100%{background-position:320px 0}}
+@keyframes fit-spin{to{transform:rotate(360deg)}}
+</style>
+</helmet>
+
+<div data-theme="{{ theme }}" style="background:var(--color-bg-sunken);color:var(--color-text-primary);min-height:100vh;padding:0 0 96px;transition:background .18s ease">
+
+  <header style="position:sticky;top:0;z-index:20;background:var(--color-bg);border-bottom:1px solid var(--color-border);padding:16px 40px;display:flex;align-items:center;justify-content:space-between;gap:24px">
+    <div style="display:flex;align-items:baseline;gap:12px">
+      <span style="font-size:20px;font-weight:800;letter-spacing:-.02em">Fitter</span>
+      <span style="font-size:13px;color:var(--color-text-tertiary)">디자인 시스템 v0.1 · 반셀프 인테리어 매칭</span>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button onClick="{{ toggleVars }}" style="height:34px;padding:0 14px;border-radius:var(--radius-full);border:1px solid var(--color-border-strong);background:var(--color-surface);color:var(--color-text-secondary);font-size:13px;font-weight:600;cursor:pointer">CSS 변수명</button>
+      <button onClick="{{ toggleContrast }}" style="height:34px;padding:0 14px;border-radius:var(--radius-full);border:1px solid var(--color-border-strong);background:var(--color-surface);color:var(--color-text-secondary);font-size:13px;font-weight:600;cursor:pointer">대비율</button>
+      <button onClick="{{ toggleTheme }}" style="height:34px;padding:0 16px;border-radius:var(--radius-full);border:1px solid var(--color-primary-500);background:var(--color-primary-500);color:#FFFFFF;font-size:13px;font-weight:700;cursor:pointer">{{ themeLabel }}</button>
+    </div>
+  </header>
+
+  <div style="max-width:1160px;margin:0 auto;padding:0 40px">
+
+    <section style="padding:56px 0 40px;border-bottom:1px solid var(--color-border)">
+      <div style="font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;color:var(--color-text-tertiary);text-transform:uppercase;margin-bottom:16px">왜 이 색과 톤인가</div>
+      <ol style="margin:0;padding-left:22px;max-width:760px;display:flex;flex-direction:column;gap:10px;font-size:17px;line-height:1.6;color:var(--color-text-secondary);text-wrap:pretty">
+        <li>사진이 주인공이므로 UI 색은 전부 채도를 낮췄다. 원색은 화면에 한 점도 없고, 그리드에서 눈에 띄는 것은 오직 사진이다.</li>
+        <li>Primary는 회색이 섞인 청색(<span style="font-family:var(--font-mono)">#2F6390</span>)이다. 따뜻한 라이프스타일 톤과 정반대의 온도이고, 시공 사진에 흔한 우드·베이지 위에 얹혀도 서로 싸우지 않는다.</li>
+        <li>중립색은 순회색이 아니라 청색이 아주 미세하게 섞인 쿨 그레이다. 도면·견적서 같은 실무 문서의 인상을 주면서 사진의 색을 왜곡하지 않는다.</li>
+        <li>Secondary는 흙빛 클레이(<span style="font-family:var(--font-mono)">#A8623C</span>)로, 감성 장식이 아니라 "인증 시공자"처럼 신뢰 신호에만 쓴다. 아껴 쓰기 때문에 나올 때마다 의미를 갖는다.</li>
+        <li>모든 텍스트·버튼 조합은 WCAG AA(4.5:1) 이상이며 대비율을 화면에 그대로 적어 뒀다. 신뢰가 핵심 가치인 서비스는 접근성부터 정직해야 한다.</li>
+      </ol>
+    </section>
+
+    <!-- 01 COLOR -->
+    <section style="padding:56px 0 8px">
+      <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:8px">
+        <span style="font-family:var(--font-mono);font-size:13px;color:var(--color-primary-500);font-weight:700">01</span>
+        <h2 style="margin:0;font-size:30px;font-weight:800;letter-spacing:-.02em">컬러 팔레트</h2>
+      </div>
+      <p style="margin:0 0 28px;color:var(--color-text-tertiary);font-size:15px">대비율은 라이트 모드 기준, 흰 배경(#FFFFFF) 위의 값이다. 다크 모드 값은 아래 다크 섹션에 별도 표기.</p>
+
+      <div style="display:flex;flex-direction:column;gap:28px">
+        <sc-for list="{{ scales }}" as="scale" hint-placeholder-count="2">
+          <div>
+            <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:10px">
+              <h3 style="margin:0;font-size:15px;font-weight:700">{{ scale.title }}</h3>
+              <span style="font-size:13px;color:var(--color-text-tertiary)">{{ scale.note }}</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:8px">
+              <sc-for list="{{ scale.items }}" as="c" hint-placeholder-count="9">
+                <div style="border:1px solid var(--color-border);border-radius:var(--radius-md);overflow:hidden;background:var(--color-surface)">
+                  <div style="height:64px;background:{{ c.hex }};border-bottom:1px solid var(--color-border)"></div>
+                  <div style="padding:8px 9px 10px;display:flex;flex-direction:column;gap:3px">
+                    <div style="font-family:var(--font-mono);font-size:11px;color:var(--color-text-primary);font-weight:600">{{ c.hex }}</div>
+                    <sc-if value="{{ showVars }}" hint-placeholder-val="{{ true }}">
+                      <div style="font-family:var(--font-mono);font-size:10px;color:var(--color-primary-500);word-break:break-all">{{ c.var }}</div>
+                    </sc-if>
+                    <div style="font-size:11px;color:var(--color-text-tertiary);line-height:1.35">{{ c.use }}</div>
+                    <sc-if value="{{ c.showRatio }}" hint-placeholder-val="{{ true }}">
+                      <div style="font-family:var(--font-mono);font-size:10px;color:var(--color-text-secondary);border-top:1px dashed var(--color-border);padding-top:4px;margin-top:2px">{{ c.ratio }}</div>
+                    </sc-if>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="margin-top:32px;display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div style="border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-surface);padding:20px">
+          <h3 style="margin:0 0 12px;font-size:15px;font-weight:700">AA 검증 (주요 조합)</h3>
+          <div style="display:flex;flex-direction:column;gap:0">
+            <sc-for list="{{ aaRows }}" as="r" hint-placeholder-count="6">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--color-border)">
+                <span style="font-size:13px;color:var(--color-text-secondary)">{{ r.label }}</span>
+                <span style="display:flex;align-items:center;gap:8px">
+                  <span style="font-family:var(--font-mono);font-size:12px;font-weight:700">{{ r.ratio }}</span>
+                  <span style="font-size:11px;font-weight:700;padding:2px 7px;border-radius:var(--radius-full);background:var(--color-success-bg);color:var(--color-success)">{{ r.grade }}</span>
+                </span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-surface);padding:20px">
+          <h3 style="margin:0 0 12px;font-size:15px;font-weight:700">사진 위 오버레이 규칙</h3>
+          <div style="position:relative;border-radius:var(--radius-md);overflow:hidden;height:168px;background:repeating-linear-gradient(135deg,#B9BFC6 0 10px,#AEB5BD 10px 20px)">
+            <div style="position:absolute;inset:0;background:linear-gradient(to top,var(--color-scrim) 0%,rgba(14,17,20,0) 58%)"></div>
+            <div style="position:absolute;left:14px;bottom:12px;display:flex;flex-direction:column;gap:6px">
+              <span style="display:inline-flex;width:fit-content;align-items:center;gap:5px;background:rgba(255,255,255,.94);color:#171B20;font-size:12px;font-weight:700;padding:4px 9px;border-radius:var(--radius-sm)">인증 시공자</span>
+              <span style="color:#FFFFFF;font-size:16px;font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,.45)">성북구 24평 · 도배</span>
+            </div>
+          </div>
+          <p style="margin:12px 0 0;font-size:13px;line-height:1.55;color:var(--color-text-tertiary)">사진 위에는 컬러를 얹지 않는다. <span style="font-family:var(--font-mono);font-size:12px">--color-scrim</span> 그라디언트 + 흰 텍스트, 또는 불투명 흰 칩만 허용. Primary를 사진 위에 깔면 사진의 색이 죽는다.</p>
+        </div>
+      </div>
+
+      <div data-theme="dark" style="margin-top:16px;background:var(--color-bg);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:24px;color:var(--color-text-primary)">
+        <h3 style="margin:0 0 4px;font-size:15px;font-weight:700">다크 모드 토큰</h3>
+        <p style="margin:0 0 16px;font-size:13px;color:var(--color-text-tertiary)">같은 변수명, 다른 값. <span style="font-family:var(--font-mono)">[data-theme="dark"]</span>에서 재정의한다. 다크에서는 Primary를 밝게 올려야 AA를 지킨다.</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(126px,1fr));gap:8px">
+          <sc-for list="{{ darkTokens }}" as="c" hint-placeholder-count="8">
+            <div style="border:1px solid var(--color-border);border-radius:var(--radius-md);overflow:hidden;background:var(--color-surface)">
+              <div style="height:52px;background:{{ c.hex }}"></div>
+              <div style="padding:8px 9px 10px;display:flex;flex-direction:column;gap:3px">
+                <div style="font-family:var(--font-mono);font-size:11px;font-weight:600">{{ c.hex }}</div>
+                <div style="font-family:var(--font-mono);font-size:10px;color:var(--color-primary-500);word-break:break-all">{{ c.var }}</div>
+                <div style="font-size:11px;color:var(--color-text-tertiary);line-height:1.35">{{ c.use }}</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 TYPE -->
+    <section style="padding:56px 0 0;border-top:1px solid var(--color-border);margin-top:48px">
+      <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:8px">
+        <span style="font-family:var(--font-mono);font-size:13px;color:var(--color-primary-500);font-weight:700">02</span>
+        <h2 style="margin:0;font-size:30px;font-weight:800;letter-spacing:-.02em">타이포그래피</h2>
+      </div>
+      <p style="margin:0 0 24px;color:var(--color-text-tertiary);font-size:15px">Pretendard 단일 서체. 숫자·치수·금액이 많은 화면이라 <span style="font-family:var(--font-mono);font-size:13px">font-feature-settings:"tnum"</span>을 body 이하에 적용한다. 괄호 안은 모바일(390px) 값.</p>
+      <div style="border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-surface);overflow:hidden">
+        <sc-for list="{{ typeScale }}" as="t" hint-placeholder-count="6">
+          <div style="display:grid;grid-template-columns:1fr 236px;gap:24px;align-items:center;padding:20px 24px;border-bottom:1px solid var(--color-border)">
+            <div style="font-size:{{ t.size }};font-weight:{{ t.weight }};line-height:{{ t.lh }};letter-spacing:{{ t.ls }};color:var(--color-text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ t.sample }}</div>
+            <div style="display:flex;flex-direction:column;gap:3px;text-align:right">
+              <div style="font-size:13px;font-weight:700">{{ t.name }}</div>
+              <div style="font-family:var(--font-mono);font-size:11px;color:var(--color-text-secondary)">{{ t.spec }}</div>
+              <sc-if value="{{ showVars }}" hint-placeholder-val="{{ true }}">
+                <div style="font-family:var(--font-mono);font-size:10px;color:var(--color-primary-500)">{{ t.var }}</div>
+              </sc-if>
+              <div style="font-size:11px;color:var(--color-text-tertiary)">{{ t.use }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <!-- 03 SPACING -->
+    <section style="padding:56px 0 0;border-top:1px solid var(--color-border);margin-top:48px">
+      <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:8px">
+        <span style="font-family:var(--font-mono);font-size:13px;color:var(--color-primary-500);font-weight:700">03</span>
+        <h2 style="margin:0;font-size:30px;font-weight:800;letter-spacing:-.02em">스페이싱 · 라운드 · 그림자</h2>
+      </div>
+      <p style="margin:0 0 24px;color:var(--color-text-tertiary);font-size:15px">4px 베이스. 그림자는 3단계만 쓰고, 사진 카드에는 그림자 대신 보더를 쓴다(그림자는 사진 가장자리를 흐린다).</p>
+      <div style="display:grid;grid-template-columns:1.15fr 1fr;gap:16px">
+        <div style="border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-surface);padding:20px">
+          <h3 style="margin:0 0 14px;font-size:15px;font-weight:700">스페이싱</h3>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <sc-for list="{{ spacing }}" as="s" hint-placeholder-count="8">
+              <div style="display:flex;align-items:center;gap:12px">
+                <span style="font-family:var(--font-mono);font-size:11px;color:var(--color-primary-500);width:82px;flex:none">{{ s.var }}</span>
+                <span style="font-family:var(--font-mono);font-size:11px;color:var(--color-text-secondary);width:44px;flex:none">{{ s.px }}</span>
+                <span style="height:12px;width:{{ s.px }};background:var(--color-primary-300);border-radius:2px;flex:none"></span>
+                <span style="font-size:11px;color:var(--color-text-tertiary)">{{ s.use }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div style="border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-surface);padding:20px">
+            <h3 style="margin:0 0 14px;font-size:15px;font-weight:700">라운드</h3>
+            <div style="display:flex;gap:12px;flex-wrap:wrap">
+              <sc-for list="{{ radii }}" as="r" hint-placeholder-count="5">
+                <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+                  <div style="width:58px;height:44px;background:var(--color-primary-50);border:1px solid var(--color-primary-200);border-radius:{{ r.px }}"></div>
+                  <span style="font-family:var(--font-mono);font-size:10px;color:var(--color-primary-500)">{{ r.var }}</span>
+                  <span style="font-family:var(--font-mono);font-size:10px;color:var(--color-text-tertiary)">{{ r.px }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-surface);padding:20px">
+            <h3 style="margin:0 0 16px;font-size:15px;font-weight:700">그림자</h3>
+            <div style="display:flex;gap:16px">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px">
+                <div style="width:100%;height:52px;border-radius:var(--radius-md);background:var(--color-bg);box-shadow:var(--shadow-1)"></div>
+                <span style="font-family:var(--font-mono);font-size:10px;color:var(--color-primary-500)">--shadow-1</span>
+                <span style="font-size:10px;color:var(--color-text-tertiary)">카드 hover</span>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px">
+                <div style="width:100%;height:52px;border-radius:var(--radius-md);background:var(--color-bg);box-shadow:var(--shadow-2)"></div>
+                <span style="font-family:var(--font-mono);font-size:10px;color:var(--color-primary-500)">--shadow-2</span>
+                <span style="font-size:10px;color:var(--color-text-tertiary)">드롭다운·토스트</span>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px">
+                <div style="width:100%;height:52px;border-radius:var(--radius-md);background:var(--color-bg);box-shadow:var(--shadow-3)"></div>
+                <span style="font-family:var(--font-mono);font-size:10px;color:var(--color-primary-500)">--shadow-3</span>
+                <span style="font-size:10px;color:var(--color-text-tertiary)">모달·바텀시트</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 COMPONENTS -->
+    <section style="padding:56px 0 0;border-top:1px solid var(--color-border);margin-top:48px">
+      <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:8px">
+        <span style="font-family:var(--font-mono);font-size:13px;color:var(--color-primary-500);font-weight:700">04</span>
+        <h2 style="margin:0;font-size:30px;font-weight:800;letter-spacing:-.02em">컴포넌트</h2>
+      </div>
+      <p style="margin:0 0 24px;color:var(--color-text-tertiary);font-size:15px">모바일 기준 최소 터치 타깃 44px. md(40px)는 데스크톱·인라인용, lg(48px)가 모바일 기본이다.</p>
+
+      <div style="display:flex;flex-direction:column;gap:16px">
+
+        <!-- Buttons -->
+        <div style="border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-surface);padding:24px">
+          <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:18px">
+            <h3 style="margin:0;font-size:16px;font-weight:700">버튼</h3>
+            <span style="font-family:var(--font-mono);font-size:11px;color:var(--color-primary-500)">.btn / --btn-height-{sm,md,lg}</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
+            <div style="display:flex;flex-direction:column;gap:12px;align-items:flex-start">
+              <span style="font-size:12px;font-weight:700;color:var(--color-text-tertiary)">Primary — 주 행동 1개</span>
+              <button style="height:48px;padding:0 22px;border:none;border-radius:var(--radius-md);background:var(--color-primary-500);color:#FFFFFF;font-size:16px;font-weight:700;cursor:pointer;transition:background .15s" style-hover="background:var(--color-primary-600)">컨택 요청하기</button>
+              <button style="height:40px;padding:0 18px;border:none;border-radius:var(--radius-md);background:var(--color-primary-500);color:#FFFFFF;font-size:15px;font-weight:700;cursor:pointer" style-hover="background:var(--color-primary-600)">컨택 요청</button>
+              <button style="height:32px;padding:0 14px;border:none;border-radius:var(--radius-sm);background:var(--color-primary-500);color:#FFFFFF;font-size:13px;font-weight:700;cursor:pointer" style-hover="background:var(--color-primary-600)">요청</button>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px;align-items:flex-start">
+              <span style="font-size:12px;font-weight:700;color:var(--color-text-tertiary)">Secondary — 보조 행동</span>
+              <button style="height:48px;padding:0 22px;border:1px solid var(--color-border-strong);border-radius:var(--radius-md);background:var(--color-surface);color:var(--color-text-primary);font-size:16px;font-weight:700;cursor:pointer" style-hover="background:var(--color-surface-hover);border-color:var(--color-text-tertiary)">포트폴리오 더 보기</button>
+              <button style="height:40px;padding:0 18px;border:1px solid var(--color-border-strong);border-radius:var(--radius-md);background:var(--color-surface);color:var(--color-text-primary);font-size:15px;font-weight:700;cursor:pointer" style-hover="background:var(--color-surface-hover)">저장</button>
+              <button style="height:32px;padding:0 14px;border:1px solid var(--color-border-strong);border-radius:var(--radius-sm);background:var(--color-surface);color:var(--color-text-primary);font-size:13px;font-weight:700;cursor:pointer" style-hover="background:var(--color-surface-hover)">취소</button>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px;align-items:flex-start">
+              <span style="font-size:12px;font-weight:700;color:var(--color-text-tertiary)">Ghost — 목록 내 반복 액션</span>
+              <button style="height:48px;padding:0 18px;border:none;border-radius:var(--radius-md);background:transparent;color:var(--color-primary-500);font-size:16px;font-weight:700;cursor:pointer" style-hover="background:var(--color-primary-50)">전체 보기</button>
+              <button style="height:40px;padding:0 14px;border:none;border-radius:var(--radius-md);background:transparent;color:var(--color-primary-500);font-size:15px;font-weight:700;cursor:pointer" style-hover="background:var(--color-primary-50)">수정</button>
+              <button style="height:32px;padding:0 12px;border:none;border-radius:var(--radius-sm);background:transparent;color:var(--color-danger);font-size:13px;font-weight:700;cursor:pointer" style-hover="background:var(--color-danger-bg)">삭제</button>
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:22px;padding-top:18px;border-top:1px solid var(--color-border)">
+            <span style="font-size:12px;font-weight:700;color:var(--color-text-tertiary);width:100%">상태</span>
+            <button disabled="true" style="height:40px;padding:0 18px;border:none;border-radius:var(--radius-md);background:var(--color-bg-sunken);color:var(--color-text-tertiary);font-size:15px;font-weight:700;cursor:not-allowed">disabled</button>
+            <button style="height:40px;padding:0 18px;border:none;border-radius:var(--radius-md);background:var(--color-primary-600);color:#FFFFFF;font-size:15px;font-weight:700;cursor:pointer">pressed / :active</button>
+            <button style="height:40px;padding:0 18px;border:none;border-radius:var(--radius-md);background:var(--color-primary-500);color:#FFFFFF;font-size:15px;font-weight:700;cursor:progress;display:inline-flex;align-items:center;gap:9px;opacity:.9">
+              {{ spinner }}<span>전송 중</span>
+            </button>
+            <button style="height:40px;padding:0 18px;border:none;border-radius:var(--radius-md);background:var(--color-primary-500);color:#FFFFFF;font-size:15px;font-weight:700;cursor:pointer;outline:2px solid var(--color-border-focus);outline-offset:2px">focus-visible</button>
+            <button style="height:40px;padding:0 18px;border:none;border-radius:var(--radius-md);background:var(--color-danger);color:#FFFFFF;font-size:15px;font-weight:700;cursor:pointer">의뢰 삭제</button>
+          </div>
+        </div>
+
+        <!-- Inputs -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div style="border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-surface);padding:24px">
+            <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:18px">
+              <h3 style="margin:0;font-size:16px;font-weight:700">인풋 · 셀렉트</h3>
+              <span style="font-family:var(--font-mono);font-size:11px;color:var(--color-primary-500)">--color-border-focus</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:16px">
+              <label style="display:flex;flex-direction:column;gap:6px">
+                <span style="font-size:13px;font-weight:700;color:var(--color-text-secondary)">의뢰 제목</span>
+                <input value="{{ titleValue }}" onChange="{{ onTitle }}" placeholder="예) 성북구 24평 도배" style="height:48px;padding:0 14px;border:1px solid var(--color-border-strong);border-radius:var(--radius-md);background:var(--color-bg);color:var(--color-text-primary);font-size:16px;outline:none" style-focus="border-color:var(--color-border-focus);box-shadow:0 0 0 3px var(--color-primary-100)" />
+              </label>
+              <label style="display:flex;flex-direction:column;gap:6px">
+                <span style="font-size:13px;font-weight:700;color:var(--color-text-secondary)">공종</span>
+                <select style="height:48px;padding:0 12px;border:1px solid var(--color-border-strong);border-radius:var(--radius-md);background:var(--color-bg);color:var(--color-text-primary);font-size:16px;outline:none;appearance:none" style-focus="border-color:var(--color-border-focus);box-shadow:0 0 0 3px var(--color-primary-100)">
+                  <option>도배</option>
+                  <option>바닥·장판</option>
+                  <option>타일</option>
+                  <option>목공</option>
+                </select>
+              </label>
+              <label style="display:flex;flex-direction:column;gap:6px">
+                <span style="font-size:13px;font-weight:700;color:var(--color-danger)">희망 시공 시기</span>
+                <input value="" placeholder="YYYY-MM" style="height:48px;padding:0 14px;border:1px solid var(--color-danger);border-radius:var(--radius-md);background:var(--color-danger-bg);color:var(--color-text-primary);font-size:16px;outline:none" />
+                <span style="font-size:12px;color:var(--color-danger)">시기를 입력해야 시공자에게 노출됩니다.</span>
+              </label>
+              <label style="display:flex;flex-direction:column;gap:6px">
+                <span style="font-size:13px;font-weight:700;color:var(--color-text-tertiary)">예상 비용 (2차 오픈)</span>
+                <input value="" disabled="true" placeholder="준비 중" style="height:48px;padding:0 14px;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-bg-sunken);color:var(--color-text-tertiary);font-size:16px" />
+              </label>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <!-- Chips -->
+            <div style="border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-surface);padding:24px">
+              <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:14px">
+                <h3 style="margin:0;font-size:16px;font-weight:700">칩 — 공종 필터</h3>
+                <span style="font-family:var(--font-mono);font-size:11px;color:var(--color-primary-500)">--radius-full</span>
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px">
+                <sc-for list="{{ chips }}" as="chip" hint-placeholder-count="8">
+                  <button onClick="{{ chip.onClick }}" style="height:36px;padding:0 15px;border-radius:var(--radius-full);border:1px solid {{ chip.border }};background:{{ chip.bg }};color:{{ chip.fg }};font-size:14px;font-weight:600;cursor:pointer;transition:all .12s">{{ chip.label }}</button>
+                </sc-for>
+              </div>
+              <p style="margin:12px 0 0;font-size:12px;color:var(--color-text-tertiary)">선택: <span style="font-family:var(--font-mono)">{{ selectedText }}</span></p>
+            </div>
+
+            <!-- Badges -->
+            <div style="border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-surface);padding:24px">
+              <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:14px">
+                <h3 style="margin:0;font-size:16px;font-weight:700">뱃지 — 인증 · 상태</h3>
+                <span style="font-family:var(--font-mono);font-size:11px;color:var(--color-primary-500)">--color-{success,warning,danger}-bg</span>
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px">
+                <sc-for list="{{ badges }}" as="b" hint-placeholder-count="6">
+                  <span style="display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 10px;border-radius:var(--radius-sm);background:{{ b.bg }};color:{{ b.fg }};font-size:12px;font-weight:700;border:1px solid {{ b.border }}">{{ b.label }}</span>
+                </sc-for>
+              </div>
+              <p style="margin:12px 0 0;font-size:12px;line-height:1.5;color:var(--color-text-tertiary)">인증 뱃지만 secondary(클레이)를 쓴다. 컨택 상태는 success/warning/danger, 그 외 중립 정보는 회색.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cards -->
+        <div style="border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-surface);padding:24px">
+          <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:18px">
+            <h3 style="margin:0;font-size:16px;font-weight:700">카드</h3>
+            <span style="font-family:var(--font-mono);font-size:11px;color:var(--color-primary-500)">.card-photo / .card-pro</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+            <sc-for list="{{ photoCards }}" as="p" hint-placeholder-count="2">
+              <div style="border:1px solid var(--color-border);border-radius:var(--radius-md);overflow:hidden;background:var(--color-bg);cursor:pointer" style-hover="box-shadow:var(--shadow-1);border-color:var(--color-border-strong)">
+                <div style="position:relative;aspect-ratio:4/3;background:repeating-linear-gradient(135deg,#C4CAD1 0 10px,#B9C0C7 10px 20px);display:flex;align-items:center;justify-content:center">
+                  <span style="font-family:var(--font-mono);font-size:11px;color:#4A525B">{{ p.slot }}</span>
+                  <span style="position:absolute;left:8px;top:8px;background:rgba(255,255,255,.94);color:#171B20;font-size:11px;font-weight:700;padding:3px 8px;border-radius:var(--radius-sm)">{{ p.tag }}</span>
+                </div>
+                <div style="padding:10px 12px 12px;display:flex;flex-direction:column;gap:4px">
+                  <span style="font-size:14px;font-weight:700;line-height:1.4">{{ p.title }}</span>
+                  <span style="font-size:12px;color:var(--color-text-tertiary)">{{ p.meta }}</span>
+                </div>
+              </div>
+            </sc-for>
+
+            <div style="grid-column:span 2;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-bg);padding:16px;display:flex;flex-direction:column;gap:14px">
+              <div style="display:flex;gap:12px;align-items:flex-start">
+                <div style="width:52px;height:52px;border-radius:var(--radius-full);background:var(--color-primary-100);color:var(--color-primary-700);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;flex:none">김도</div>
+                <div style="display:flex;flex-direction:column;gap:5px;min-width:0;flex:1">
+                  <div style="display:flex;align-items:center;gap:7px">
+                    <span style="font-size:16px;font-weight:800">김도배</span>
+                    <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:var(--radius-sm);background:var(--color-secondary-100);color:var(--color-secondary-600);border:1px solid var(--color-secondary-300);font-size:11px;font-weight:700">인증 시공자</span>
+                  </div>
+                  <span style="font-size:13px;color:var(--color-text-secondary)">도배 · 경력 11년 · 시공 87건</span>
+                  <span style="font-size:13px;color:var(--color-text-tertiary)">활동 지역 서울 성북·강북·노원</span>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+                <div style="aspect-ratio:1;border-radius:var(--radius-sm);background:repeating-linear-gradient(135deg,#C4CAD1 0 10px,#B9C0C7 10px 20px)"></div>
+                <div style="aspect-ratio:1;border-radius:var(--radius-sm);background:repeating-linear-gradient(135deg,#C4CAD1 0 10px,#B9C0C7 10px 20px)"></div>
+                <div style="aspect-ratio:1;border-radius:var(--radius-sm);background:repeating-linear-gradient(135deg,#C4CAD1 0 10px,#B9C0C7 10px 20px)"></div>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid var(--color-border);padding-top:12px">
+                <span style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--color-success)">비용 공개</span>
+                <div style="display:flex;gap:8px">
+                  <button style="height:40px;padding:0 14px;border:1px solid var(--color-border-strong);border-radius:var(--radius-md);background:var(--color-surface);color:var(--color-text-primary);font-size:14px;font-weight:700;cursor:pointer">포트폴리오</button>
+                  <button style="height:40px;padding:0 16px;border:none;border-radius:var(--radius-md);background:var(--color-primary-500);color:#FFFFFF;font-size:14px;font-weight:700;cursor:pointer">컨택 요청</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Avatar / Toast / Skeleton / Empty -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div style="border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-surface);padding:24px">
+            <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:16px">
+              <h3 style="margin:0;font-size:16px;font-weight:700">아바타</h3>
+              <span style="font-family:var(--font-mono);font-size:11px;color:var(--color-primary-500)">24 / 32 / 40 / 52</span>
+            </div>
+            <div style="display:flex;align-items:flex-end;gap:14px">
+              <div style="width:24px;height:24px;border-radius:var(--radius-full);background:var(--color-primary-100);color:var(--color-primary-700);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800">이</div>
+              <div style="width:32px;height:32px;border-radius:var(--radius-full);background:var(--color-primary-100);color:var(--color-primary-700);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">박</div>
+              <div style="width:40px;height:40px;border-radius:var(--radius-full);background:repeating-linear-gradient(135deg,#C4CAD1 0 8px,#B9C0C7 8px 16px)"></div>
+              <div style="position:relative;width:52px;height:52px">
+                <div style="width:52px;height:52px;border-radius:var(--radius-full);background:var(--color-primary-100);color:var(--color-primary-700);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800">김도</div>
+                <span style="position:absolute;right:-1px;bottom:-1px;width:16px;height:16px;border-radius:var(--radius-full);background:var(--color-success);border:2px solid var(--color-surface)"></span>
+              </div>
+            </div>
+            <div style="margin-top:24px;display:flex;align-items:baseline;gap:10px;margin-bottom:14px">
+              <h3 style="margin:0;font-size:16px;font-weight:700">토스트</h3>
+              <span style="font-family:var(--font-mono);font-size:11px;color:var(--color-primary-500)">--shadow-2</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <sc-for list="{{ toasts }}" as="t" hint-placeholder-count="3">
+                <div style="display:flex;align-items:center;gap:10px;padding:13px 14px;border-radius:var(--radius-md);background:var(--color-surface);border:1px solid var(--color-border);border-left:3px solid {{ t.accent }};box-shadow:var(--shadow-2)">
+                  <span style="width:8px;height:8px;border-radius:var(--radius-full);background:{{ t.accent }};flex:none"></span>
+                  <span style="font-size:14px;font-weight:600;flex:1">{{ t.msg }}</span>
+                  <span style="font-size:13px;color:var(--color-text-tertiary);cursor:pointer">닫기</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div style="border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-surface);padding:24px">
+              <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:16px">
+                <h3 style="margin:0;font-size:16px;font-weight:700">빈 상태</h3>
+                <span style="font-size:11px;color:var(--color-text-tertiary)">콜드스타트 대비 — 기본값이 아니라 설계 대상</span>
+              </div>
+              <div style="border:1px dashed var(--color-border-strong);border-radius:var(--radius-md);padding:32px 24px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;background:var(--color-bg-subtle)">
+                <div style="width:44px;height:44px;border-radius:var(--radius-md);background:var(--color-bg-sunken);border:1px solid var(--color-border)"></div>
+                <span style="font-size:16px;font-weight:700">성북구에 등록된 도배 시공자가 아직 없어요</span>
+                <span style="font-size:14px;color:var(--color-text-secondary);max-width:340px;line-height:1.5">지역을 넓히면 12명을 볼 수 있습니다. 또는 의뢰를 먼저 올리면 시공자가 제안을 보냅니다.</span>
+                <div style="display:flex;gap:8px;margin-top:6px">
+                  <button style="height:40px;padding:0 16px;border:1px solid var(--color-border-strong);border-radius:var(--radius-md);background:var(--color-surface);color:var(--color-text-primary);font-size:14px;font-weight:700;cursor:pointer">서울 전체 보기</button>
+                  <button style="height:40px;padding:0 16px;border:none;border-radius:var(--radius-md);background:var(--color-primary-500);color:#FFFFFF;font-size:14px;font-weight:700;cursor:pointer">의뢰 등록하기</button>
+                </div>
+              </div>
+            </div>
+            <div style="border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-surface);padding:24px">
+              <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:16px">
+                <h3 style="margin:0;font-size:16px;font-weight:700">스켈레톤</h3>
+                <span style="font-family:var(--font-mono);font-size:11px;color:var(--color-primary-500)">fit-shimmer 1.4s</span>
+              </div>
+              {{ skeleton }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer style="margin-top:48px;padding-top:24px;border-top:1px solid var(--color-border);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap">
+      <span style="font-size:13px;color:var(--color-text-tertiary)">Fitter 디자인 시스템 · 모바일 390px 우선, 데스크톱 1280px 확장</span>
+      <span style="font-family:var(--font-mono);font-size:12px;color:var(--color-text-tertiary)">tokens: color 42 · type 6 · space 10 · radius 5 · shadow 3</span>
+    </footer>
+  </div>
+</div>]]>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;'light' | 'dark'&quot;},&quot;showVarNames&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;showContrast&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = { theme: null, vars: null, contrast: null, selected: ["도배"], title: "성북구 24평 도배" };
+
+  get theme() { return this.state.theme ?? this.props.theme ?? "light"; }
+  get vars() { return this.state.vars ?? (this.props.showVarNames ?? true); }
+  get contrast() { return this.state.contrast ?? (this.props.showContrast ?? true); }
+
+  renderVals() {
+    const R = React.createElement;
+    const sel = this.state.selected;
+    const chipLabels = ["전체", "도배", "바닥·장판", "타일", "목공", "필름", "조명·전기", "욕실", "주방", "철거"];
+
+    const chips = chipLabels.map(label => {
+      const on = sel.includes(label);
+      return {
+        label, 
+        bg: on ? "var(--color-primary-500)" : "var(--color-surface)",
+        fg: on ? "#FFFFFF" : "var(--color-text-secondary)",
+        border: on ? "var(--color-primary-500)" : "var(--color-border-strong)",
+        onClick: () => this.setState(s => ({
+          selected: s.selected.includes(label) ? s.selected.filter(x => x !== label) : [...s.selected, label]
+        }))
+      };
+    });
+
+    const mk = (hex, v, use, ratio) => ({ hex, var: v, use, ratio, showRatio: this.contrast && !!ratio });
+
+    const scales = [
+      { title: "Primary — 슬레이트 블루", note: "행동·링크·선택 상태. 사진의 우드·베이지와 충돌하지 않는 낮은 채도", items: [
+        mk("#EEF3F8","--color-primary-50","선택 칩 배경, ghost hover"),
+        mk("#D8E4EF","--color-primary-100","포커스 링, 아바타 배경"),
+        mk("#B3C9DE","--color-primary-200","비활성 강조, 구분선"),
+        mk("#85A7C7","--color-primary-300","차트·게이지"),
+        mk("#5583AC","--color-primary-400","다크모드 hover"),
+        mk("#2F6390","--color-primary-500","기본 버튼·링크","6.35:1 AA"),
+        mk("#245176","--color-primary-600","hover / pressed","8.35:1 AAA"),
+        mk("#1C405D","--color-primary-700","아바타 이니셜 텍스트","11.2:1 AAA"),
+        mk("#163348","--color-primary-800","다크 서피스 위 강조")
+      ]},
+      { title: "Secondary — 클레이", note: "인증·신뢰 신호 전용. 장식으로 쓰지 않는다", items: [
+        mk("#F3E9E2","--color-secondary-100","인증 뱃지 배경"),
+        mk("#D9AE92","--color-secondary-300","인증 뱃지 보더"),
+        mk("#A8623C","--color-secondary-500","인증 아이콘·강조","4.69:1 AA"),
+        mk("#8B4E2D","--color-secondary-600","뱃지 텍스트","6.1:1 AA")
+      ]},
+      { title: "배경 · 서피스", note: "쿨 그레이. 사진 색을 왜곡하지 않는 최소 색조", items: [
+        mk("#FFFFFF","--color-bg / --color-surface","페이지·카드 기본"),
+        mk("#F5F7F9","--color-bg-subtle","섹션 구분, 인풋 그룹"),
+        mk("#EDF0F3","--color-bg-sunken","앱 캔버스, disabled 배경"),
+        mk("#F5F7F9","--color-surface-hover","카드·행 hover")
+      ]},
+      { title: "텍스트 3단계", note: "전부 흰 배경에서 AA 이상", items: [
+        mk("#171B20","--color-text-primary","제목·본문","17.3:1 AAA"),
+        mk("#515A65","--color-text-secondary","보조 설명·라벨","7.0:1 AAA"),
+        mk("#69737F","--color-text-tertiary","메타·플레이스홀더","4.82:1 AA"),
+        mk("#FFFFFF","--color-text-inverse","컬러 버튼 위 텍스트","6.35:1 AA")
+      ]},
+      { title: "상태 — 성공 · 경고 · 위험", note: "원색을 낮춰 사진 옆에서 튀지 않게", items: [
+        mk("#1F7A4C","--color-success","컨택 수락, 비용 공개","5.32:1 AA"),
+        mk("#E7F3EC","--color-success-bg","성공 뱃지 배경"),
+        mk("#9A6B0F","--color-warning","응답 대기, 검수 중","4.68:1 AA"),
+        mk("#FBF1DC","--color-warning-bg","경고 뱃지 배경"),
+        mk("#B03A2E","--color-danger","거절·취소·삭제","6.02:1 AA"),
+        mk("#FBEAE7","--color-danger-bg","오류 인풋 배경")
+      ]},
+      { title: "보더 · 스크림", note: "사진 카드는 그림자 대신 보더로 경계를 만든다", items: [
+        mk("#DFE4E9","--color-border","카드·구분선 기본"),
+        mk("#C7CED6","--color-border-strong","인풋·secondary 버튼"),
+        mk("#2F6390","--color-border-focus","포커스 링","6.35:1 AA"),
+        mk("#0E1114","--color-scrim","사진 위 텍스트용 56% 그라디언트")
+      ]}
+    ];
+
+    const darkTokens = [
+      { hex:"#12161A", var:"--color-bg", use:"페이지 배경 (순검정 아님)" },
+      { hex:"#1A1F25", var:"--color-surface", use:"카드·시트" },
+      { hex:"#313941", var:"--color-border", use:"보더 1.55:1 (비텍스트)" },
+      { hex:"#E9EDF1", var:"--color-text-primary", use:"본문 15.45:1 AAA" },
+      { hex:"#A9B3BD", var:"--color-text-secondary", use:"보조 8.54:1 AAA" },
+      { hex:"#8B96A2", var:"--color-text-tertiary", use:"메타 6.04:1 AA" },
+      { hex:"#6FA3CF", var:"--color-primary-500", use:"버튼·링크 6.76:1 AA" },
+      { hex:"#4FB07A", var:"--color-success", use:"성공 6.77:1 AA" },
+      { hex:"#D9A63C", var:"--color-warning", use:"경고 8.20:1 AAA" },
+      { hex:"#E8776A", var:"--color-danger", use:"위험 6.30:1 AA" }
+    ];
+
+    const aaRows = [
+      { label: "본문 #171B20 / 흰 배경", ratio: "17.30:1", grade: "AAA" },
+      { label: "보조 #515A65 / 흰 배경", ratio: "7.00:1", grade: "AAA" },
+      { label: "메타 #69737F / 흰 배경", ratio: "4.82:1", grade: "AA" },
+      { label: "메타 #69737F / #F5F7F9", ratio: "4.49:1", grade: "AA" },
+      { label: "흰 텍스트 / Primary-500 버튼", ratio: "6.35:1", grade: "AA" },
+      { label: "Primary-500 링크 / #F5F7F9", ratio: "5.91:1", grade: "AA" },
+      { label: "Danger #B03A2E / 흰 배경", ratio: "6.02:1", grade: "AA" },
+      { label: "다크 본문 #E9EDF1 / #12161A", ratio: "15.45:1", grade: "AAA" }
+    ];
+
+    const typeScale = [
+      { name:"display", size:"40px", weight:800, lh:"1.2", ls:"-0.03em", spec:"40/800/1.2/-0.03em (32px)", var:"--text-display", use:"랜딩 히어로 1개", sample:"중간 마진 없이, 사진으로 맞춘다" },
+      { name:"h1", size:"28px", weight:800, lh:"1.3", ls:"-0.02em", spec:"28/800/1.3/-0.02em (24px)", var:"--text-h1", use:"페이지 제목", sample:"성북구 24평 도배 의뢰" },
+      { name:"h2", size:"22px", weight:700, lh:"1.35", ls:"-0.015em", spec:"22/700/1.35/-0.015em (20px)", var:"--text-h2", use:"섹션 제목", sample:"이 시공자의 포트폴리오" },
+      { name:"h3", size:"17px", weight:700, lh:"1.4", ls:"-0.01em", spec:"17/700/1.4/-0.01em (16px)", var:"--text-h3", use:"카드 제목, 리스트 헤더", sample:"김도배 · 경력 11년" },
+      { name:"body", size:"16px", weight:400, lh:"1.6", ls:"0", spec:"16/400/1.6/0 (15px)", var:"--text-body", use:"본문, 인풋 값 (16px 미만 금지 — iOS 확대)", sample:"실크 벽지, 8월 중순 시공 희망합니다." },
+      { name:"caption", size:"13px", weight:500, lh:"1.45", ls:"0", spec:"13/500/1.45/0", var:"--text-caption", use:"메타·타임스탬프·헬퍼", sample:"3시간 전 · 시공 87건 · 응답률 92%" }
+    ];
+
+    const spacing = [
+      { var:"--space-1", px:"4px", use:"아이콘-텍스트 간격" },
+      { var:"--space-2", px:"8px", use:"칩 사이, 뱃지 내부" },
+      { var:"--space-3", px:"12px", use:"카드 내부 요소" },
+      { var:"--space-4", px:"16px", use:"카드 패딩(모바일), 그리드 갭" },
+      { var:"--space-5", px:"20px", use:"폼 필드 사이" },
+      { var:"--space-6", px:"24px", use:"카드 패딩(데스크톱)" },
+      { var:"--space-8", px:"32px", use:"블록 사이" },
+      { var:"--space-10", px:"40px", use:"페이지 좌우 여백(데스크톱)" },
+      { var:"--space-12", px:"48px", use:"섹션 사이(모바일)" },
+      { var:"--space-16", px:"64px", use:"섹션 사이(데스크톱)" }
+    ];
+
+    const radii = [
+      { var:"--radius-sm", px:"4px" }, { var:"--radius-md", px:"8px" },
+      { var:"--radius-lg", px:"12px" }, { var:"--radius-xl", px:"16px" }, { var:"--radius-full", px:"999px" }
+    ];
+
+    const badges = [
+      { label:"인증 시공자", bg:"var(--color-secondary-100)", fg:"var(--color-secondary-600)", border:"var(--color-secondary-300)" },
+      { label:"컨택 수락됨", bg:"var(--color-success-bg)", fg:"var(--color-success)", border:"transparent" },
+      { label:"응답 대기", bg:"var(--color-warning-bg)", fg:"var(--color-warning)", border:"transparent" },
+      { label:"거절됨", bg:"var(--color-danger-bg)", fg:"var(--color-danger)", border:"transparent" },
+      { label:"비용 공개", bg:"var(--color-primary-50)", fg:"var(--color-primary-600)", border:"transparent" },
+      { label:"신규", bg:"var(--color-bg-sunken)", fg:"var(--color-text-secondary)", border:"transparent" },
+      { label:"모집 마감", bg:"var(--color-bg-sunken)", fg:"var(--color-text-tertiary)", border:"transparent" }
+    ];
+
+    const photoCards = [
+      { slot:"시공 사진 4:3", tag:"도배", title:"화이트 실크 + 우드 몰딩", meta:"성북구 24평 · 2026.06" },
+      { slot:"레퍼런스 4:3", tag:"레퍼런스", title:"거실 이렇게 해주세요", meta:"사진 6장 · 8월 중순 희망" }
+    ];
+
+    const toasts = [
+      { msg:"컨택 요청을 보냈습니다", accent:"var(--color-success)" },
+      { msg:"사진 2장이 업로드 대기 중입니다", accent:"var(--color-warning)" },
+      { msg:"업로드에 실패했습니다. 다시 시도하세요", accent:"var(--color-danger)" }
+    ];
+
+    const shimmer = {
+      background: "linear-gradient(90deg, var(--color-bg-sunken) 0%, var(--color-bg-subtle) 40%, var(--color-bg-sunken) 80%)",
+      backgroundSize: "320px 100%",
+      animation: "fit-shimmer 1.4s linear infinite",
+      borderRadius: "var(--radius-sm)"
+    };
+    const bar = (w, h, extra) => R("div", { style: { ...shimmer, width: w, height: h, ...(extra || {}) } });
+    const skeleton = R("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" } },
+      R("div", { style: { display: "flex", flexDirection: "column", gap: "8px" } },
+        bar("100%", "120px", { borderRadius: "var(--radius-md)" }), bar("80%", "14px"), bar("52%", "12px")),
+      R("div", { style: { display: "flex", flexDirection: "column", gap: "10px" } },
+        R("div", { style: { display: "flex", gap: "10px", alignItems: "center" } },
+          bar("44px", "44px", { borderRadius: "var(--radius-full)", flex: "none" }),
+          R("div", { style: { display: "flex", flexDirection: "column", gap: "6px", flex: 1 } }, bar("70%", "13px"), bar("45%", "11px"))),
+        bar("100%", "12px"), bar("88%", "12px"), bar("34%", "12px"))
+    );
+
+    const spinner = R("span", { style: {
+      width: "15px", height: "15px", borderRadius: "999px", flex: "none",
+      border: "2px solid rgba(255,255,255,.35)", borderTopColor: "#FFFFFF",
+      animation: "fit-spin .7s linear infinite", display: "inline-block"
+    }});
+
+    return {
+      theme: this.theme,
+      themeLabel: this.theme === "dark" ? "라이트 모드" : "다크 모드",
+      showVars: this.vars,
+      toggleTheme: () => this.setState({ theme: this.theme === "dark" ? "light" : "dark" }),
+      toggleVars: () => this.setState({ vars: !this.vars }),
+      toggleContrast: () => this.setState({ contrast: !this.contrast }),
+      scales, darkTokens, aaRows, typeScale, spacing, radii, chips, badges, photoCards, toasts,
+      selectedText: sel.length ? sel.join(", ") : "없음",
+      titleValue: this.state.title,
+      onTitle: e => this.setState({ title: e.target.value }),
+      skeleton, spinner
+    };
+  }
+}
+</script>
+</body>
+</html>

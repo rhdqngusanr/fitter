@@ -101,11 +101,12 @@
 /*
  * 시안 02 TYPE 의 "괄호 안은 모바일(390px) 값".
  *
- * 경계를 768px 로 잡았다 — 시안이 그리는 프레임은 390 과 1280 둘뿐이라 그 사이
- * 어디서 갈라도 시안과 어긋나지 않는다. 태블릿은 모바일 스케일을 받는다.
+ * 경계는 **640px** 다. 토큰 정본(`design-split/code/fitter-tokens.css`)이 적어둔 값이라
+ * 그대로 따른다. 레이아웃 경계(768px)와 다른 게 이상해 보이지만 둘은 다른 축이다 —
+ * 타입 스케일은 글자가 언제 작아지는지, 레이아웃은 단이 언제 접히는지를 정한다.
  * caption 은 시안에 모바일 값이 없어서 그대로 둔다.
  */
-@media (max-width: 768px) {
+@media (max-width: 640px) {
   :root {
     --text-display: 32px;
     --text-h1: 24px;
@@ -170,12 +171,37 @@
   box-sizing: border-box;
 }
 
+/*
+ * 페이지 바탕은 **흰색이다.**
+ *
+ * 여기가 오래 틀려 있었다. 시안 파일을 열면 회색(`--color-bg-sunken`) 위에 1280px
+ * 프레임이 놓여 있는데, 그 회색은 **시안 뷰어의 캔버스**지 화면의 배경이 아니다.
+ * 프레임 안쪽(`design-split/*.dc.html` 의 프레임 div)은 전부 `--color-bg` = #FFFFFF 다.
+ * 실제로 브라우저에서 렌더해 확인했다 — 시안 프레임 배경 rgb(255,255,255).
+ *
+ * 캔버스 색을 body 에 옮겨 적는 바람에 서비스 전체가 회색 판 위에 흰 카드가 떠 있는
+ * 모습이 됐다. 섹션 구분·타이포·간격이 다 맞아도 이것 하나로 화면이 낡아 보인다.
+ * `design-split/code/fitter-tokens.css` 의 body 규칙도 `background:var(--color-bg)` 다.
+ *
+ * 회색을 쓰는 곳은 시안이 명시한 자리뿐이다 — `이용 방법` 섹션(`--color-bg-subtle`)처럼.
+ */
 body {
   margin: 0;
-  background: var(--color-bg-sunken);
+  padding: 0;
+  background: var(--color-bg);
   color: var(--color-text-primary);
   font-family: var(--font-sans);
-  line-height: 1.6;
+  /* 정본이 body 에 기본 크기를 박아둔다. 없으면 브라우저 기본 16px 에 의존하게 된다. */
+  font-size: var(--text-body);
+  /*
+   * **행간을 여기서 정하지 않는다.** 정본(`fitter-tokens.css`)의 body 에 line-height 가
+   * 없고, `.fit-display/h1/h2/h3/body/caption` 이 각자 1.15~1.6 을 갖는다.
+   *
+   * 전에는 여기에 1.6 이 있었다. 그러면 행간을 따로 안 정한 것 — 제목·라벨·뱃지·버튼 —
+   * 이 전부 1.6 을 물려받아 시안보다 30% 씩 키가 커진다. 실제로 랜딩의 2줄 h2 가
+   * 시안 62px, 구현 83px 이었다. 값이 다 맞는데도 화면이 헐거워 보이던 이유가 이것이다.
+   * 문단은 아래 `p` 규칙과 `.t-body` 가 1.6 을 되돌려준다.
+   */
   -webkit-font-smoothing: antialiased;
   /*
    * 금액·평수·공사일수처럼 숫자가 세로로 늘어서는 화면이라 고정폭 숫자를 쓴다.
@@ -205,6 +231,8 @@ textarea {
 :focus-visible {
   outline: 2px solid var(--color-border-focus);
   outline-offset: 2px;
+  /* 정본이 링 모서리를 둥글게 잡는다. 없으면 알약 모양 칩 위에 각진 링이 그려진다. */
+  border-radius: var(--radius-sm);
 }
 
 /*
@@ -329,6 +357,17 @@ h3 {
   margin: 0;
   font-size: inherit;
   font-weight: inherit;
+  /* 제목은 붙는다. 시안의 `.fit-h1/h2/h3` 가 1.25~1.4 인데 그 가운데를 기본값으로 둔다. */
+  line-height: 1.3;
+}
+
+/*
+ * 문단만 넓은 행간을 갖는다. body 에서 1.6 을 걷어낸 뒤 그것을 되돌려주는 자리다.
+ * 시안의 `<p>` 는 전부 `line-height:1.6` 을 직접 달고 있고, 제목·라벨에는 안 단다.
+ * 더 넓게 쓰는 곳(본문 노트 1.7)은 자기 클래스에서 덮는다.
+ */
+p {
+  line-height: 1.6;
 }
 
 /*

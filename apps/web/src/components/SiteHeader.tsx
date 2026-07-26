@@ -133,7 +133,11 @@ export function SiteHeader() {
               </>
             ) : (
               <>
-                <a href="/login" className="btn btn--ghost btn--md site-header__login">
+                {/*
+                  ghost(파란 글자)가 아니라 quiet(회색 글자)다. 시안 G-01 헤더가 그렇다 —
+                  `로그인` 이 파랗면 옆의 `시작하기` 와 주 행동을 다툰다.
+                */}
+                <a href="/login" className="btn btn--quiet btn--md site-header__login">
                   로그인
                 </a>
                 <a href="/signup" className="btn btn--primary btn--md">

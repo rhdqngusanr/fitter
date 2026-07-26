@@ -13,6 +13,13 @@ export default tseslint.config(
       '**/next-env.d.ts',
       'docs/**',
       'design/**',
+      /*
+       * 뷰포트별로 쪼갠 시안. `design/` 과 같은 이유로 검사하지 않는다 —
+       * 시안 뷰어 스크립트(`support.js`)는 브라우저에서만 도는 코드라
+       * Node 기준 `no-undef` 가 window·document를 전부 미정의로 잡는다.
+       * 우리가 고칠 대상이 아니라 대조용 자산이다.
+       */
+      'design-split/**',
       'brain/**',
     ],
   },

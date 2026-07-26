@@ -187,7 +187,17 @@ export default function ProProfilePage() {
       openToWork === !profile.isDormant,
     ];
     return same.filter((s) => !s).length;
-  }, [profile, businessName, phone, careerYears, intro, businessNumber, categories, areas, openToWork]);
+  }, [
+    profile,
+    businessName,
+    phone,
+    careerYears,
+    intro,
+    businessNumber,
+    categories,
+    areas,
+    openToWork,
+  ]);
 
   /* 필수 셋. 도메인의 requiredMet 과 같은 규칙이지만 여기선 저장 전 입력값을 본다. */
   const requiredMet = businessName.trim().length > 0 && categories.length > 0 && areas.length > 0;
@@ -254,7 +264,7 @@ export default function ProProfilePage() {
 
   if (loadError) {
     return (
-      <main className="shell shell--content prof">
+      <main className="shell prof">
         <div className="empty">
           <strong className="empty__title">프로필을 불러오지 못했습니다</strong>
           <p className="empty__body">{loadError}</p>
@@ -266,14 +276,18 @@ export default function ProProfilePage() {
 
   if (!profile) {
     return (
-      <main className="shell shell--content prof" aria-busy="true">
+      <main className="shell prof" aria-busy="true">
         <div className="prof__head">
           <span className="skeleton" style={{ width: '340px', height: '36px' }} />
           <span className="skeleton" style={{ width: '100%', maxWidth: '560px', height: '20px' }} />
         </div>
         <div className="prof__form">
           {[0, 1, 2].map((i) => (
-            <span key={i} className="skeleton" style={{ height: '180px', borderRadius: 'var(--radius-lg)' }} />
+            <span
+              key={i}
+              className="skeleton"
+              style={{ height: '180px', borderRadius: 'var(--radius-lg)' }}
+            />
           ))}
         </div>
       </main>
@@ -347,7 +361,7 @@ export default function ProProfilePage() {
     .join('·');
 
   return (
-    <main className="shell shell--content prof">
+    <main className="shell prof">
       {isNew && (
         <div className="prof__progress">
           <div className="prof__progress-row">
@@ -361,7 +375,9 @@ export default function ProProfilePage() {
       )}
 
       <div className="prof__head">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
+        <div
+          style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', flexWrap: 'wrap' }}
+        >
           <h1 className="prof__h1">{isNew ? '시공자 프로필을 만들어 주세요' : '프로필 편집'}</h1>
           <Badge tone={statusTone}>{statusLabel}</Badge>
         </div>
@@ -399,7 +415,9 @@ export default function ProProfilePage() {
               <Field
                 label="활동명"
                 hint="고객 목록과 제안에 그대로 노출됩니다. 실명 또는 상호를 권장합니다."
-                error={invalidFields.includes('businessName') ? '활동명을 입력해 주세요.' : undefined}
+                error={
+                  invalidFields.includes('businessName') ? '활동명을 입력해 주세요.' : undefined
+                }
               >
                 <input
                   className={`input${invalidFields.includes('businessName') ? ' input--error' : ''}`}
@@ -413,7 +431,9 @@ export default function ProProfilePage() {
               <Field
                 label="휴대폰 번호"
                 hint="컨택이 수락된 고객에게만 공개됩니다."
-                error={invalidFields.includes('phone') ? '숫자 10~11자리를 입력해 주세요.' : undefined}
+                error={
+                  invalidFields.includes('phone') ? '숫자 10~11자리를 입력해 주세요.' : undefined
+                }
               >
                 <input
                   className={`input${invalidFields.includes('phone') ? ' input--error' : ''}`}
@@ -448,7 +468,9 @@ export default function ProProfilePage() {
                       aria-pressed={active}
                       /* 상한에 닿으면 새로 고르는 것만 막는다. 해제는 언제나 된다. */
                       disabled={!active && categories.length >= PRO_CATEGORY_LIMIT}
-                      onClick={() => setCategories((cur) => toggle(cur, c.code, PRO_CATEGORY_LIMIT))}
+                      onClick={() =>
+                        setCategories((cur) => toggle(cur, c.code, PRO_CATEGORY_LIMIT))
+                      }
                     >
                       {c.nameKo}
                     </button>
@@ -523,7 +545,9 @@ export default function ProProfilePage() {
               <Field
                 label="사업자등록번호"
                 hint="선택 · 관리자가 승인 심사에서 확인합니다."
-                error={invalidFields.includes('businessNumber') ? '자릿수를 확인해 주세요.' : undefined}
+                error={
+                  invalidFields.includes('businessNumber') ? '자릿수를 확인해 주세요.' : undefined
+                }
               >
                 <input
                   className={`input${invalidFields.includes('businessNumber') ? ' input--error' : ''}`}
@@ -559,7 +583,12 @@ export default function ProProfilePage() {
           <div className="prof__save">
             <span className="prof__save-hint">{saveHint}</span>
             <div className="prof__save-actions">
-              <Button type="button" variant="secondary" onClick={() => void load()} disabled={saving}>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => void load()}
+                disabled={saving}
+              >
                 되돌리기
               </Button>
               <Button type="submit" pending={saving} disabled={!requiredMet}>
@@ -589,7 +618,9 @@ export default function ProProfilePage() {
                 <Avatar name={businessName || profile.nickname} size={52} />
                 <span className="prof-preview__ident">
                   <span className="prof-preview__name-row">
-                    <strong className="prof-preview__name">{businessName || '활동명 미입력'}</strong>
+                    <strong className="prof-preview__name">
+                      {businessName || '활동명 미입력'}
+                    </strong>
                     {profile.isApproved && !isNew && (
                       <Badge tone="verified" size="xs">
                         승인 시공자
@@ -652,9 +683,7 @@ export default function ProProfilePage() {
 
       {/* 모바일 저장 바. 데스크톱은 폼 끝의 `.prof__save` 가 맡는다. */}
       <div className="sticky-cta">
-        {dirtyCount > 0 && (
-          <span className="prof__dirty">저장하지 않은 변경 {dirtyCount}건</span>
-        )}
+        {dirtyCount > 0 && <span className="prof__dirty">저장하지 않은 변경 {dirtyCount}건</span>}
         <Button
           type="button"
           pending={saving}

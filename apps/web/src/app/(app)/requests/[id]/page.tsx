@@ -231,9 +231,7 @@ export default function RequestDetailPage() {
         const missing = (err.details as { missing?: string[] } | undefined)?.missing ?? [];
         const named = missing.map((k) => MISSING_LABELS[k] ?? k).filter(Boolean);
         setActionError(
-          named.length > 0
-            ? `다시 열려면 ${named.join(' · ')}이 필요합니다.`
-            : err.message,
+          named.length > 0 ? `다시 열려면 ${named.join(' · ')}이 필요합니다.` : err.message,
         );
       } else {
         setActionError('다시 열지 못했습니다.');
@@ -245,7 +243,7 @@ export default function RequestDetailPage() {
 
   if (loadError) {
     return (
-      <main className="shell shell--content req">
+      <main className="shell req">
         <div className="empty">
           <strong className="empty__title">의뢰를 볼 수 없습니다</strong>
           <p className="empty__body">{loadError}</p>
@@ -260,7 +258,7 @@ export default function RequestDetailPage() {
   /* 로딩 스켈레톤. 시안이 제목·상태 칩 자리를 먼저 잡는 이유는 레이아웃이 흔들리지 않게다. */
   if (!detail || !sorted) {
     return (
-      <main className="shell shell--content req" aria-busy="true">
+      <main className="shell req" aria-busy="true">
         <div className="req__head">
           <span className="skeleton" style={{ width: '120px', height: '26px' }} />
           <span className="skeleton" style={{ width: '70%', maxWidth: '520px', height: '34px' }} />
@@ -315,7 +313,7 @@ export default function RequestDetailPage() {
   const moreCount = Math.max(0, detail.images.length - 4);
 
   return (
-    <main className="shell shell--content req">
+    <main className="shell req">
       <nav className="req__crumb" aria-label="위치">
         <Link href="/requests/mine">내 의뢰</Link>
         <span aria-hidden="true">/</span>
@@ -342,7 +340,12 @@ export default function RequestDetailPage() {
             */}
             <span>새 제안은 오지 않습니다. 다시 열면 목록에 되돌아갑니다.</span>
           </span>
-          <Button variant="secondary" size="sm" pending={busy === 'reopen'} onClick={() => void reopen()}>
+          <Button
+            variant="secondary"
+            size="sm"
+            pending={busy === 'reopen'}
+            onClick={() => void reopen()}
+          >
             다시 열기
           </Button>
         </div>
@@ -355,9 +358,7 @@ export default function RequestDetailPage() {
             return (
               <span key={img.id} className="req__photo">
                 {src && <PhotoImg src={src} alt="" />}
-                {i === 3 && moreCount > 0 && (
-                  <span className="req__photo-more">+{moreCount}</span>
-                )}
+                {i === 3 && moreCount > 0 && <span className="req__photo-more">+{moreCount}</span>}
               </span>
             );
           })}
@@ -417,8 +418,8 @@ export default function RequestDetailPage() {
                   시안은 "보통 4시간 안에 첫 제안이 옵니다"라고 적었다. **그 통계가 없다.**
                   대신 제안이 오게 하려면 무엇을 할 수 있는지만 말한다.
                 */}
-                공개된 의뢰는 조건이 맞는 시공자의 목록에 올라갑니다. 제안이 늦어진다면 사진을
-                더 올리거나, 시공자를 직접 찾아 문의해 보세요.
+                공개된 의뢰는 조건이 맞는 시공자의 목록에 올라갑니다. 제안이 늦어진다면 사진을 더
+                올리거나, 시공자를 직접 찾아 문의해 보세요.
               </span>
               <div className="req-waiting__actions">
                 <Link className="btn btn--primary btn--md" href="/pros">
@@ -581,9 +582,7 @@ export default function RequestDetailPage() {
                 <span className="req-side__stat">
                   <span className="req-side__stat-label">가장 최근 제안</span>
                   <span className="req-side__stat-value">
-                    {ago(
-                      sorted.reduce((a, b) => (a.createdAt > b.createdAt ? a : b)).createdAt,
-                    )}
+                    {ago(sorted.reduce((a, b) => (a.createdAt > b.createdAt ? a : b)).createdAt)}
                   </span>
                 </span>
               )}
@@ -599,11 +598,7 @@ export default function RequestDetailPage() {
                   의뢰 다시 열기
                 </Button>
               ) : (
-                <Button
-                  variant="danger-ghost"
-                  block
-                  onClick={() => setClosing(true)}
-                >
+                <Button variant="danger-ghost" block onClick={() => setClosing(true)}>
                   의뢰 마감하기
                 </Button>
               )}
@@ -640,8 +635,8 @@ export default function RequestDetailPage() {
               이 의뢰를 마감할까요?
             </h2>
             <p className="req-close__body">
-              마감하면 새 제안이 오지 않고 시공자의 의뢰 목록에서 내려갑니다. 이미 수락한
-              시공자와의 연락은 그대로 유지되고, 언제든 다시 열 수 있습니다.
+              마감하면 새 제안이 오지 않고 시공자의 의뢰 목록에서 내려갑니다. 이미 수락한 시공자와의
+              연락은 그대로 유지되고, 언제든 다시 열 수 있습니다.
             </p>
             {/*
               시안의 `마감 사유 (선택)` 칩 넷은 넣지 않았다 — **저장할 컬럼이 없다.**

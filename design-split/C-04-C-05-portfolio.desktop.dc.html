@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<![CDATA[<helmet>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+<style>
+:root{
+  --color-primary-50:#EEF3F8; --color-primary-100:#D8E4EF; --color-primary-200:#B3C9DE; --color-primary-300:#85A7C7;
+  --color-primary-400:#5583AC; --color-primary-500:#2F6390; --color-primary-600:#245176; --color-primary-700:#1C405D; --color-primary-800:#163348;
+  --color-secondary-100:#F3E9E2; --color-secondary-300:#D9AE92; --color-secondary-500:#A8623C; --color-secondary-600:#8B4E2D;
+  --color-bg:#FFFFFF; --color-bg-subtle:#F5F7F9; --color-bg-sunken:#EDF0F3; --color-surface:#FFFFFF; --color-surface-hover:#F5F7F9;
+  --color-text-primary:#171B20; --color-text-secondary:#515A65; --color-text-tertiary:#69737F; --color-text-inverse:#FFFFFF;
+  --color-success-bg:#E7F3EC; --color-success:#1F7A4C; --color-warning-bg:#FBF1DC; --color-warning:#9A6B0F;
+  --color-danger-bg:#FBEAE7; --color-danger:#B03A2E;
+  --color-border:#DFE4E9; --color-border-strong:#C7CED6; --color-border-focus:#2F6390;
+  --color-scrim:rgba(14,17,20,.56);
+  --radius-sm:4px; --radius-md:8px; --radius-lg:12px; --radius-xl:16px; --radius-full:999px;
+  --shadow-1:0 1px 2px rgba(23,27,32,.06), 0 1px 3px rgba(23,27,32,.08);
+  --shadow-2:0 2px 6px rgba(23,27,32,.06), 0 6px 16px rgba(23,27,32,.10);
+  --shadow-3:0 8px 20px rgba(23,27,32,.10), 0 20px 44px rgba(23,27,32,.14);
+  --font-sans:"Pretendard Variable",Pretendard,-apple-system,system-ui,sans-serif;
+  --font-mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
+}
+body{margin:0;font-family:var(--font-sans);-webkit-font-smoothing:antialiased;background:var(--color-bg-sunken);font-feature-settings:"tnum";}
+*{box-sizing:border-box;}
+a{color:var(--color-primary-500);text-decoration:none;}
+a:hover{color:var(--color-primary-600);text-decoration:underline;}
+button,input,select,textarea{font-family:inherit;}
+:focus-visible{outline:2px solid var(--color-border-focus);outline-offset:2px;border-radius:var(--radius-sm);}
+@keyframes fit-shimmer{0%{background-position:-320px 0}100%{background-position:320px 0}}
+@keyframes fit-spin{to{transform:rotate(360deg)}}
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:var(--color-bg-sunken);padding:24px 0 80px">
+
+  <div style="padding:0 24px;display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;justify-content:space-between">
+      <div style="display:flex;align-items:baseline;gap:10px">
+        <span style="font-size:20px;font-weight:800;letter-spacing:-.02em;color:var(--color-text-primary)">{{ screenTitle }}</span>
+        <span style="font-size:13px;color:var(--color-text-tertiary)">{{ screenSub }}</span>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <sc-for list="{{ stateTabs }}" as="t" hint-placeholder-count="6">
+          <button onClick="{{ t.onClick }}" aria-pressed="{{ t.active }}" style="height:34px;padding:0 13px;border-radius:var(--radius-full);border:1px solid {{ t.border }};background:{{ t.bg }};color:{{ t.fg }};font-size:13px;font-weight:700;cursor:pointer">{{ t.label }}</button>
+        </sc-for>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <span style="font-size:12px;font-weight:700;color:var(--color-text-tertiary)">SCREEN</span>
+      <sc-for list="{{ screenTabs }}" as="s" hint-placeholder-count="2">
+        <button onClick="{{ s.onClick }}" aria-pressed="{{ s.active }}" style="height:30px;padding:0 12px;border-radius:var(--radius-full);border:1px solid {{ s.border }};background:{{ s.bg }};color:{{ s.fg }};font-size:12px;font-weight:700;cursor:pointer">{{ s.label }}</button>
+      </sc-for>
+      <span style="margin-left:8px;display:inline-flex;align-items:center;height:26px;padding:0 10px;border-radius:var(--radius-sm);background:{{ authBg }};color:{{ authFg }};font-size:12px;font-weight:700">{{ authLabel }}</span>
+    </div>
+    <p style="margin:0;font-size:13px;line-height:1.6;color:var(--color-text-secondary);max-width:1000px">{{ stateNote }}</p>
+  </div>
+
+  <div style="margin:24px 0 0;padding:0 24px 12px;display:flex;gap:28px;align-items:flex-start;overflow-x:auto">
+
+        <!-- DESKTOP -->
+    <div style="flex:0 0 1280px;width:1280px;display:flex;flex-direction:column;gap:10px">
+      <span style="font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:var(--color-text-tertiary)">DESKTOP 1280</span>
+      <div style="background:var(--color-bg);border:1px solid var(--color-border-strong);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-2)">
+
+        <header style="height:68px;border-bottom:1px solid var(--color-border);padding:0 40px;display:flex;align-items:center;justify-content:space-between;gap:24px">
+          <div style="display:flex;align-items:center;gap:28px">
+            <span style="font-size:21px;font-weight:800;letter-spacing:-.02em;color:var(--color-text-primary)">Fitter</span>
+            <nav aria-label="주요" style="display:flex;gap:20px">
+              <a href="#" style="font-size:15px;font-weight:700;color:var(--color-primary-500)">시공 사진</a>
+              <a href="#" style="font-size:15px;font-weight:600;color:var(--color-text-secondary)">시공자 찾기</a>
+              <a href="#" style="font-size:15px;font-weight:600;color:var(--color-text-secondary)">이용 방법</a>
+            </nav>
+          </div>
+          <sc-if value="{{ isGuest }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;gap:8px;align-items:center">
+              <button style="height:40px;padding:0 14px;border:none;border-radius:var(--radius-md);background:transparent;color:var(--color-text-secondary);font-size:15px;font-weight:700;cursor:pointer" style-hover="background:var(--color-bg-subtle)">로그인</button>
+              <button style="height:40px;padding:0 18px;border:none;border-radius:var(--radius-md);background:var(--color-primary-500);color:#FFFFFF;font-size:15px;font-weight:700;cursor:pointer" style-hover="background:var(--color-primary-600)">시작하기</button>
+            </div>
+          </sc-if>
+          <sc-if value="{{ isMember }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;gap:14px;align-items:center">
+              <a href="#" style="font-size:15px;font-weight:700">내 의뢰 2건</a>
+              <span style="width:36px;height:36px;border-radius:var(--radius-full);background:var(--color-primary-100);color:var(--color-primary-700);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800">윤</span>
+            </div>
+          </sc-if>
+        </header>
+
+        <sc-if value="{{ isGallery }}" hint-placeholder-val="{{ true }}">
+          <div style="padding:32px 40px 48px;display:flex;flex-direction:column;gap:20px">
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <h1 style="margin:0;font-size:30px;font-weight:800;letter-spacing:-.025em;color:var(--color-text-primary)">실제로 시공된 사진만 모았습니다</h1>
+              <p style="margin:0;font-size:16px;color:var(--color-text-secondary)">연출 컷이 아니라 시공자가 직접 올린 결과물입니다. 마음에 드는 사진에서 바로 시공자에게 문의하세요.</p>
+            </div>
+
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;border-top:1px solid var(--color-border);border-bottom:1px solid var(--color-border);padding:14px 0">
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <sc-for list="{{ cats }}" as="c" hint-placeholder-count="7">
+                  <button onClick="{{ c.onClick }}" aria-pressed="{{ c.active }}" style="height:36px;padding:0 15px;border-radius:var(--radius-full);border:1px solid {{ c.border }};background:{{ c.bg }};color:{{ c.fg }};font-size:14px;font-weight:600;cursor:pointer">{{ c.label }}</button>
+                </sc-for>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+                <sc-for list="{{ regions }}" as="r" hint-placeholder-count="5">
+                  <button onClick="{{ r.onClick }}" aria-pressed="{{ r.active }}" style="height:34px;padding:0 13px;border-radius:var(--radius-full);border:1px solid {{ r.border }};background:{{ r.bg }};color:{{ r.fg }};font-size:13px;font-weight:600;cursor:pointer">{{ r.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+
+            <span style="font-size:14px;color:var(--color-text-tertiary)">{{ countLabel }}</span>
+            {{ desktopGrid }}
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isDetail }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:24px 40px 48px;display:flex;flex-direction:column;gap:18px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <button onClick="{{ goGallery }}" style="height:36px;padding:0 12px;border:1px solid var(--color-border-strong);border-radius:var(--radius-md);background:var(--color-surface);color:var(--color-text-secondary);font-size:14px;font-weight:700;cursor:pointer" style-hover="background:var(--color-surface-hover)">← 시공 사진</button>
+              <span style="font-size:14px;color:var(--color-text-tertiary)">도배 · 성북구 · 2026년 6월</span>
+            </div>
+            {{ desktopDetailBody }}
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+</div>]]>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440},&quot;initialScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;gallery&quot;,&quot;detail&quot;],&quot;default&quot;:&quot;gallery&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;initialView&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;default&quot;,&quot;loading&quot;,&quot;more&quot;,&quot;empty&quot;,&quot;imgError&quot;,&quot;removed&quot;,&quot;dormant&quot;,&quot;authWall&quot;],&quot;default&quot;:&quot;default&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;loggedIn&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = { screen: "gallery", view: "default", auth: "guest", cat: "전체", region: "전체", idx: 0 };
+
+  items() {
+    return [
+      { id: 1, cat: "도배", region: "성북구", title: "화이트 실크 + 우드 몰딩", pro: "김도배", size: "24평", when: "2026.06", photos: 8 },
+      { id: 2, cat: "바닥·장판", region: "노원구", title: "오크 강마루 전체 시공", pro: "이바닥", size: "32평", when: "2026.06", photos: 6 },
+      { id: 3, cat: "타일", region: "강북구", title: "욕실 600각 무광 타일", pro: "박타일", size: "19평", when: "2026.05", photos: 11 },
+      { id: 4, cat: "목공", region: "성동구", title: "주방 상부장 교체 + 히든 손잡이", pro: "최목공", size: "28평", when: "2026.05", photos: 5 },
+      { id: 5, cat: "도배", region: "도봉구", title: "아이방 합지 포인트 벽", pro: "김도배", size: "24평", when: "2026.05", photos: 4 },
+      { id: 6, cat: "조명·전기", region: "중랑구", title: "거실 매입등 12구 + 디밍", pro: "정전기", size: "34평", when: "2026.04", photos: 7 },
+      { id: 7, cat: "바닥·장판", region: "광진구", title: "현관·주방 포세린 타일", pro: "이바닥", size: "26평", when: "2026.04", photos: 9 },
+      { id: 8, cat: "타일", region: "성북구", title: "베란다 방수 + 데크 타일", pro: "박타일", size: "21평", when: "2026.03", photos: 3 },
+      { id: 9, cat: "도배", region: "성북구", title: "거실 아트월 실크 마감", pro: "김도배", size: "30평", when: "2026.03", photos: 6 },
+      { id: 10, cat: "목공", region: "노원구", title: "붙박이장 제작 설치", pro: "최목공", size: "24평", when: "2026.02", photos: 8 },
+      { id: 11, cat: "조명·전기", region: "성북구", title: "주방 라인조명 + 콘센트 증설", pro: "정전기", size: "24평", when: "2026.02", photos: 4 },
+      { id: 12, cat: "타일", region: "도봉구", title: "현관 헤링본 타일", pro: "박타일", size: "18평", when: "2026.01", photos: 5 }
+    ];
+  }
+
+  renderVals() {
+    const R = React.createElement;
+    const { screen, view, auth, cat, region, idx } = this.state;
+    const isGallery = screen === "gallery";
+    const stripe = "repeating-linear-gradient(135deg,#C4CAD1 0 10px,#B9C0C7 10px 20px)";
+    const shimmer = {
+      background: "linear-gradient(90deg, var(--color-bg-sunken) 0%, var(--color-bg-subtle) 40%, var(--color-bg-sunken) 80%)",
+      backgroundSize: "320px 100%", animation: "fit-shimmer 1.4s linear infinite", borderRadius: "var(--radius-sm)"
+    };
+
+    const tabs = [
+      ["default", "기본"], ["loading", "로딩"], ["more", "추가 로딩"], ["empty", "0건"],
+      ["imgError", "이미지 실패"], ["removed", "삭제된 항목"], ["dormant", "휴면 시공자"], ["authWall", "비로그인 컨택"]
+    ];
+    const notes = {
+      default: "기본. UI 크롬을 최소로 두고 사진이 화면의 대부분을 차지한다. 카드 아래 한 줄은 “무엇을·누가·어디서”만.",
+      loading: "첫 진입 스켈레톤. 필터 바는 즉시 렌더되고 그리드만 자리를 잡아둔다 — 레이아웃이 튀지 않는다.",
+      more: "무한스크롤 추가 로딩. 기존 카드는 그대로 두고 아래에만 스켈레톤을 붙인다.",
+      empty: "필터 결과 0건. 초기 서비스에서 흔한 상태이므로 조건 완화 버튼을 바로 준다.",
+      imgError: "썸네일 로드 실패. 카드 자리와 텍스트는 유지하고 재시도만 제공한다.",
+      removed: "시공자가 내렸거나 신고로 비공개된 항목. 링크가 SEO로 남아 있으므로 404 대신 설명 화면을 준다.",
+      dormant: "시공자가 휴면·승인 취소 상태. 포트폴리오는 열람 가능하되 컨택은 막고 대안을 제시한다.",
+      authWall: "비로그인 사용자가 컨택을 누른 경우. 사진 열람은 계속 열어두고 컨택 시점에만 로그인을 요구한다."
+    };
+    const stateTabs = tabs.map(([k, label]) => ({
+      label, active: view === k,
+      bg: view === k ? "var(--color-primary-500)" : "var(--color-surface)",
+      fg: view === k ? "#FFFFFF" : "var(--color-text-secondary)",
+      border: view === k ? "var(--color-primary-500)" : "var(--color-border-strong)",
+      onClick: () => this.setState({
+        view: k,
+        screen: ["removed", "dormant", "authWall"].includes(k) ? "detail" : (["loading", "more", "empty"].includes(k) ? "gallery" : this.state.screen),
+        auth: k === "authWall" ? "guest" : this.state.auth
+      })
+    }));
+
+    const screenTabs = [["gallery", "C-04 갤러리"], ["detail", "C-05 상세"]].map(([k, label]) => ({
+      label, active: screen === k,
+      bg: screen === k ? "var(--color-primary-500)" : "var(--color-surface)",
+      fg: screen === k ? "#FFFFFF" : "var(--color-text-secondary)",
+      border: screen === k ? "var(--color-primary-500)" : "var(--color-border-strong)",
+      onClick: () => this.setState({ screen: k })
+    }));
+
+    const chip = (label, active, onClick) => ({
+      label, active, onClick,
+      bg: active ? "var(--color-primary-500)" : "var(--color-surface)",
+      fg: active ? "#FFFFFF" : "var(--color-text-secondary)",
+      border: active ? "var(--color-primary-500)" : "var(--color-border-strong)"
+    });
+    const cats = ["전체", "도배", "바닥·장판", "타일", "목공", "조명·전기", "욕실"].map(c => chip(c, cat === c, () => this.setState({ cat: c })));
+    const regions = ["전체", "성북구", "노원구", "강북구", "도봉구"].map(r => chip(r, region === r, () => this.setState({ region: r })));
+
+    const list = this.items().filter(i => (cat === "전체" || i.cat === cat) && (region === "전체" || i.region === region));
+
+    const card = (it, i, wide) => R("button", {
+      key: it.id, onClick: () => this.setState({ screen: "detail", view: "default" }),
+      style: { display: "block", textAlign: "left", padding: 0, border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", overflow: "hidden", background: "var(--color-bg)", cursor: "pointer" }
+    },
+      R("span", { style: { position: "relative", display: "block", aspectRatio: "4/3", background: view === "imgError" && i % 4 === 1 ? "var(--color-bg-sunken)" : stripe } },
+        view === "imgError" && i % 4 === 1
+          ? R("span", { style: { position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "6px" } },
+              R("span", { style: { fontSize: "12px", color: "var(--color-text-tertiary)" } }, "사진을 불러오지 못했습니다"),
+              R("span", { style: { fontSize: "12px", fontWeight: 700, color: "var(--color-primary-500)", border: "1px solid var(--color-border-strong)", borderRadius: "var(--radius-sm)", padding: "4px 10px", background: "var(--color-surface)" } }, "다시 시도"))
+          : R("span", null,
+              R("span", { style: { position: "absolute", left: "8px", top: "8px", background: "rgba(255,255,255,.94)", color: "#171B20", fontSize: "11px", fontWeight: 700, padding: "3px 8px", borderRadius: "var(--radius-sm)" } }, it.cat),
+              R("span", { style: { position: "absolute", right: "8px", bottom: "8px", background: "var(--color-scrim)", color: "#FFFFFF", fontSize: "11px", fontWeight: 700, padding: "3px 8px", borderRadius: "var(--radius-sm)" } }, it.photos + "장"))),
+      R("span", { style: { display: "flex", flexDirection: "column", gap: "4px", padding: wide ? "12px 14px 14px" : "10px 12px 12px" } },
+        R("span", { style: { fontSize: wide ? "15px" : "14px", fontWeight: 700, lineHeight: 1.4, color: "var(--color-text-primary)" } }, it.title),
+        R("span", { style: { fontSize: wide ? "13px" : "12px", color: "var(--color-text-tertiary)" } }, it.region + " " + it.size + " · " + it.pro))
+    );
+
+    const skel = (n, cols, gap) => R("div", { style: { display: "grid", gridTemplateColumns: "repeat(" + cols + ",minmax(0,1fr))", gap } },
+      Array.from({ length: n }, (_, i) => R("div", { key: i, style: { border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", overflow: "hidden" } },
+        R("div", { style: { ...shimmer, aspectRatio: "4/3", borderRadius: 0 } }),
+        R("div", { style: { padding: "10px 12px 12px", display: "flex", flexDirection: "column", gap: "6px" } },
+          R("div", { style: { ...shimmer, height: "13px", width: "80%" } }),
+          R("div", { style: { ...shimmer, height: "11px", width: "50%" } })))));
+
+    const emptyBlock = wide => R("div", {
+      style: { border: "1px dashed var(--color-border-strong)", borderRadius: "var(--radius-lg)", background: "var(--color-bg-subtle)",
+        padding: wide ? "56px 40px" : "40px 20px", display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", textAlign: "center" }
+    },
+      R("strong", { style: { fontSize: wide ? "20px" : "17px", fontWeight: 800, color: "var(--color-text-primary)" } },
+        (region === "전체" ? "" : region + " ") + (cat === "전체" ? "" : cat + " ") + "사진이 아직 없습니다"),
+      R("span", { style: { fontSize: wide ? "15px" : "14px", lineHeight: 1.55, color: "var(--color-text-secondary)", maxWidth: "420px" } },
+        "조건을 넓히면 볼 수 있는 시공이 늘어납니다. 원하는 사진이 없다면 의뢰를 올려 시공자에게 직접 제안받으세요."),
+      R("div", { style: { display: "flex", gap: "8px", marginTop: "6px", flexWrap: "wrap", justifyContent: "center" } },
+        R("button", { onClick: () => this.setState({ cat: "전체", region: "전체", view: "default" }), style: { height: "48px", padding: "0 20px", border: "1px solid var(--color-border-strong)", borderRadius: "var(--radius-md)", background: "var(--color-surface)", color: "var(--color-text-primary)", fontSize: "15px", fontWeight: 700, cursor: "pointer" } }, "조건 모두 해제"),
+        R("button", { style: { height: "48px", padding: "0 20px", border: "none", borderRadius: "var(--radius-md)", background: "var(--color-primary-500)", color: "#FFFFFF", fontSize: "15px", fontWeight: 800, cursor: "pointer" } }, "의뢰 등록하기")));
+
+    const grid = (cols, gap, wide) => {
+      if (view === "loading") return skel(wide ? 8 : 4, cols, gap);
+      if (view === "empty" || !list.length) return emptyBlock(wide);
+      return R("div", { style: { display: "flex", flexDirection: "column", gap: "16px" } },
+        R("div", { style: { display: "grid", gridTemplateColumns: "repeat(" + cols + ",minmax(0,1fr))", gap } }, list.map((it, i) => card(it, i, wide))),
+        view === "more"
+          ? R("div", { style: { display: "flex", flexDirection: "column", gap: "16px" } },
+              skel(wide ? 4 : 2, cols, gap),
+              R("span", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", fontSize: "13px", color: "var(--color-text-tertiary)" } },
+                R("span", { style: { width: "14px", height: "14px", borderRadius: "999px", border: "2px solid var(--color-border-strong)", borderTopColor: "var(--color-primary-500)", animation: "fit-spin .7s linear infinite" } }),
+                "더 불러오는 중"))
+          : R("button", { style: { height: "52px", border: "1px solid var(--color-border-strong)", borderRadius: "var(--radius-md)", background: "var(--color-surface)", color: "var(--color-text-primary)", fontSize: "15px", fontWeight: 700, cursor: "pointer" } }, "더 보기"));
+    };
+
+    // ── 상세 ──
+    const removed = view === "removed";
+    const dormant = view === "dormant";
+    const authWall = view === "authWall";
+    const isGuest = auth === "guest";
+
+    const notice = (title, body, actions, tone) => R("div", {
+      style: { border: "1px solid " + tone.border, background: tone.bg, borderRadius: "var(--radius-lg)", padding: "24px", display: "flex", flexDirection: "column", gap: "10px" }
+    },
+      R("strong", { style: { fontSize: "18px", fontWeight: 800, color: tone.fg } }, title),
+      R("span", { style: { fontSize: "15px", lineHeight: 1.6, color: "var(--color-text-secondary)" } }, body),
+      R("div", { style: { display: "flex", gap: "8px", marginTop: "6px", flexWrap: "wrap" } }, actions));
+
+    const btn = (label, primary) => R("button", { key: label, onClick: () => this.setState({ screen: "gallery", view: "default" }),
+      style: { height: "48px", padding: "0 20px", border: primary ? "none" : "1px solid var(--color-border-strong)", borderRadius: "var(--radius-md)",
+        background: primary ? "var(--color-primary-500)" : "var(--color-surface)", color: primary ? "#FFFFFF" : "var(--color-text-primary)", fontSize: "15px", fontWeight: primary ? 800 : 700, cursor: "pointer" } }, label);
+
+    const thumbs = R("div", { style: { display: "flex", gap: "8px", overflowX: "auto", paddingBottom: "4px" } },
+      Array.from({ length: 8 }, (_, i) => R("button", { key: i, onClick: () => this.setState({ idx: i }), "aria-label": (i + 1) + "번 사진",
+        style: { flex: "none", width: "72px", height: "56px", borderRadius: "var(--radius-sm)", background: stripe, border: idx === i ? "2px solid var(--color-primary-500)" : "1px solid var(--color-border)", cursor: "pointer", opacity: idx === i ? 1 : .7 } })));
+
+    const proCard = compact => R("div", {
+      style: { border: "1px solid var(--color-border)", borderRadius: "var(--radius-lg)", background: "var(--color-surface)", padding: compact ? "16px" : "20px", display: "flex", flexDirection: "column", gap: "14px", boxShadow: compact ? "none" : "var(--shadow-1)" }
+    },
+      R("div", { style: { display: "flex", gap: "12px", alignItems: "flex-start" } },
+        R("span", { style: { width: "52px", height: "52px", flex: "none", borderRadius: "var(--radius-full)", background: "var(--color-primary-100)", color: "var(--color-primary-700)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "17px", fontWeight: 800 } }, "김도"),
+        R("span", { style: { display: "flex", flexDirection: "column", gap: "5px", minWidth: 0 } },
+          R("span", { style: { display: "flex", alignItems: "center", gap: "7px", flexWrap: "wrap" } },
+            R("strong", { style: { fontSize: "17px", fontWeight: 800, color: "var(--color-text-primary)" } }, "김도배"),
+            dormant
+              ? R("span", { style: { display: "inline-flex", alignItems: "center", height: "22px", padding: "0 8px", borderRadius: "var(--radius-sm)", background: "var(--color-bg-sunken)", color: "var(--color-text-tertiary)", fontSize: "11px", fontWeight: 700 } }, "휴면")
+              : R("span", { style: { display: "inline-flex", alignItems: "center", height: "22px", padding: "0 8px", borderRadius: "var(--radius-sm)", background: "var(--color-secondary-100)", color: "var(--color-secondary-600)", border: "1px solid var(--color-secondary-300)", fontSize: "11px", fontWeight: 700 } }, "인증 시공자")),
+          R("span", { style: { fontSize: "14px", color: "var(--color-text-secondary)" } }, "도배 · 경력 11년 · 시공 87건"),
+          R("span", { style: { fontSize: "14px", color: "var(--color-text-tertiary)" } }, "서울 성북·강북·노원 · 평균 응답 3시간"))),
+      R("div", { style: { display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "6px" } },
+        Array.from({ length: 3 }, (_, i) => R("div", { key: i, style: { aspectRatio: "1", borderRadius: "var(--radius-sm)", background: stripe } }))),
+      dormant
+        ? R("div", { style: { display: "flex", flexDirection: "column", gap: "8px", borderTop: "1px solid var(--color-border)", paddingTop: "14px" } },
+            R("span", { style: { fontSize: "13px", lineHeight: 1.55, color: "var(--color-text-secondary)" } }, "현재 활동을 쉬고 있어 컨택을 받지 않습니다. 같은 지역의 도배 시공자 8명을 대신 보여드릴 수 있습니다."),
+            btn("비슷한 시공자 보기", true))
+        : R("div", { style: { display: "flex", flexDirection: "column", gap: "8px", borderTop: "1px solid var(--color-border)", paddingTop: "14px" } },
+            R("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px" } },
+              R("span", { style: { fontSize: "13px", fontWeight: 700, color: "var(--color-success)" } }, "비용 공개"),
+              R("span", { style: { fontSize: "13px", color: "var(--color-text-tertiary)" } }, "연락처는 수락 후 공개")),
+            R("button", { style: { height: "52px", border: "none", borderRadius: "var(--radius-md)", background: "var(--color-primary-500)", color: "#FFFFFF", fontSize: "16px", fontWeight: 800, cursor: "pointer" } },
+              isGuest ? "로그인하고 문의하기" : "이 시공자에게 문의"),
+            R("button", { style: { height: "48px", border: "1px solid var(--color-border-strong)", borderRadius: "var(--radius-md)", background: "var(--color-surface)", color: "var(--color-text-primary)", fontSize: "15px", fontWeight: 700, cursor: "pointer" } }, "프로필 전체 보기")));
+
+    const authSheet = R("div", { style: { border: "1px solid var(--color-primary-200)", background: "var(--color-primary-50)", borderRadius: "var(--radius-lg)", padding: "20px", display: "flex", flexDirection: "column", gap: "10px" } },
+      R("strong", { style: { fontSize: "17px", fontWeight: 800, color: "var(--color-primary-700)" } }, "문의하려면 로그인이 필요합니다"),
+      R("span", { style: { fontSize: "14px", lineHeight: 1.6, color: "var(--color-text-secondary)" } }, "사진 보기는 로그인 없이 계속 가능합니다. 연락처 교환은 양쪽 모두 계정이 있어야 안전합니다. 가입은 30초."),
+      R("button", { style: { height: "52px", border: "none", borderRadius: "var(--radius-md)", background: "var(--color-primary-500)", color: "#FFFFFF", fontSize: "16px", fontWeight: 800, cursor: "pointer" } }, "카카오로 3초 만에 시작"),
+      R("button", { onClick: () => this.setState({ view: "default" }), style: { height: "48px", border: "1px solid var(--color-border-strong)", borderRadius: "var(--radius-md)", background: "var(--color-surface)", color: "var(--color-text-primary)", fontSize: "15px", fontWeight: 700, cursor: "pointer" } }, "계속 둘러보기"));
+
+    const specRows = [
+      { k: "공종", v: "도배" }, { k: "규모", v: "24평 · 아파트" }, { k: "기간", v: "2일" },
+      { k: "자재", v: "실크 벽지 · 중급" }, { k: "지역", v: "성북구 정릉동" }, { k: "시공 시기", v: "2026년 6월" }
+    ];
+
+    const specs = cols => R("div", { style: { display: "grid", gridTemplateColumns: "repeat(" + cols + ",1fr)", gap: "10px" } },
+      specRows.map((r, i) => R("div", { key: i, style: { border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", background: "var(--color-bg-subtle)", padding: "12px 14px", display: "flex", flexDirection: "column", gap: "3px" } },
+        R("span", { style: { fontSize: "12px", color: "var(--color-text-tertiary)" } }, r.k),
+        R("span", { style: { fontSize: "15px", fontWeight: 700, color: "var(--color-text-primary)" } }, r.v))));
+
+    const bodyText = R("p", { style: { margin: 0, fontSize: "16px", lineHeight: 1.7, color: "var(--color-text-secondary)", maxWidth: "620px", textWrapStyle: "pretty" } },
+      "거주 중인 집이라 이틀에 나눠 시공했습니다. 거실과 안방은 실크, 아이방만 합지로 마감했고 기존 몰딩은 그대로 살렸습니다. 가구는 옮기지 않고 커버링으로 진행했습니다.");
+
+    const mobileDetailBody = removed
+      ? R("div", { style: { padding: "16px" } }, notice("내려간 시공 사례입니다",
+          "시공자가 이 사례를 비공개로 전환했습니다. 같은 시공자의 다른 작업은 계속 볼 수 있습니다.",
+          [btn("김도배 프로필 보기", true), btn("비슷한 사진 보기", false)],
+          { bg: "var(--color-bg-subtle)", border: "var(--color-border)", fg: "var(--color-text-primary)" }))
+      : R("div", null,
+          R("div", { style: { position: "relative", aspectRatio: "4/3", background: stripe } },
+            R("span", { style: { position: "absolute", right: "10px", bottom: "10px", background: "var(--color-scrim)", color: "#FFFFFF", fontSize: "12px", fontWeight: 700, padding: "4px 9px", borderRadius: "var(--radius-full)" } }, (idx + 1) + " / 8")),
+          R("div", { style: { padding: "12px 16px 0" } }, thumbs),
+          R("div", { style: { padding: "16px", display: "flex", flexDirection: "column", gap: "16px" } },
+            R("div", { style: { display: "flex", flexDirection: "column", gap: "6px" } },
+              R("h1", { style: { margin: 0, fontSize: "24px", fontWeight: 800, lineHeight: 1.3, letterSpacing: "-.02em", color: "var(--color-text-primary)" } }, "화이트 실크 + 우드 몰딩"),
+              R("span", { style: { fontSize: "14px", color: "var(--color-text-tertiary)" } }, "성북구 24평 · 2026년 6월 · 조회 312")),
+            specs(2),
+            bodyText,
+            authWall ? authSheet : proCard(true)));
+
+    const desktopDetailBody = removed
+      ? notice("내려간 시공 사례입니다",
+          "시공자가 이 사례를 비공개로 전환했거나 신고로 검토 중입니다. 같은 시공자의 다른 작업은 계속 볼 수 있습니다.",
+          [btn("김도배 프로필 보기", true), btn("비슷한 사진 보기", false)],
+          { bg: "var(--color-bg-subtle)", border: "var(--color-border)", fg: "var(--color-text-primary)" })
+      : R("div", { style: { display: "grid", gridTemplateColumns: "minmax(0,1fr) 372px", gap: "28px", alignItems: "flex-start" } },
+          R("div", { style: { display: "flex", flexDirection: "column", gap: "20px" } },
+            R("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gridTemplateRows: "repeat(2,168px)", gap: "8px" } },
+              R("div", { style: { gridRow: "span 2", borderRadius: "var(--radius-md)", background: stripe } }),
+              R("div", { style: { borderRadius: "var(--radius-md)", background: stripe } }),
+              R("div", { style: { position: "relative", borderRadius: "var(--radius-md)", background: stripe } },
+                R("span", { style: { position: "absolute", inset: 0, background: "var(--color-scrim)", color: "#FFFFFF", fontSize: "17px", fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "var(--radius-md)" } }, "+6"))),
+            thumbs,
+            R("div", { style: { display: "flex", flexDirection: "column", gap: "8px" } },
+              R("h1", { style: { margin: 0, fontSize: "32px", fontWeight: 800, lineHeight: 1.25, letterSpacing: "-.025em", color: "var(--color-text-primary)" } }, "화이트 실크 + 우드 몰딩"),
+              R("span", { style: { fontSize: "15px", color: "var(--color-text-tertiary)" } }, "성북구 24평 아파트 · 2026년 6월 · 조회 312 · 문의 9")),
+            specs(3),
+            R("div", { style: { display: "flex", flexDirection: "column", gap: "8px", borderTop: "1px solid var(--color-border)", paddingTop: "18px" } },
+              R("span", { style: { fontSize: "17px", fontWeight: 700, color: "var(--color-text-primary)" } }, "시공자 설명"),
+              bodyText)),
+          R("aside", { style: { position: "sticky", top: "24px", display: "flex", flexDirection: "column", gap: "14px" } },
+            authWall ? authSheet : proCard(false)));
+
+    return {
+      screenTitle: isGallery ? "C-04 포트폴리오 갤러리" : "C-05 포트폴리오 상세",
+      screenSub: isGallery ? "비로그인 공개 · 사진을 훑다가 마음에 드는 시공을 찾는다" : "비로그인 공개 · 이 시공을 보고 시공자에게 관심을 넘긴다",
+      stateTabs, stateNote: notes[view], screenTabs,
+      isGallery, isDetail: !isGallery,
+      goGallery: () => this.setState({ screen: "gallery", view: "default" }),
+      isGuest, isMember: !isGuest,
+      authLabel: isGuest ? "비로그인으로 보는 중" : "로그인 상태",
+      authBg: isGuest ? "var(--color-warning-bg)" : "var(--color-success-bg)",
+      authFg: isGuest ? "var(--color-warning)" : "var(--color-success)",
+      cats, regions,
+      countLabel: view === "empty" || !list.length ? "0건" : list.length + "건 · 최근 시공순",
+      mobileGrid: grid(2, "12px", false), desktopGrid: grid(4, "16px", true),
+      detailNormal: !removed && !authWall,
+      ctaLabel: dormant ? "비슷한 시공자 보기" : isGuest ? "로그인하고 문의하기" : "이 시공자에게 문의",
+      mobileDetailBody, desktopDetailBody
+    };
+  }
+}
+</script>
+</body>
+</html>

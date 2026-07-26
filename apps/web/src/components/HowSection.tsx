@@ -144,7 +144,7 @@ export function HowSection() {
       <div className="shell">
         <div className="how__head">
           <div className="how__intro">
-            <span className="landing-eyebrow">이용 방법</span>
+            <span className="how__eyebrow">이용 방법</span>
             <h2 className="landing-h2">{how.title}</h2>
             <p className="how__sub">{how.sub}</p>
           </div>

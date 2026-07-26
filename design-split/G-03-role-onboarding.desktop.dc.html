@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<![CDATA[<helmet>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+<style>
+:root{
+  --color-primary-50:#EEF3F8; --color-primary-100:#D8E4EF; --color-primary-200:#B3C9DE; --color-primary-300:#85A7C7;
+  --color-primary-400:#5583AC; --color-primary-500:#2F6390; --color-primary-600:#245176; --color-primary-700:#1C405D; --color-primary-800:#163348;
+  --color-secondary-100:#F3E9E2; --color-secondary-300:#D9AE92; --color-secondary-500:#A8623C; --color-secondary-600:#8B4E2D;
+  --color-bg:#FFFFFF; --color-bg-subtle:#F5F7F9; --color-bg-sunken:#EDF0F3; --color-surface:#FFFFFF; --color-surface-hover:#F5F7F9;
+  --color-text-primary:#171B20; --color-text-secondary:#515A65; --color-text-tertiary:#69737F; --color-text-inverse:#FFFFFF;
+  --color-success-bg:#E7F3EC; --color-success:#1F7A4C; --color-warning-bg:#FBF1DC; --color-warning:#9A6B0F;
+  --color-danger-bg:#FBEAE7; --color-danger:#B03A2E;
+  --color-border:#DFE4E9; --color-border-strong:#C7CED6; --color-border-focus:#2F6390;
+  --color-scrim:rgba(14,17,20,.56);
+  --radius-sm:4px; --radius-md:8px; --radius-lg:12px; --radius-xl:16px; --radius-full:999px;
+  --shadow-1:0 1px 2px rgba(23,27,32,.06), 0 1px 3px rgba(23,27,32,.08);
+  --shadow-2:0 2px 6px rgba(23,27,32,.06), 0 6px 16px rgba(23,27,32,.10);
+  --shadow-3:0 8px 20px rgba(23,27,32,.10), 0 20px 44px rgba(23,27,32,.14);
+  --font-sans:"Pretendard Variable",Pretendard,-apple-system,system-ui,sans-serif;
+  --font-mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
+}
+body{margin:0;font-family:var(--font-sans);-webkit-font-smoothing:antialiased;background:var(--color-bg-sunken);font-feature-settings:"tnum";}
+*{box-sizing:border-box;}
+a{color:var(--color-primary-500);text-decoration:none;}
+a:hover{color:var(--color-primary-600);text-decoration:underline;}
+button,input,select,textarea{font-family:inherit;}
+:focus-visible{outline:2px solid var(--color-border-focus);outline-offset:2px;border-radius:var(--radius-sm);}
+@keyframes fit-spin{to{transform:rotate(360deg)}}
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:var(--color-bg-sunken);padding:24px 0 80px">
+
+  <div style="padding:0 24px;display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;justify-content:space-between">
+      <div style="display:flex;align-items:baseline;gap:10px">
+        <span style="font-size:20px;font-weight:800;letter-spacing:-.02em;color:var(--color-text-primary)">G-03 역할 선택 온보딩</span>
+        <span style="font-size:13px;color:var(--color-text-tertiary)">로그인(역할 미정) · 계정의 역할 하나를 고르게 한다</span>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <sc-for list="{{ stateTabs }}" as="t" hint-placeholder-count="6">
+          <button onClick="{{ t.onClick }}" aria-pressed="{{ t.active }}" style="height:34px;padding:0 13px;border-radius:var(--radius-full);border:1px solid {{ t.border }};background:{{ t.bg }};color:{{ t.fg }};font-size:13px;font-weight:700;cursor:pointer">{{ t.label }}</button>
+        </sc-for>
+      </div>
+    </div>
+    <p style="margin:0;font-size:13px;line-height:1.6;color:var(--color-text-secondary);max-width:1000px">{{ stateNote }}</p>
+  </div>
+
+  <div style="margin:24px 0 0;padding:0 24px 12px;display:flex;gap:28px;align-items:flex-start;overflow-x:auto">
+
+        <!-- DESKTOP -->
+    <div style="flex:0 0 1280px;width:1280px;display:flex;flex-direction:column;gap:10px">
+      <span style="font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:var(--color-text-tertiary)">DESKTOP 1280</span>
+      <div style="background:var(--color-bg);border:1px solid var(--color-border-strong);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-2);min-height:760px;display:flex;flex-direction:column">
+
+        <header style="height:68px;border-bottom:1px solid var(--color-border);padding:0 40px;display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:21px;font-weight:800;letter-spacing:-.02em;color:var(--color-text-primary)">Fitter</span>
+          <div style="display:flex;align-items:center;gap:14px">
+            <span style="font-size:14px;color:var(--color-text-tertiary)">yoon****@gmail.com</span>
+            <button style="height:40px;padding:0 14px;border:1px solid var(--color-border-strong);border-radius:var(--radius-md);background:var(--color-surface);color:var(--color-text-secondary);font-size:14px;font-weight:700;cursor:pointer" style-hover="background:var(--color-surface-hover)">로그아웃</button>
+          </div>
+        </header>
+
+        <main style="flex:1;padding:56px 40px 48px;display:flex;flex-direction:column;align-items:center;gap:28px">
+          <div style="max-width:760px;width:100%;display:flex;flex-direction:column;gap:10px;text-align:center">
+            <sc-if value="{{ isReturning }}" hint-placeholder-val="{{ false }}">
+              <span style="display:inline-flex;width:fit-content;align-self:center;align-items:center;height:28px;padding:0 12px;border-radius:var(--radius-full);background:var(--color-primary-50);color:var(--color-primary-600);font-size:13px;font-weight:700">이 단계를 마쳐야 다음으로 넘어갑니다</span>
+            </sc-if>
+            <h1 style="margin:0;font-size:38px;font-weight:800;line-height:1.2;letter-spacing:-.03em;color:var(--color-text-primary)">어느 쪽으로 시작하시겠어요?</h1>
+            <p style="margin:0;font-size:17px;line-height:1.6;color:var(--color-text-secondary)">고른 역할에 맞춰 첫 화면과 메뉴가 달라집니다. 계정당 하나만 고를 수 있습니다.</p>
+          </div>
+
+          {{ desktopCards }}
+
+          <div style="max-width:880px;width:100%;display:flex;flex-direction:column;gap:14px;align-items:center">
+            <sc-if value="{{ failed }}" hint-placeholder-val="{{ false }}">
+              <div role="alert" style="width:100%;border:1px solid var(--color-danger);background:var(--color-danger-bg);border-radius:var(--radius-md);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:20px">
+                <span style="display:flex;flex-direction:column;gap:3px">
+                  <strong style="font-size:15px;font-weight:800;color:var(--color-danger)">역할을 저장하지 못했습니다</strong>
+                  <span style="font-size:14px;color:var(--color-text-secondary)">네트워크 문제로 실패했습니다. 선택은 그대로 두었으니 다시 시도해 주세요.</span>
+                </span>
+                <button style="flex:none;height:44px;padding:0 18px;border:1px solid var(--color-danger);border-radius:var(--radius-md);background:var(--color-surface);color:var(--color-danger);font-size:14px;font-weight:700;cursor:pointer">다시 시도</button>
+              </div>
+            </sc-if>
+            {{ desktopCta }}
+            <span style="font-size:14px;line-height:1.6;color:var(--color-text-tertiary);text-align:center;max-width:520px">한 번 고르면 스스로 바꿀 수 없습니다. 잘못 고르셨다면 <a href="#">설정에서 전환을 요청</a>하세요 — 확인 후 하루 안에 바꿔드립니다.</span>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+</div>]]>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440},&quot;initialView&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;default&quot;,&quot;picked&quot;,&quot;proPicked&quot;,&quot;returning&quot;,&quot;saving&quot;,&quot;failed&quot;],&quot;default&quot;:&quot;default&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;showRoleSwitchNote&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = { view: "default", picked: null };
+
+  renderVals() {
+    const R = React.createElement;
+    const view = this.state.view;
+    const picked = view === "picked" && !this.state.picked ? "customer" : this.state.picked;
+
+    const tabs = [
+      ["default", "기본(미선택)"], ["picked", "선택됨"], ["proPicked", "시공자 선택"],
+      ["returning", "이탈 후 재진입"], ["saving", "확정 중"], ["failed", "확정 실패"]
+    ];
+    const notes = {
+      default: "기본. 선택 전에는 확정 버튼이 잠겨 있고 이유를 말한다. 카드 두 장 외에 아무것도 두지 않는다 — 여기서 고민이 길어지면 이탈한다.",
+      picked: "고객 선택. 카드 안에 “다음에 무슨 일이 일어나는지”를 미리 보여줘서 잘못 고르는 것을 줄인다.",
+      proPicked: "시공자 선택. 승인 심사가 붙는다는 사실을 확정 전에 고지한다. 나중에 알면 배신감이 된다.",
+      returning: "이탈 후 재진입. 역할이 없으면 어떤 경로로 들어와도 이 화면으로 되돌린다. 강제하되 이유를 설명한다.",
+      saving: "확정 처리 중. 되돌릴 수 없는 결정이므로 이중 클릭을 확실히 막는다.",
+      failed: "저장 실패. 선택 상태를 유지한 채 재시도만 요구한다 — 처음부터 다시 고르게 하지 않는다."
+    };
+    const stateTabs = tabs.map(([k, label]) => ({
+      label, active: view === k,
+      bg: view === k ? "var(--color-primary-500)" : "var(--color-surface)",
+      fg: view === k ? "#FFFFFF" : "var(--color-text-secondary)",
+      border: view === k ? "var(--color-primary-500)" : "var(--color-border-strong)",
+      onClick: () => this.setState({
+        view: k,
+        picked: k === "default" ? null : k === "proPicked" ? "pro" : k === "picked" ? "customer" : (this.state.picked || "customer")
+      })
+    }));
+
+    const roles = [
+      {
+        key: "customer", title: "고객으로 시작", lead: "내 집을 고치려고 왔습니다",
+        does: ["원하는 사진을 올려 의뢰를 등록한다", "시공자 포트폴리오를 보고 직접 문의한다", "받은 제안을 비교해 한 명을 고른다"],
+        next: "다음 화면: 의뢰 등록 (사진 3장이면 3분)",
+        gate: null
+      },
+      {
+        key: "pro", title: "시공자로 시작", lead: "시공 일감을 받으려고 왔습니다",
+        does: ["내 시공 사진을 포트폴리오로 올린다", "조건에 맞는 의뢰를 찾아 제안한다", "고객 문의를 받고 수락하면 연락한다"],
+        next: "다음 화면: 프로필 등록 → 승인 심사",
+        gate: "사업자등록증 또는 시공 경력 확인이 필요합니다. 승인은 보통 1영업일."
+      }
+    ];
+
+    const card = (r, wide) => {
+      const on = picked === r.key;
+      return R("button", {
+        key: r.key, role: "radio", "aria-checked": on ? "true" : "false",
+        onClick: () => this.setState({ picked: r.key, view: view === "failed" ? "failed" : (r.key === "pro" ? "proPicked" : "picked") }),
+        style: {
+          flex: 1, textAlign: "left", cursor: "pointer", display: "flex", flexDirection: "column", gap: wide ? "14px" : "12px",
+          padding: wide ? "26px" : "18px", borderRadius: "var(--radius-lg)",
+          border: on ? "2px solid var(--color-primary-500)" : "1px solid var(--color-border)",
+          background: on ? "var(--color-primary-50)" : "var(--color-bg)",
+          boxShadow: on ? "var(--shadow-1)" : "none", transition: "background .12s, border-color .12s"
+        }
+      },
+        R("span", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px" } },
+          R("span", { style: { fontSize: wide ? "22px" : "19px", fontWeight: 800, letterSpacing: "-.02em", color: "var(--color-text-primary)" } }, r.title),
+          R("span", { style: { width: "24px", height: "24px", flex: "none", borderRadius: "999px", border: on ? "7px solid var(--color-primary-500)" : "2px solid var(--color-border-strong)", background: "var(--color-bg)" } })),
+        R("span", { style: { fontSize: wide ? "16px" : "15px", color: "var(--color-text-secondary)" } }, r.lead),
+        R("span", { style: { display: "flex", flexDirection: "column", gap: "7px", borderTop: "1px solid " + (on ? "var(--color-primary-200)" : "var(--color-border)"), paddingTop: wide ? "14px" : "12px" } },
+          r.does.map((d, i) => R("span", { key: i, style: { display: "flex", gap: "8px", alignItems: "flex-start" } },
+            R("span", { style: { flex: "none", width: "5px", height: "5px", borderRadius: "999px", background: "var(--color-primary-400)", marginTop: "8px" } }),
+            R("span", { style: { fontSize: wide ? "15px" : "14px", lineHeight: 1.55, color: "var(--color-text-secondary)" } }, d)))),
+        R("span", { style: { display: "inline-flex", width: "fit-content", alignItems: "center", height: "26px", padding: "0 10px", borderRadius: "var(--radius-sm)", background: on ? "var(--color-bg)" : "var(--color-bg-subtle)", color: "var(--color-text-tertiary)", fontSize: "12px", fontWeight: 700 } }, r.next),
+        r.gate && R("span", { style: { display: "flex", gap: "8px", padding: "10px 12px", borderRadius: "var(--radius-md)", background: "var(--color-warning-bg)", color: "var(--color-warning)", fontSize: wide ? "13px" : "12px", lineHeight: 1.5, fontWeight: 600 } }, r.gate)
+      );
+    };
+
+    const cards = wide => R("div", { role: "radiogroup", "aria-label": "역할 선택",
+      style: { display: "flex", gap: wide ? "20px" : "12px", flexDirection: wide ? "row" : "column", width: "100%", maxWidth: wide ? "880px" : "none", alignItems: "stretch" } },
+      roles.map(r => card(r, wide)));
+
+    const saving = view === "saving";
+    const cta = full => R("button", {
+      disabled: !picked || saving,
+      style: {
+        width: full ? "100%" : "auto", minWidth: full ? 0 : "320px", height: full ? "52px" : "56px", padding: full ? 0 : "0 32px",
+        border: "none", borderRadius: "var(--radius-md)",
+        background: !picked ? "var(--color-bg-sunken)" : saving ? "var(--color-primary-600)" : "var(--color-primary-500)",
+        color: !picked ? "var(--color-text-tertiary)" : "#FFFFFF",
+        fontSize: full ? "17px" : "18px", fontWeight: 800,
+        cursor: !picked ? "not-allowed" : saving ? "progress" : "pointer",
+        display: "flex", alignItems: "center", justifyContent: "center", gap: "10px"
+      }
+    },
+      saving && R("span", { style: { width: "17px", height: "17px", borderRadius: "999px", border: "2px solid rgba(255,255,255,.35)", borderTopColor: "#FFFFFF", animation: "fit-spin .7s linear infinite", flex: "none" } }),
+      R("span", null, saving ? "역할을 저장하는 중" : picked === "pro" ? "시공자로 시작하기" : picked === "customer" ? "고객으로 시작하기" : "역할을 선택해 주세요"));
+
+    return {
+      stateTabs, stateNote: notes[view],
+      isReturning: view === "returning",
+      failed: view === "failed",
+      noSelection: !picked,
+      mobileCards: cards(false), desktopCards: cards(true),
+      mobileCta: cta(true), desktopCta: cta(false)
+    };
+  }
+}
+</script>
+</body>
+</html>

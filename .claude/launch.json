@@ -23,6 +23,13 @@
       "autoPort": false
     },
     {
+      "name": "design-split-static",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["--yes", "http-server", "design-split", "-p", "4322", "-c-1", "--silent"],
+      "port": 4322,
+      "autoPort": false
+    },
+    {
       "name": "blog-dist",
       "runtimeExecutable": "npx",
       "runtimeArgs": [

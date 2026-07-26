@@ -27,12 +27,18 @@ export function SiteFooter() {
   return (
     <footer className="site-footer">
       <div className="site-footer__inner">
-        <span className="site-footer__logo">Fitter</span>
+        {/*
+          로고와 고지가 한 덩어리다. 시안의 데스크톱 푸터는 이 덩어리를 왼쪽에,
+          약관 링크를 오른쪽에 두는 2단이라 감싸는 요소가 있어야 한다.
+        */}
+        <div className="site-footer__brand">
+          <span className="site-footer__logo">Fitter</span>
 
-        <p className="site-footer__notice">
-          Fitter는 통신판매중개자이며 시공 계약의 당사자가 아닙니다. 시공 책임은 각 시공자에게
-          있습니다.
-        </p>
+          <p className="site-footer__notice">
+            Fitter는 통신판매중개자이며 시공 계약의 당사자가 아닙니다. 시공 책임은 각 시공자에게
+            있습니다.
+          </p>
+        </div>
 
         <nav aria-label="약관" className="site-footer__links">
           {/* 시안의 푸터 첫 항목이다. 헤더와 같은 앵커로 보낸다. */}
