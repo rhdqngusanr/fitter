@@ -1,5 +1,6 @@
 import { WORK_CATEGORY_SEEDS } from '@fitter/shared';
 
+import { HowSection } from '../../components/HowSection';
 import { PhotoCard } from '../../components/ui/PhotoCard';
 import { PhotoImg } from '../../components/ui/PhotoImg';
 import { WelcomeBanner } from '../../components/WelcomeBanner';
@@ -212,46 +213,12 @@ export default async function HomePage() {
         )}
       </section>
 
-      {/* ── 3단계 ──────────────────────────────────────── */}
-      <section
-        style={{
-          background: 'var(--color-bg-subtle)',
-          borderTop: '1px solid var(--color-border)',
-          padding: '48px 0',
-        }}
-      >
-        <div className="shell">
-          <h2 className="landing-h2" style={{ marginBottom: 'var(--space-6)' }}>
-            3단계로 끝납니다
-          </h2>
-          <ol className="landing-steps">
-            {[
-              {
-                title: '사진을 올린다',
-                body: '마음에 든 사진 3~10장이면 충분합니다. 인테리어 용어는 몰라도 됩니다.',
-              },
-              {
-                title: '제안을 받는다',
-                body: '조건에 맞는 공종 시공자가 자기 포트폴리오와 함께 제안을 보냅니다.',
-              },
-              {
-                title: '직접 고른다',
-                body: '수락하면 연락처가 열립니다. 비용은 시공자와 직접 정하고, 중간 마진은 없습니다.',
-              },
-            ].map((step, index) => (
-              <li key={step.title} className="landing-step">
-                <span className="landing-step__n" aria-hidden="true">
-                  {index + 1}
-                </span>
-                <span style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                  <strong className="landing-step__title">{step.title}</strong>
-                  <span className="landing-step__body">{step.body}</span>
-                </span>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
+      {/*
+        ── 이용 방법 (#how) ────────────────────────────────
+        헤더·푸터의 `이용 방법` 이 여기로 온다. 별도 화면을 만들지 않기로 했다.
+        역할 토글이 있어 클라이언트 컴포넌트다. → components/HowSection.tsx
+      */}
+      <HowSection />
 
       {/* ── 판단 근거 ──────────────────────────────────── */}
       {!cold && lead && (

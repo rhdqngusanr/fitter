@@ -35,6 +35,8 @@ export function SiteFooter() {
         </p>
 
         <nav aria-label="약관" className="site-footer__links">
+          {/* 시안의 푸터 첫 항목이다. 헤더와 같은 앵커로 보낸다. */}
+          <a href="/#how">이용 방법</a>
           <a href="/terms">이용약관</a>
           <a href="/privacy">개인정보처리방침</a>
           <a href="/support">문의</a>
