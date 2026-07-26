@@ -124,130 +124,207 @@ export default async function PortfolioDetailPage({ params }: PageProps) {
         <p style={{ whiteSpace: 'pre-wrap', margin: '0 0 var(--space-8)' }}>{item.description}</p>
       )}
 
+      {/*
+        시공 조건. 시안은 라벨 하나에 값 하나짜리 칸을 2열로 깐다.
+        표가 아니라 칸들인 이유는 값의 성격이 제각각이라 세로 정렬이 의미가 없어서다.
+      */}
       <section
         aria-label="시공 조건"
         style={{
-          border: '1px solid var(--color-border)',
-          borderRadius: 'var(--radius-lg)',
-          padding: 'var(--space-6)',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+          gap: 'var(--space-3)',
           marginBottom: 'var(--space-6)',
         }}
       >
-        <dl
-          style={{
-            display: 'grid',
-            gap: 'var(--space-4)',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-            margin: 0,
-          }}
-        >
-          {/*
-            평수는 평과 ㎡를 함께 보여준다. ㎡는 서버가 평에서 파생한 값이라
-            화면이 다시 계산하지 않는다 — 파생 경로가 둘이면 언젠가 갈라진다.
-          */}
-          {item.areaPyeong && (
-            <Fact
-              label="면적"
-              value={`${Number(item.areaPyeong)}평`}
-              sub={item.areaM2 ? `${item.areaM2.toFixed(1)}㎡` : undefined}
-            />
-          )}
-          {item.materialGrade && (
-            <Fact label="자재 등급" value={MATERIAL_GRADE_LABELS[item.materialGrade] ?? '—'} />
-          )}
-          {item.workDays && <Fact label="공사 기간" value={`${item.workDays}일`} />}
-          {item.workedAt && (
-            <Fact label="시공 시기" value={item.workedAt.slice(0, 7).replace('-', '년 ') + '월'} />
-          )}
-          {/*
-            금액은 공개한 시공자만 보여준다. 비공개면 키 자체가 응답에 없으므로
-            "비공개"라는 문구조차 띄우지 않는다 — 안 밝힌 걸 강조할 이유가 없다.
-          */}
-          {item.actualCost !== undefined && (
-            <Fact label="실제 비용" value={`${item.actualCost.toLocaleString('ko-KR')}원`} />
-          )}
-        </dl>
+        {item.categories.length > 0 && (
+          <Fact label="공종" value={item.categories.map((c) => c.nameKo).join('·')} />
+        )}
+        {/*
+          평수와 주거형태를 한 칸에 묶는다 — 둘 다 "얼마나 큰 집인가"를 말한다.
+          ㎡는 서버가 평에서 파생한 값이라 화면이 다시 계산하지 않는다.
+        */}
+        {item.areaPyeong && (
+          <Fact
+            label="규모"
+            value={[
+              `${Number(item.areaPyeong)}평`,
+              item.housingType ? HOUSING_TYPE_LABELS[item.housingType] : null,
+            ]
+              .filter(Boolean)
+              .join(' · ')}
+            sub={item.areaM2 ? `${item.areaM2.toFixed(1)}㎡` : undefined}
+          />
+        )}
+        {item.workDays && <Fact label="기간" value={`${item.workDays}일`} />}
+        {item.materialGrade && (
+          <Fact label="자재" value={MATERIAL_GRADE_LABELS[item.materialGrade]} />
+        )}
+        {item.region && <Fact label="지역" value={item.region.sigunguName} />}
+        {item.workedAt && (
+          <Fact label="시공 시기" value={item.workedAt.slice(0, 7).replace('-', '년 ') + '월'} />
+        )}
+        {/*
+          금액은 공개한 시공자만 보여준다. 비공개면 키 자체가 응답에 없으므로
+          "비공개"라는 문구조차 띄우지 않는다 — 안 밝힌 걸 강조할 이유가 없다.
+        */}
+        {item.actualCost !== undefined && (
+          <Fact label="실제 비용" value={`${item.actualCost.toLocaleString('ko-KR')}원`} />
+        )}
       </section>
 
+      {/*
+        시공자 카드. **컨택 직전 화면의 마지막 블록이다.**
+        여기서 "이 사람에게 맡겨도 되나"가 판가름 나므로 판단 근거를 모아 놓는다.
+      */}
       <section
         aria-label="시공자"
         style={{
           border: '1px solid var(--color-border)',
           borderRadius: 'var(--radius-lg)',
-          padding: 'var(--space-6)',
-          background: 'var(--color-bg-subtle)',
+          background: 'var(--color-surface)',
+          padding: 'var(--space-4)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 'var(--space-4)',
         }}
       >
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--space-2)',
-            marginBottom: 'var(--space-2)',
-          }}
-        >
-          <strong style={{ fontSize: 18 }}>{item.pro.businessName}</strong>
-          {item.pro.isApproved && (
-            <span
-              style={{
-                background: 'var(--color-success-bg)',
-                color: 'var(--color-success)',
-                borderRadius: 'var(--radius-sm)',
-                padding: '1px 6px',
-                fontSize: 12,
-              }}
-            >
-              승인
+        <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'flex-start' }}>
+          {/* 사진이 없으니 이름 앞 두 글자로 대신한다. 빈 동그라미보다 사람처럼 보인다. */}
+          <span
+            aria-hidden="true"
+            style={{
+              width: 52,
+              height: 52,
+              flex: '0 0 auto',
+              borderRadius: 'var(--radius-full)',
+              background: 'var(--color-primary-100)',
+              color: 'var(--color-primary-700)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 17,
+              fontWeight: 800,
+            }}
+          >
+            {item.pro.businessName.slice(0, 2)}
+          </span>
+
+          <span
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 5,
+              minWidth: 0,
+            }}
+          >
+            <span style={{ display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
+              <strong style={{ fontSize: 17, fontWeight: 800 }}>{item.pro.businessName}</strong>
+              {/*
+                시안은 인증이라는 말을 썼지만 그건 도메인 용어집 금지어다.
+                DB 컬럼이 is_approved 이므로 화면도 승인으로 말한다.
+                아껴 쓰는 secondary 색을 여기 쓴다 — 신뢰 신호에만 쓰기로 한 색이다.
+              */}
+              {item.pro.isApproved && (
+                <span
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    height: 22,
+                    padding: '0 8px',
+                    borderRadius: 'var(--radius-sm)',
+                    background: 'var(--color-secondary-100)',
+                    color: 'var(--color-secondary-600)',
+                    border: '1px solid var(--color-secondary-300)',
+                    fontSize: 11,
+                    fontWeight: 700,
+                  }}
+                >
+                  승인 시공자
+                </span>
+              )}
             </span>
-          )}
-          {item.pro.careerYears > 0 && (
-            <span style={{ fontSize: 13, color: 'var(--color-text-tertiary)' }}>
-              경력 {item.pro.careerYears}년
+
+            <span style={{ fontSize: 14, color: 'var(--color-text-secondary)' }}>
+              {[
+                item.categories.map((c) => c.nameKo).join('·') || null,
+                item.pro.careerYears > 0 ? `경력 ${item.pro.careerYears}년` : null,
+              ]
+                .filter(Boolean)
+                .join(' · ')}
             </span>
-          )}
+
+            {item.pro.serviceAreas.length > 0 && (
+              <span style={{ fontSize: 14, color: 'var(--color-text-tertiary)' }}>
+                {item.pro.serviceAreas.map((a) => a.sigunguName).join(' · ')}
+              </span>
+            )}
+          </span>
         </div>
 
         {item.pro.intro && (
-          <p style={{ margin: '0 0 var(--space-3)', color: 'var(--color-text-secondary)' }}>
+          <p style={{ margin: 0, fontSize: 14, color: 'var(--color-text-secondary)' }}>
             {item.pro.intro}
           </p>
         )}
 
-        {item.pro.serviceAreas.length > 0 && (
-          <p
-            style={{
-              margin: '0 0 var(--space-5)',
-              fontSize: 14,
-              color: 'var(--color-text-tertiary)',
-            }}
-          >
-            활동 지역 {item.pro.serviceAreas.map((a) => a.sigunguName).join(' · ')}
-          </p>
-        )}
-
-        {/*
-          문의 화면으로 바로 보낸다. 비로그인이면 거기서 로그인으로 튕기고,
-          로그인 뒤 다시 여기로 돌아온다 — 로그인 여부를 SSR이 알 수 없으므로
-          판단을 클라이언트 쪽 화면 하나에 몰아둔다.
-
-          연락처는 컨택이 ACCEPTED가 되기 전에는 어떤 경로로도 나오지 않는다.
-          이 버튼은 컨택을 "요청"할 뿐이고 수락 여부는 시공자가 정한다.
-        */}
-        <a
-          href={`/contacts/new?portfolioItemId=${item.id}`}
-          role="button"
+        <div
           style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            padding: '0 var(--space-8)',
-            borderRadius: 'var(--radius-md)',
-            background: 'var(--color-primary-500)',
-            color: 'var(--color-text-inverse)',
-            fontWeight: 600,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 'var(--space-2)',
+            borderTop: '1px solid var(--color-border)',
+            paddingTop: 'var(--space-4)',
           }}
         >
-          이 시공자에게 문의
-        </a>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 'var(--space-3)',
+            }}
+          >
+            {item.isCostPublic ? (
+              <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-success)' }}>
+                비용 공개
+              </span>
+            ) : (
+              <span />
+            )}
+            {/*
+              **언제 연락처가 열리는지 미리 말한다.** 이게 없으면 문의 버튼을 누른 사람이
+              바로 번호를 볼 거라 기대하고, 기대가 어긋나면 그게 불신이 된다.
+            */}
+            <span style={{ fontSize: 13, color: 'var(--color-text-tertiary)' }}>
+              연락처는 수락 후 공개
+            </span>
+          </div>
+
+          {/*
+            문의 화면으로 바로 보낸다. 비로그인이면 거기서 로그인으로 튕기고,
+            로그인 뒤 다시 여기로 돌아온다 — 로그인 여부를 SSR이 알 수 없으므로
+            판단을 클라이언트 쪽 화면 하나에 몰아둔다.
+          */}
+          <a
+            href={`/contacts/new?portfolioItemId=${item.id}`}
+            role="button"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: 48,
+              borderRadius: 'var(--radius-md)',
+              background: 'var(--color-primary-500)',
+              color: 'var(--color-text-inverse)',
+              fontSize: 15,
+              fontWeight: 700,
+              textDecoration: 'none',
+            }}
+          >
+            이 시공자에게 문의
+          </a>
+        </div>
       </section>
     </main>
   );
@@ -315,16 +392,33 @@ function Photo({
   );
 }
 
+/**
+ * 시공 조건 한 칸.
+ *
+ * `<dl>` 이 아니라 칸이다. 값의 성격이 제각각(공종·면적·기간·금액)이라
+ * 세로로 정렬해봐야 읽히지 않고, 시안도 2열 카드로 깔았다.
+ */
 function Fact({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
-    <div>
-      <dt style={{ fontSize: 13, color: 'var(--color-text-tertiary)' }}>{label}</dt>
-      <dd style={{ margin: 'var(--space-1) 0 0', fontWeight: 600 }}>
+    <div
+      style={{
+        border: '1px solid var(--color-border)',
+        borderRadius: 'var(--radius-md)',
+        background: 'var(--color-bg-subtle)',
+        padding: '12px 14px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 3,
+      }}
+    >
+      <span style={{ fontSize: 12, color: 'var(--color-text-tertiary)' }}>{label}</span>
+      <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-text-primary)' }}>
         {value}
         {sub && (
           <span
             style={{
               fontWeight: 400,
+              fontSize: 13,
               color: 'var(--color-text-tertiary)',
               marginLeft: 'var(--space-2)',
             }}
@@ -332,7 +426,7 @@ function Fact({ label, value, sub }: { label: string; value: string; sub?: strin
             {sub}
           </span>
         )}
-      </dd>
+      </span>
     </div>
   );
 }
