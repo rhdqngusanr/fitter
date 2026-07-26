@@ -35,6 +35,14 @@ const envSchema = z.object({
 
   /* 썸네일 파생과 고아 파일 정리를 큐로 돌린다. */
   REDIS_URL: z.string().min(1),
+
+  /**
+   * 에러 트래킹. **선택이다** — 없으면 Sentry를 아예 켜지 않는다.
+   *
+   * 로컬에서는 로그를 눈앞에서 보지만 배포된 서버는 아무도 안 본다.
+   * 필수로 걸면 개발자가 DSN 없이는 서버를 못 띄우게 되므로 선택으로 둔다.
+   */
+  SENTRY_DSN: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

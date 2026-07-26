@@ -1,6 +1,7 @@
 import { Catch, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import type { ArgumentsHost, ExceptionFilter } from '@nestjs/common';
 import type { Request, Response } from 'express';
+import * as Sentry from '@sentry/node';
 
 import { type DomainErrorCode, isDomainError } from '@fitter/domain';
 
@@ -61,8 +62,21 @@ export class DomainExceptionFilter implements ExceptionFilter {
       return;
     }
 
-    /* 정체를 모르는 예외는 내부 정보를 흘리지 않는다. 스택은 로그에만 남긴다. */
+    /*
+     * 정체를 모르는 예외는 내부 정보를 흘리지 않는다. 스택은 로그에만 남긴다.
+     *
+     * **Sentry 로 보내는 건 여기 하나뿐이다.** 이 필터가 `@Catch()` 로 전부 잡기 때문에
+     * Sentry 의 자동 수집은 아무것도 못 본다 — 얹어만 두면 조용히 빈 대시보드가 된다.
+     *
+     * 위의 도메인 에러·HttpException 은 일부러 보내지 않는다. 404·409·403 은 설계대로
+     * 동작한 결과지 사고가 아니고, 그걸 같이 올리면 진짜 문제가 정상 트래픽에 묻힌다.
+     * requestId 를 같이 실어야 친구가 "이거 안 돼요" 했을 때 그 요청을 찾을 수 있다.
+     */
     this.logger.error({ requestId, err: exception }, '처리되지 않은 예외');
+    Sentry.captureException(exception, {
+      tags: { requestId },
+      extra: { method: request.method, path: request.url },
+    });
     response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       code: 'INTERNAL_ERROR',
       message: '요청을 처리하지 못했습니다.',

@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { Queue, Worker } from 'bullmq';
 import sharp from 'sharp';
+import * as Sentry from '@sentry/node';
 
 import { thumbnailKey } from '@fitter/domain';
 import { THUMBNAIL_DETAIL_WIDTH, THUMBNAIL_LIST_WIDTH } from '@fitter/shared';
@@ -75,6 +76,15 @@ export class ThumbnailQueue implements OnModuleInit, OnModuleDestroy {
         { job: job?.name, storageKey: job?.data.storageKey, err: error },
         '작업 실패',
       );
+      /*
+       * 워커는 HTTP 를 안 거치므로 전역 예외 필터가 못 본다. 여기서 직접 올리지 않으면
+       * **파생이 조용히 실패한 채로 남는다** — 사용자에게는 사진을 올렸는데 목록에
+       * 썸네일이 영영 안 뜨는 모습으로 보이고, 요청은 이미 200 으로 끝난 뒤다.
+       */
+      Sentry.captureException(error, {
+        tags: { queue: QUEUE_NAME, job: job?.name },
+        extra: { storageKey: job?.data.storageKey },
+      });
     });
 
     /*

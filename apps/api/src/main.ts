@@ -1,8 +1,9 @@
 /*
- * .env를 가장 먼저 로드한다. config/env.ts 의 zod 검증이 이 값을 읽는다.
+ * **이 줄이 맨 위여야 한다.** Sentry 가 라이브러리를 감싸 계측하려면 그 라이브러리보다
+ * 먼저 로드돼야 한다. 이 파일이 .env 로드까지 겸한다 — 이유는 instrument.ts 주석에 있다.
  * 운영에서는 .env가 없고 플랫폼이 주입한 환경변수를 그대로 쓴다 — dotenv는 조용히 넘어간다.
  */
-import 'dotenv/config';
+import './instrument';
 import 'reflect-metadata';
 
 import cookieParser from 'cookie-parser';

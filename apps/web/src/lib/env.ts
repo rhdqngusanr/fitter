@@ -36,3 +36,29 @@ export const IMAGE_BASE_URL = requireUrl(
   'NEXT_PUBLIC_IMAGE_BASE_URL',
   process.env.NEXT_PUBLIC_IMAGE_BASE_URL ?? 'http://localhost:9000/fitter-images',
 );
+
+/**
+ * 에러 트래킹 DSN. **선택이다** — 없으면 Sentry를 켜지 않는다.
+ *
+ * 위의 둘과 달리 검증하지 않고 그대로 넘긴다. DSN 이 틀렸다는 이유로 화면이 안 뜨면
+ * 트래킹을 붙인 대가로 서비스를 잃는 셈이다. 에러 수집은 실패해도 조용해야 한다.
+ *
+ * 브라우저 번들에 박히지만 비밀이 아니다 — DSN 은 이벤트를 받는 주소일 뿐이고
+ * 이걸로 조회할 수 있는 건 없다.
+ */
+export const SENTRY_DSN = process.env.NEXT_PUBLIC_SENTRY_DSN ?? '';
+
+/**
+ * 검색엔진 색인을 허용할지.
+ *
+ * **기본값이 "막는다"이고 켜려면 명시해야 한다.** 반대로 만들면 환경변수를 빠뜨린
+ * 배포가 곧 색인 허용이 되는데, 색인은 되돌리기가 비대칭이다 — 거는 건 한 줄이지만
+ * 잘못 걸린 걸 지우는 건 검색엔진 캐시가 빠질 때까지 기다리는 일이다.
+ *
+ * 친구 테스트 단계에서는 테스트 의뢰·연습용 포트폴리오가 검색에 잡히면 곤란하다.
+ * 실제로 공개할 때 `NEXT_PUBLIC_ALLOW_INDEXING=true` 를 넣으면 (public) 그룹만 열린다.
+ * (app) 그룹은 이 값과 무관하게 항상 noindex 다 — 의뢰 사진 저작권 때문이다.
+ *
+ * 근거: brain/70-산출물/배포 준비 상태.md — "색인을 허용할 것인가"
+ */
+export const ALLOW_INDEXING = process.env.NEXT_PUBLIC_ALLOW_INDEXING === 'true';
