@@ -3,7 +3,7 @@
 import { Suspense, useState, type FormEvent } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-import { AuthShell, Field, FormError, SubmitButton, inputStyle } from '../../../components/form';
+import { AuthShell, Field, FormError, SubmitButton } from '../../../components/form';
 import { ApiError } from '../../../lib/api';
 import { useSession } from '../../../lib/session';
 
@@ -75,7 +75,7 @@ function LoginForm() {
             required
             autoComplete="email"
             autoFocus
-            style={inputStyle}
+            className="input"
           />
         </Field>
         <Field label="비밀번호">
@@ -84,15 +84,13 @@ function LoginForm() {
             type="password"
             required
             autoComplete="current-password"
-            style={inputStyle}
+            className="input"
           />
         </Field>
         <SubmitButton pending={pending}>로그인</SubmitButton>
       </form>
 
-      <p
-        style={{ marginTop: 'var(--space-6)', fontSize: 14, color: 'var(--color-text-secondary)' }}
-      >
+      <p className="auth__foot">
         아직 계정이 없으신가요?{' '}
         <a
           href={`/signup?next=${encodeURIComponent(next)}`}

@@ -61,21 +61,8 @@ export default function MyRequestsPage() {
           marginBottom: 'var(--space-8)',
         }}
       >
-        <h1 style={{ fontSize: 26, margin: 0 }}>내 의뢰</h1>
-        <a
-          href="/requests/new"
-          role="button"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            padding: '0 var(--space-5)',
-            borderRadius: 'var(--radius-md)',
-            background: 'var(--color-primary-500)',
-            color: 'var(--color-text-inverse)',
-            fontWeight: 600,
-            fontSize: 14,
-          }}
-        >
+        <h1 className="t-h1">내 의뢰</h1>
+        <a href="/requests/new" role="button" className="btn btn--primary btn--md">
           새 의뢰
         </a>
       </div>
@@ -96,7 +83,7 @@ export default function MyRequestsPage() {
             background: 'var(--color-bg-subtle)',
           }}
         >
-          <strong style={{ fontSize: 18 }}>아직 올린 의뢰가 없습니다</strong>
+          <strong className="mine__empty-title">아직 올린 의뢰가 없습니다</strong>
           <p style={{ color: 'var(--color-text-secondary)', margin: 'var(--space-2) 0 0' }}>
             원하는 분위기의 사진 한 장이면 시작할 수 있습니다.
           </p>
@@ -145,15 +132,13 @@ export default function MyRequestsPage() {
 
               <div style={{ flex: 1, minWidth: 0 }}>
                 <strong style={{ display: 'block' }}>{item.title ?? '제목 없는 의뢰'}</strong>
-                <span style={{ fontSize: 13, color: 'var(--color-text-tertiary)' }}>
-                  {REQUEST_STATUS_LABELS[item.status]}
-                </span>
+                <span className="mine__status">{REQUEST_STATUS_LABELS[item.status]}</span>
               </div>
 
               {/* 올리고 나서 제일 궁금한 숫자다. 0이어도 보여준다 — 없는 것과 모르는 건 다르다. */}
               <span
+                className="mine__count"
                 style={{
-                  fontSize: 14,
                   fontWeight: 600,
                   color:
                     item.contactCount > 0

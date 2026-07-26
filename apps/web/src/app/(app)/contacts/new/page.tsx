@@ -3,7 +3,7 @@
 import { Suspense, useState, type FormEvent } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-import { AuthShell, Field, FormError, SubmitButton, inputStyle } from '../../../../components/form';
+import { AuthShell, Field, FormError, SubmitButton } from '../../../../components/form';
 import { ApiError } from '../../../../lib/api';
 import { useSession } from '../../../../lib/session';
 
@@ -104,12 +104,7 @@ function NewContactForm() {
             maxLength={2000}
             autoFocus
             placeholder="원하는 범위와 일정, 궁금한 점을 적어주세요."
-            style={{
-              ...inputStyle,
-              height: 'auto',
-              padding: 'var(--space-3) var(--space-4)',
-              resize: 'vertical',
-            }}
+            className="input"
           />
         </Field>
 
@@ -121,28 +116,21 @@ function NewContactForm() {
               inputMode="numeric"
               min={1}
               placeholder="원"
-              style={{ ...inputStyle, flex: 1 }}
+              className="input"
             />
             <input
               name="proposedAmountNote"
               type="text"
               maxLength={200}
               placeholder="예) 자재비 별도"
-              style={{ ...inputStyle, flex: 1 }}
+              className="input"
             />
           </div>
         </Field>
 
         <SubmitButton pending={pending}>문의 보내기</SubmitButton>
         {/* 연락처가 언제 열리는지 미리 말한다. 기대와 다르면 그게 불신이 된다. */}
-        <p
-          style={{
-            fontSize: 13,
-            color: 'var(--color-text-tertiary)',
-            marginTop: 'var(--space-3)',
-            textAlign: 'center',
-          }}
-        >
+        <p className="auth__foot field__hint" style={{ textAlign: 'center' }}>
           상대가 수락하면 서로의 연락처가 공개됩니다. 그 전에는 어느 쪽도 볼 수 없습니다.
         </p>
       </form>

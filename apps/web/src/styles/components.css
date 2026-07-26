@@ -4187,6 +4187,241 @@
   }
 }
 
+/* ─────────────────────────── 폼 공통 ─────────────────────────── */
+
+/*
+ * 라벨·힌트·에러. 시안의 폼은 전부 같은 규격이다 —
+ * 라벨 13~14px/700 secondary, 그 아래 값, 그 아래 12~13px 보조 문구.
+ *
+ * 화면마다 숫자를 다시 적지 않으려고 여기 모은다. `Field` 하나만 고치면
+ * 폼이 있는 화면 전부가 같이 바뀐다.
+ */
+.field {
+  display: block;
+  margin-bottom: var(--space-5);
+}
+
+.field__label {
+  display: block;
+  margin-bottom: var(--space-2);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+
+.field__hint {
+  display: block;
+  margin-top: var(--space-2);
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+}
+
+/* 에러는 힌트와 같은 자리를 쓴다. 에러가 나면 힌트는 할 일이 끝났다. */
+.field__error {
+  display: block;
+  margin-top: var(--space-2);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-danger);
+}
+
+.form-error {
+  margin: 0 0 var(--space-5);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* 로그인·가입 같은 한 칸짜리 화면. 시안에 없는 화면이라 폭만 좁힌다. */
+.auth {
+  max-width: 420px;
+  margin: 0 auto;
+  padding: var(--space-16) var(--space-4);
+}
+
+.auth__sub {
+  margin: 0 0 var(--space-8);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+.auth__foot {
+  margin-top: var(--space-5);
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+/* ─────────────────────────── 업로더 ─────────────────────────── */
+
+/*
+ * 사진 업로더. C-01 과 P-02 가 같은 부품을 쓴다.
+ * 두 화면이 묻는 게 다를 뿐(출처 / 단계) 껍데기는 하나다.
+ */
+.uploader__drop {
+  width: 100%;
+  min-height: 96px;
+  border: 2px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-subtle);
+  color: var(--color-text-secondary);
+  font-family: inherit;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.uploader__drop:hover:not([disabled]) {
+  border-color: var(--color-primary-400);
+  background: var(--color-primary-50);
+}
+
+.uploader__drop[disabled] {
+  cursor: default;
+}
+
+.uploader__error {
+  margin-top: var(--space-2);
+  font-size: 14px;
+  color: var(--color-danger);
+}
+
+.uploader__tile {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.uploader__cover {
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.94);
+  color: #171b20;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.uploader__name {
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.uploader__remove {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-danger);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.uploader__remove:hover {
+  text-decoration: underline;
+}
+
+/* 출처·단계를 고르는 라디오 줄. 라디오라 안 고르고 넘어갈 수 없다. */
+.uploader__choices {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  font-size: 14px;
+}
+
+.uploader__choices label {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  cursor: pointer;
+}
+
+/* 원본 주소 칸. 타일 안에 들어가므로 기본 인풋보다 낮다. */
+.uploader__url.input {
+  height: 40px;
+  margin-top: var(--space-2);
+  font-size: 14px;
+}
+
+.uploader__note {
+  margin-top: var(--space-3);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-text-tertiary);
+}
+
+/* ─────────────────────────── 내 목록 (시안 없음) ─────────────────────────── */
+
+/*
+ * `내 의뢰` · `내 사례`.
+ *
+ * **이 둘은 `design/` 에 시안이 없다.** 화면 목록에는 있지만 P0-3 이 핵심 7개만
+ * 그렸다. 그래서 시안을 베낄 수 없고, 대신 **디자인 시스템의 규격 안에서만** 만든다 —
+ * 제목은 `.t-h1`, 나머지는 아래 클래스. 숫자를 새로 지어내지 않는 게 여기서는
+ * "시안을 따르는 것"과 같은 뜻이다.
+ */
+.mine__row {
+  display: flex;
+  gap: var(--space-4);
+  align-items: center;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.mine__thumb {
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-sunken);
+}
+
+.mine__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.mine__status {
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+}
+
+.mine__count {
+  font-size: 14px;
+  color: var(--color-text-tertiary);
+}
+
+.mine__banner {
+  margin-bottom: var(--space-6);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-md);
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.mine__empty-title {
+  font-size: 18px;
+  font-weight: 800;
+}
+
 /* ─────────────────────────── 인풋 ─────────────────────────── */
 
 .input {

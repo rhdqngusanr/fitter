@@ -3,7 +3,7 @@
 import { Suspense, useState, type FormEvent } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-import { AuthShell, Field, FormError, SubmitButton, inputStyle } from '../../../components/form';
+import { AuthShell, Field, FormError, SubmitButton } from '../../../components/form';
 import { ApiError } from '../../../lib/api';
 import { useSession } from '../../../lib/session';
 
@@ -72,7 +72,7 @@ function SignupForm() {
             required
             autoComplete="email"
             autoFocus
-            style={inputStyle}
+            className="input"
           />
         </Field>
         <Field label="닉네임" hint="문의를 받을 때 상대에게 보이는 이름입니다.">
@@ -82,7 +82,7 @@ function SignupForm() {
             required
             maxLength={30}
             autoComplete="nickname"
-            style={inputStyle}
+            className="input"
           />
         </Field>
         {/*
@@ -96,7 +96,7 @@ function SignupForm() {
             required
             minLength={MIN_PASSWORD}
             autoComplete="new-password"
-            style={inputStyle}
+            className="input"
           />
         </Field>
 
@@ -104,16 +104,7 @@ function SignupForm() {
           약관 동의는 체크박스로 명시적으로 받는다. 서버도 true 만 통과시킨다.
           "가입하면 동의한 것으로 봅니다" 식은 동의를 받았다고 보기 어렵다.
         */}
-        <label
-          style={{
-            display: 'flex',
-            gap: 'var(--space-3)',
-            alignItems: 'flex-start',
-            margin: '0 0 var(--space-6)',
-            fontSize: 14,
-            color: 'var(--color-text-secondary)',
-          }}
-        >
+        <label className="upload__consent" style={{ margin: '0 0 var(--space-6)' }}>
           <input name="agreedToTerms" type="checkbox" required style={{ marginTop: 3 }} />
           <span>이용약관과 개인정보 처리방침에 동의합니다.</span>
         </label>
@@ -121,9 +112,7 @@ function SignupForm() {
         <SubmitButton pending={pending}>가입하고 시작하기</SubmitButton>
       </form>
 
-      <p
-        style={{ marginTop: 'var(--space-6)', fontSize: 14, color: 'var(--color-text-secondary)' }}
-      >
+      <p className="auth__foot">
         이미 계정이 있으신가요?{' '}
         <a
           href={`/login?next=${encodeURIComponent(next)}`}

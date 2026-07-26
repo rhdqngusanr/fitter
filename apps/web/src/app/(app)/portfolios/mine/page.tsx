@@ -85,21 +85,8 @@ export default function MyPortfoliosPage() {
           marginBottom: 'var(--space-6)',
         }}
       >
-        <h1 style={{ fontSize: 26, margin: 0 }}>내 시공 사례</h1>
-        <a
-          href="/portfolios/new"
-          role="button"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            padding: '0 var(--space-5)',
-            borderRadius: 'var(--radius-md)',
-            background: 'var(--color-primary-500)',
-            color: 'var(--color-text-inverse)',
-            fontWeight: 600,
-            fontSize: 14,
-          }}
-        >
+        <h1 className="t-h1">내 시공 사례</h1>
+        <a href="/portfolios/new" role="button" className="btn btn--primary btn--md">
           새 사례
         </a>
       </div>
@@ -113,16 +100,7 @@ export default function MyPortfoliosPage() {
         전용이라 403). 화면이 서버보다 무른 말을 하면 사용자는 눌러본 뒤에야 진실을 안다.
       */}
       {profile && !profile.isApproved && (
-        <div
-          style={{
-            padding: 'var(--space-4) var(--space-5)',
-            background: 'var(--color-warning-bg)',
-            color: 'var(--color-warning)',
-            borderRadius: 'var(--radius-md)',
-            marginBottom: 'var(--space-6)',
-            fontSize: 14,
-          }}
-        >
+        <div className="mine__banner">
           <strong>승인 대기 중입니다.</strong> 승인 전에는 사례를 공개할 수 없습니다. 지금 비공개로
           올려두면 사진과 내용이 그대로 남고, 승인되는 즉시 공개할 수 있습니다.
         </div>
@@ -144,7 +122,7 @@ export default function MyPortfoliosPage() {
             background: 'var(--color-bg-subtle)',
           }}
         >
-          <strong style={{ fontSize: 18 }}>아직 올린 사례가 없습니다</strong>
+          <strong className="mine__empty-title">아직 올린 사례가 없습니다</strong>
           <p style={{ color: 'var(--color-text-secondary)', margin: 'var(--space-2) 0 0' }}>
             시공 전·후 사진 두 장이면 시작할 수 있습니다.
           </p>
@@ -193,16 +171,14 @@ export default function MyPortfoliosPage() {
 
               <div style={{ flex: 1, minWidth: 0 }}>
                 <strong style={{ display: 'block' }}>{item.title ?? '제목 없는 사례'}</strong>
-                <span style={{ fontSize: 13, color: 'var(--color-text-tertiary)' }}>
+                <span className="mine__status">
                   {STATUS_LABELS[item.status]}
                   {/* 공개했는데 승인이 없으면 실제로는 안 보인다. 그 사실을 여기서도 말한다. */}
                   {item.status === 'PUBLISHED' && profile && !profile.isApproved && ' · 승인 대기'}
                 </span>
               </div>
 
-              <span style={{ fontSize: 14, color: 'var(--color-text-tertiary)' }}>
-                조회 {item.viewCount}
-              </span>
+              <span className="mine__count">조회 {item.viewCount}</span>
             </li>
           ))}
         </ul>

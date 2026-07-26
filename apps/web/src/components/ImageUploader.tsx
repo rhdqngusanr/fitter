@@ -11,7 +11,6 @@ import {
 } from '@fitter/shared';
 
 import type { ApiOptions } from '../lib/api';
-import { inputStyle } from './form';
 
 /**
  * 사진 업로더. 의뢰와 포트폴리오가 같이 쓴다.
@@ -130,17 +129,7 @@ export function ImageUploader({ mode, images, max, onChange, authFetch }: Props)
         type="button"
         onClick={() => input.current?.click()}
         disabled={busy || images.length >= max}
-        style={{
-          width: '100%',
-          minHeight: 96,
-          border: '2px dashed var(--color-border-strong)',
-          borderRadius: 'var(--radius-lg)',
-          background: 'var(--color-bg-subtle)',
-          color: 'var(--color-text-secondary)',
-          fontFamily: 'inherit',
-          fontSize: 15,
-          cursor: busy || images.length >= max ? 'default' : 'pointer',
-        }}
+        className="uploader__drop"
       >
         {busy
           ? '올리는 중…'
@@ -150,10 +139,7 @@ export function ImageUploader({ mode, images, max, onChange, authFetch }: Props)
       </button>
 
       {error && (
-        <p
-          role="alert"
-          style={{ color: 'var(--color-danger)', fontSize: 14, marginTop: 'var(--space-2)' }}
-        >
+        <p role="alert" className="uploader__error">
           {error}
         </p>
       )}
@@ -188,15 +174,8 @@ export function ImageUploader({ mode, images, max, onChange, authFetch }: Props)
               <span
                 style={{
                   position: 'absolute',
-                  left: 4,
-                  top: 4,
-                  background: 'rgba(255,255,255,.94)',
-                  color: 'var(--color-text-primary)',
-                  fontSize: 10,
-                  fontWeight: 700,
-                  padding: '2px 6px',
-                  borderRadius: 'var(--radius-sm)',
                 }}
+                className="uploader__cover"
               >
                 대표
               </span>
@@ -211,29 +190,11 @@ export function ImageUploader({ mode, images, max, onChange, authFetch }: Props)
                 marginBottom: 'var(--space-2)',
               }}
             >
-              <span
-                style={{
-                  fontSize: 13,
-                  color: 'var(--color-text-tertiary)',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {img.name}
-              </span>
+              <span className="uploader__name">{img.name}</span>
               <button
                 type="button"
                 onClick={() => onChange(images.filter((_, j) => j !== i))}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--color-danger)',
-                  fontSize: 13,
-                  cursor: 'pointer',
-                  minHeight: 'auto',
-                  padding: 0,
-                }}
+                className="uploader__remove"
               >
                 삭제
               </button>
@@ -242,8 +203,8 @@ export function ImageUploader({ mode, images, max, onChange, authFetch }: Props)
             {mode === 'reference' ? (
               <>
                 {/* 출처는 사진마다 묻는다. 라디오라 안 고르고 넘어갈 수 없다. */}
-                <div style={{ display: 'flex', gap: 'var(--space-4)', fontSize: 14 }}>
-                  <label style={{ display: 'flex', gap: 'var(--space-2)', alignItems: 'center' }}>
+                <div className="uploader__choices">
+                  <label>
                     <input
                       type="radio"
                       name={`src-${img.storageKey}`}
@@ -252,7 +213,7 @@ export function ImageUploader({ mode, images, max, onChange, authFetch }: Props)
                     />
                     직접 찍었어요
                   </label>
-                  <label style={{ display: 'flex', gap: 'var(--space-2)', alignItems: 'center' }}>
+                  <label>
                     <input
                       type="radio"
                       name={`src-${img.storageKey}`}
@@ -271,23 +232,15 @@ export function ImageUploader({ mode, images, max, onChange, authFetch }: Props)
                     placeholder="원본 주소 (https://…)"
                     value={img.sourceUrl}
                     onChange={(e) => patch(i, { sourceUrl: e.target.value })}
-                    style={{
-                      ...inputStyle,
-                      height: 40,
-                      marginTop: 'var(--space-2)',
-                      fontSize: 14,
-                    }}
+                    className="input uploader__url"
                   />
                 )}
               </>
             ) : (
               /* 포트폴리오는 단계를 받는다. 출처는 묻지 않는다 — 본인 작업물이다. */
-              <div style={{ display: 'flex', gap: 'var(--space-4)', fontSize: 14 }}>
+              <div className="uploader__choices">
                 {IMAGE_PHASES.map((p) => (
-                  <label
-                    key={p}
-                    style={{ display: 'flex', gap: 'var(--space-2)', alignItems: 'center' }}
-                  >
+                  <label key={p}>
                     <input
                       type="radio"
                       name={`phase-${img.storageKey}`}
@@ -303,7 +256,7 @@ export function ImageUploader({ mode, images, max, onChange, authFetch }: Props)
         </div>
       ))}
 
-      <p style={{ fontSize: 13, color: 'var(--color-text-tertiary)', marginTop: 'var(--space-3)' }}>
+      <p className="uploader__note">
         {mode === 'reference'
           ? '남의 사진을 올릴 때는 원본 주소를 함께 남겨주세요. 권리자가 내려달라고 하면 그 사진만 내립니다.'
           : '시공 전과 후를 같이 올리면 문의가 훨씬 많이 옵니다.'}

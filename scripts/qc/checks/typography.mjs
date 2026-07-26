@@ -14,11 +14,14 @@ import { finding } from '../lib/report.mjs';
  *
  * 그래서 `.t-display` ~ `.t-caption` 클래스를 쓰고 숫자는 적지 않는다.
  *
- * **지금은 warn 이다.** 시안 대조가 화면별로 진행 중이고, 아직 안 옮긴 화면이 남아
- * 있는 동안 error 로 두면 그 화면을 손대지 않는 커밋까지 다 막힌다.
- * 마지막 화면을 옮기는 순간 error 로 올린다 — 그때 이 주석도 지운다.
+ * **2026-07-26 에 error 로 올렸다.** 도입할 때 101건이었고 화면을 하나씩 옮겨 0이 됐다.
+ * warn 으로 두는 동안에는 "나중에"가 계속 미뤄진다 — 0이 된 순간이 잠글 때다.
  *
- * 근거: brain/30-설계/시안 대조 결과.md — "아직 안 맞춘 것 — 전체 시각 인상"
+ * 화면이 스케일 밖의 크기를 써야 한다면(랜딩 h1 52px 처럼 **시안이 그렇게 그렸다면**)
+ * `components.css` 에 화면 전용 클래스로 넣는다. 예외를 없애는 게 목적이 아니라
+ * 예외가 한 곳에 모여 눈에 보이게 하는 게 목적이다.
+ *
+ * 근거: brain/30-설계/시안 대조 결과.md
  */
 export const name = 'typography';
 export const description = '타이포 — 크기를 숫자로 적지 않았는가';
@@ -45,7 +48,6 @@ export function run() {
     for (const hit of findLines(read(path), HARDCODED)) {
       findings.push(
         finding({
-          severity: 'warn',
           rule: 'design/type-hardcoded',
           file,
           line: hit.line,
