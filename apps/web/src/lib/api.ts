@@ -81,6 +81,8 @@ export interface GalleryItem {
 export interface GalleryResponse {
   /** 빈 상태를 두 갈래로 나누는 신호. 필터 0건과 콘텐츠 0건은 다른 화면이다. */
   hasAnyContent: boolean;
+  /** 필터를 적용한 총 건수. 첫 페이지에서만 온다 — 다음 장에서는 이미 아는 숫자다. */
+  totalCount?: number;
   items: GalleryItem[];
   nextCursor: string | null;
 }

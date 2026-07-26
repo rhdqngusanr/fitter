@@ -330,8 +330,22 @@ export class PortfoliosService {
       hasAnyContent = (await this.prisma.portfolioItem.count({ where: publicScope, take: 1 })) > 0;
     }
 
+    /*
+     * 총 건수. 시안이 `12건 · 최근 시공순` 을 보여주기 때문에 필요하다.
+     *
+     * **첫 페이지에서만 센다.** 다음 페이지를 넘길 때는 이미 아는 숫자이고,
+     * COUNT 는 커서 조회와 달리 조건에 맞는 행을 전부 훑는다. 매번 하면 목록이 느려진다.
+     *
+     * 서비스 초기에는 콘텐츠가 적어 이 비용이 사실상 0이다. 수만 건이 되면
+     * 그때는 근사치(1000+ 식)로 바꾸거나 캐시한다 — 그 시점에 다시 판단한다.
+     */
+    const totalCount = cursor
+      ? undefined
+      : await this.prisma.portfolioItem.count({ where: { ...publicScope, ...filters } });
+
     return {
       hasAnyContent,
+      totalCount,
       items: items.map(({ images, _count, categories, pro, ...rest }) => ({
         ...rest,
         coverThumbKey: images[0]?.thumb400Key ?? null,
