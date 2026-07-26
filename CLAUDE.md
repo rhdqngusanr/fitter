@@ -73,7 +73,10 @@ docs/                      GitHub Pages로 공개. 목업만 둔다
 5. **`apps/api/src/infra/`** — 그 포트의 구현체.
 6. **`apps/api/src/modules/<도메인>/`** — controller · service · dto. 서비스는 도메인을 호출할 뿐 규칙을 다시 쓰지 않는다.
 7. **`apps/api/src/common/`** — 권한은 guards, 응답 필터링은 interceptors. **다른 곳에 흩뿌리지 마라.**
-8. **`apps/web/src/app/`** — 화면. 시안은 `design/`에 있다.
+8. **`apps/web/src/app/`** — 화면. **만들기 전에 `design/`의 해당 시안 HTML을 반드시 연다.**
+   노트는 "왜"를, 시안은 "무엇을"을 담고 있다. 노트만 읽고 만들면 색만 맞고 구조는 즉흥이 된다.
+   시안은 상태(로딩·빈 상태·에러·권한별 분기)를 전부 그려뒀고, **그걸 다 만들었는지가 완료 기준**이다.
+   어느 시안을 열지는 `brain/00-허브/세션 부팅 프로토콜.md`의 매핑 표에 있다.
 9. **테스트 → `brain/00-허브/진행 현황판.md` 갱신 → 커밋.**
 
 한 프롬프트는 한 기능, 한 커밋. 범위가 커질수록 판단 품질이 급격히 떨어진다.
@@ -105,6 +108,9 @@ docs/                      GitHub Pages로 공개. 목업만 둔다
 - **컨택이 ACCEPTED가 아닌데 `phone`을 응답이나 로그에 싣기.** 마스킹이 아니라 **키 자체가 없어야 한다.**
 - **`process.env`를 아무 데서나 읽기.** `apps/api/src/config/env.ts`만 읽는다.
 - **화면마다 상수를 다시 정의하기.** 공종·용량·enum은 `packages/shared`에서 가져온다.
+- **시안을 안 보고 화면 만들기.** 디자인 토큰 이름을 바꾸는 것도 포함이다 —
+  `--shadow-1/2/3`을 `--shadow-sm/md`로 고치면 시안과 대조가 불가능해진다.
+  토큰의 정본은 `design/Fitter 디자인 시스템 v1.dc.html`이고 `apps/web/src/styles/tokens.css`는 그 사본이다.
 
 ## 명령어
 

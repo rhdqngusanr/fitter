@@ -7,7 +7,7 @@
  * 근거: brain/70-산출물/API 명세.md
  */
 
-import type { HousingType, MaterialGrade } from '@fitter/shared';
+import type { HousingType, ImagePhase, MaterialGrade } from '@fitter/shared';
 
 import { API_BASE_URL, IMAGE_BASE_URL } from './env';
 
@@ -89,9 +89,15 @@ export interface PortfolioImage {
   id: string;
   thumb400Key: string | null;
   thumb1200Key: string | null;
-  /** before/after 대비가 실력을 가장 설득력 있게 보여준다. */
-  phase: 'BEFORE' | 'AFTER' | 'PROGRESS' | null;
+  /*
+   * 단계는 @fitter/shared 가 정본이다. 손으로 적었더니 PROCESS 를 PROGRESS 로
+   * 잘못 써놨었다 — 서버가 절대 보내지 않는 값을 화면 타입이 기다리고 있었다.
+   */
+  phase: ImagePhase | null;
   isCover: boolean;
+  /** 원본 비율. 자리를 미리 잡아 레이아웃 이동을 막는 데 쓴다. */
+  width: number | null;
+  height: number | null;
 }
 
 export interface PortfolioDetail {
