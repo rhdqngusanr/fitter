@@ -210,12 +210,25 @@ body {
   font-feature-settings: 'tnum';
 }
 
-a {
+/*
+ * 링크 기본색. **`:where()` 로 감싸서 특정성을 0 으로 만든다.**
+ *
+ * 이걸 그냥 `a:hover` 로 두면 특정성이 (0,1,1) 이라 클래스 하나짜리 규칙
+ * `.btn--primary`(0,1,0)를 이긴다. 그러면 링크로 만든 버튼에 마우스를 올리는 순간
+ * 배경은 `.btn--primary:hover` 가 primary-600 으로 칠하고 글자는 `a:hover` 가
+ * **같은 primary-600** 으로 칠해서 **글씨가 사라진다.** 실제로 `시작하기` 버튼이 그랬고,
+ * `<a>` 로 만든 버튼·칩·카드가 전부 같은 문제를 갖고 있었다.
+ *
+ * `:where()` 는 안에 든 선택자의 특정성을 0 으로 만든다. 그래서 이 규칙은
+ * "아무도 색을 정하지 않았을 때의 기본값"이 되고, 컴포넌트가 정한 색이 항상 이긴다.
+ * 본문 안의 진짜 링크는 클래스가 없으므로 그대로 파란 글자에 밑줄이 생긴다.
+ */
+:where(a) {
   color: var(--color-primary-500);
   text-decoration: none;
 }
 
-a:hover {
+:where(a:hover) {
   color: var(--color-primary-600);
   text-decoration: underline;
 }
