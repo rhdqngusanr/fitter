@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+<style>
+:root{
+  --color-primary-50:#EEF3F8; --color-primary-100:#D8E4EF; --color-primary-200:#B3C9DE; --color-primary-300:#85A7C7;
+  --color-primary-400:#5583AC; --color-primary-500:#2F6390; --color-primary-600:#245176; --color-primary-700:#1C405D; --color-primary-800:#163348;
+  --color-secondary-100:#F3E9E2; --color-secondary-300:#D9AE92; --color-secondary-500:#A8623C; --color-secondary-600:#8B4E2D;
+  --color-bg:#FFFFFF; --color-bg-subtle:#F5F7F9; --color-bg-sunken:#EDF0F3; --color-surface:#FFFFFF; --color-surface-hover:#F5F7F9;
+  --color-text-primary:#171B20; --color-text-secondary:#515A65; --color-text-tertiary:#69737F; --color-text-inverse:#FFFFFF;
+  --color-success-bg:#E7F3EC; --color-success:#1F7A4C; --color-warning-bg:#FBF1DC; --color-warning:#9A6B0F;
+  --color-danger-bg:#FBEAE7; --color-danger:#B03A2E;
+  --color-border:#DFE4E9; --color-border-strong:#C7CED6; --color-border-focus:#2F6390;
+  --color-scrim:rgba(14,17,20,.56);
+  --radius-sm:4px; --radius-md:8px; --radius-lg:12px; --radius-xl:16px; --radius-full:999px;
+  --shadow-1:0 1px 2px rgba(23,27,32,.06), 0 1px 3px rgba(23,27,32,.08);
+  --shadow-2:0 2px 6px rgba(23,27,32,.06), 0 6px 16px rgba(23,27,32,.10);
+  --shadow-3:0 8px 20px rgba(23,27,32,.10), 0 20px 44px rgba(23,27,32,.14);
+  --font-sans:"Pretendard Variable",Pretendard,-apple-system,system-ui,sans-serif;
+  --font-mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
+}
+body{margin:0;font-family:var(--font-sans);-webkit-font-smoothing:antialiased;background:var(--color-bg-sunken);font-feature-settings:"tnum";}
+*{box-sizing:border-box;}
+a{color:var(--color-primary-500);text-decoration:none;}
+a:hover{color:var(--color-primary-600);text-decoration:underline;}
+button,input,select,textarea{font-family:inherit;}
+:focus-visible{outline:2px solid var(--color-border-focus);outline-offset:2px;border-radius:var(--radius-sm);}
+@keyframes fit-spin{to{transform:rotate(360deg)}}
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:var(--color-bg-sunken);padding:24px 0 80px">
+
+  <div style="max-width:1360px;margin:0 auto;padding:0 24px;display:flex;flex-direction:column;gap:16px">
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;justify-content:space-between">
+      <div style="display:flex;align-items:baseline;gap:10px">
+        <span style="font-size:20px;font-weight:800;letter-spacing:-.02em;color:var(--color-text-primary)">P-01 프로필 편집</span>
+        <span style="font-size:13px;color:var(--color-text-tertiary)">시공자 · PUT /me/pro-profile · 온보딩 마지막 관문</span>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <sc-for list="{{ stateTabs }}" as="t" hint-placeholder-count="6">
+          <button onClick="{{ t.onClick }}" aria-pressed="{{ t.active }}" style="height:34px;padding:0 14px;border-radius:var(--radius-full);border:1px solid {{ t.border }};background:{{ t.bg }};color:{{ t.fg }};font-size:13px;font-weight:700;cursor:pointer">{{ t.label }}</button>
+        </sc-for>
+      </div>
+    </div>
+    <p style="margin:0;font-size:13px;color:var(--color-text-secondary);max-width:900px">{{ stateNote }}</p>
+  </div>
+
+  <div style="margin:28px 0 0;padding:0 24px 12px;display:flex;gap:28px;align-items:flex-start;overflow-x:auto">
+
+    <!-- 모바일 -->
+    <div style="flex:0 0 auto;display:flex;flex-direction:column;gap:10px">
+      <span style="font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:var(--color-text-tertiary)">MOBILE 390</span>
+      <div style="position:relative;width:390px;height:844px;overflow-y:auto;overflow-x:hidden;background:var(--color-bg);border:1px solid var(--color-border-strong);border-radius:var(--radius-xl);box-shadow:var(--shadow-2)">
+
+        <header style="position:sticky;top:0;z-index:10;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--color-border);height:56px;padding:0 8px 0 16px;display:flex;align-items:center;justify-content:space-between;gap:8px">
+          <span style="display:flex;align-items:center;gap:10px">
+            <button aria-label="뒤로" style="width:36px;height:36px;border:none;border-radius:var(--radius-md);background:transparent;color:var(--color-text-secondary);font-size:18px;cursor:pointer">‹</button>
+            <span style="font-size:17px;font-weight:800;letter-spacing:-.02em;color:var(--color-text-primary)">프로필 편집</span>
+          </span>
+          <span style="font-size:13px;font-weight:700;color:{{ statusFg }};background:{{ statusBg }};padding:5px 10px;border-radius:var(--radius-full);margin-right:8px">{{ statusLabel }}</span>
+        </header>
+
+        <sc-if value="{{ isOnboarding }}" hint-placeholder-val="{{ true }}">
+          <div style="padding:14px 16px 0;display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <span style="font-size:13px;font-weight:700;color:var(--color-text-secondary)">온보딩 3단계 중 3</span>
+              <span style="font-size:13px;color:var(--color-text-tertiary)">{{ completion }}</span>
+            </div>
+            <div style="height:6px;border-radius:var(--radius-full);background:var(--color-bg-sunken);overflow:hidden">
+              <div style="height:100%;width:{{ completionPct }};background:var(--color-primary-500)"></div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ hasBanner }}" hint-placeholder-val="{{ false }}">
+          <div style="margin:14px 16px 0;border:1px solid {{ bannerBorder }};background:{{ bannerBg }};border-radius:var(--radius-md);padding:12px 14px;display:flex;flex-direction:column;gap:5px">
+            <strong style="font-size:14px;font-weight:800;color:{{ bannerFg }}">{{ bannerTitle }}</strong>
+            <span style="font-size:13px;line-height:1.55;color:var(--color-text-secondary)">{{ bannerBody }}</span>
+          </div>
+        </sc-if>
+
+        <div style="padding:18px 16px 24px;display:flex;flex-direction:column;gap:22px">
+
+          <section style="display:flex;flex-direction:column;gap:12px">
+            <strong style="font-size:15px;font-weight:800;color:var(--color-text-primary)">기본 정보</strong>
+            <div style="display:flex;gap:14px;align-items:center">
+              <span style="width:64px;height:64px;flex:none;border-radius:var(--radius-full);background:var(--color-primary-100);color:var(--color-primary-700);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800">김도</span>
+              <span style="display:flex;flex-direction:column;gap:6px">
+                <button style="height:38px;padding:0 14px;border:1px solid var(--color-border-strong);border-radius:var(--radius-md);background:var(--color-surface);color:var(--color-text-primary);font-size:14px;font-weight:700;cursor:pointer">사진 변경</button>
+                <span style="font-size:12px;color:var(--color-text-tertiary)">JPG·PNG · 5MB 이하</span>
+              </span>
+            </div>
+            {{ fieldName }}
+            {{ fieldPhone }}
+          </section>
+
+          <section style="display:flex;flex-direction:column;gap:12px">
+            <strong style="font-size:15px;font-weight:800;color:var(--color-text-primary)">전문 분야</strong>
+            <span style="font-size:13px;color:var(--color-text-tertiary);margin-top:-6px">최대 3개. 선택한 공종의 의뢰만 목록에 뜹니다.</span>
+            <div style="display:flex;flex-wrap:wrap;gap:8px">
+              <sc-for list="{{ trades }}" as="c" hint-placeholder-count="7">
+                <button onClick="{{ c.onClick }}" aria-pressed="{{ c.active }}" style="height:38px;padding:0 14px;border-radius:var(--radius-full);border:1px solid {{ c.border }};background:{{ c.bg }};color:{{ c.fg }};font-size:14px;font-weight:600;cursor:pointer">{{ c.label }}</button>
+              </sc-for>
+            </div>
+            <sc-if value="{{ tradeError }}" hint-placeholder-val="{{ false }}">
+              <span style="font-size:13px;font-weight:600;color:var(--color-danger)">공종을 1개 이상 선택해 주세요.</span>
+            </sc-if>
+            {{ fieldYears }}
+          </section>
+
+          <section style="display:flex;flex-direction:column;gap:12px">
+            <strong style="font-size:15px;font-weight:800;color:var(--color-text-primary)">활동 지역</strong>
+            <div style="display:flex;flex-wrap:wrap;gap:8px">
+              <sc-for list="{{ regions }}" as="c" hint-placeholder-count="6">
+                <button onClick="{{ c.onClick }}" aria-pressed="{{ c.active }}" style="height:38px;padding:0 14px;border-radius:var(--radius-full);border:1px solid {{ c.border }};background:{{ c.bg }};color:{{ c.fg }};font-size:14px;font-weight:600;cursor:pointer">{{ c.label }}</button>
+              </sc-for>
+            </div>
+          </section>
+
+          <section style="display:flex;flex-direction:column;gap:12px">
+            <strong style="font-size:15px;font-weight:800;color:var(--color-text-primary)">소개</strong>
+            {{ fieldBio }}
+          </section>
+
+          <section style="display:flex;flex-direction:column;gap:12px">
+            <strong style="font-size:15px;font-weight:800;color:var(--color-text-primary)">인증 서류</strong>
+            <span style="font-size:13px;line-height:1.55;color:var(--color-text-tertiary);margin-top:-6px">사업자등록증을 올리면 <strong style="color:var(--color-secondary-600)">인증 시공자</strong> 배지가 붙습니다. 없이도 활동은 가능합니다.</span>
+            {{ fieldBiz }}
+            {{ uploadBox }}
+          </section>
+
+          <section style="display:flex;flex-direction:column;gap:10px">
+            <strong style="font-size:15px;font-weight:800;color:var(--color-text-primary)">공개 설정</strong>
+            <sc-for list="{{ toggles }}" as="t" hint-placeholder-count="2">
+              <button onClick="{{ t.onClick }}" aria-pressed="{{ t.on }}" style="display:flex;align-items:center;justify-content:space-between;gap:14px;text-align:left;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);padding:14px;cursor:pointer">
+                <span style="display:flex;flex-direction:column;gap:3px">
+                  <strong style="font-size:14px;font-weight:700;color:var(--color-text-primary)">{{ t.title }}</strong>
+                  <span style="font-size:13px;line-height:1.5;color:var(--color-text-secondary)">{{ t.body }}</span>
+                </span>
+                <span style="flex:none;width:46px;height:28px;border-radius:var(--radius-full);background:{{ t.trackBg }};position:relative;transition:background .12s">
+                  <span style="position:absolute;top:3px;left:{{ t.knobLeft }};width:22px;height:22px;border-radius:var(--radius-full);background:#FFFFFF;box-shadow:var(--shadow-1);transition:left .12s"></span>
+                </span>
+              </button>
+            </sc-for>
+          </section>
+        </div>
+
+        <div style="position:sticky;bottom:0;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);border-top:1px solid var(--color-border);padding:10px 16px 14px;display:flex;flex-direction:column;gap:8px">
+          <sc-if value="{{ showDirty }}" hint-placeholder-val="{{ false }}">
+            <span style="font-size:12px;color:var(--color-text-tertiary)">저장하지 않은 변경 3건</span>
+          </sc-if>
+          {{ primaryButtonMobile }}
+        </div>
+
+        {{ mobileToast }}
+      </div>
+    </div>
+
+    <!-- 데스크톱 -->
+    <div style="flex:0 0 1280px;width:1280px;display:flex;flex-direction:column;gap:10px">
+      <span style="font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:var(--color-text-tertiary)">DESKTOP 1280</span>
+      <div style="position:relative;background:var(--color-bg);border:1px solid var(--color-border-strong);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-2)">
+
+        <header style="height:68px;border-bottom:1px solid var(--color-border);padding:0 40px;display:flex;align-items:center;justify-content:space-between;gap:24px">
+          <div style="display:flex;align-items:center;gap:28px">
+            <span style="font-size:21px;font-weight:800;letter-spacing:-.02em;color:var(--color-text-primary)">Fitter</span>
+            <nav aria-label="주요" style="display:flex;gap:20px">
+              <a href="#" style="font-size:15px;font-weight:600;color:var(--color-text-secondary)">받은 의뢰</a>
+              <a href="#" style="font-size:15px;font-weight:600;color:var(--color-text-secondary)">내 포트폴리오</a>
+              <a href="#" style="font-size:15px;font-weight:700;color:var(--color-text-primary)">프로필</a>
+            </nav>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <span style="font-size:13px;font-weight:700;color:{{ statusFg }};background:{{ statusBg }};padding:6px 12px;border-radius:var(--radius-full)">{{ statusLabel }}</span>
+            <span style="width:36px;height:36px;border-radius:var(--radius-full);background:var(--color-primary-100);color:var(--color-primary-700);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800">김도</span>
+          </div>
+        </header>
+
+        <div style="padding:32px 40px 48px;display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:32px;align-items:start">
+
+          <div style="display:flex;flex-direction:column;gap:24px">
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <h1 style="margin:0;font-size:30px;font-weight:800;letter-spacing:-.025em;color:var(--color-text-primary)">{{ pageTitle }}</h1>
+              <p style="margin:0;font-size:15px;line-height:1.6;color:var(--color-text-secondary);max-width:620px">{{ pageSub }}</p>
+            </div>
+
+            <sc-if value="{{ hasBanner }}" hint-placeholder-val="{{ false }}">
+              <div style="border:1px solid {{ bannerBorder }};background:{{ bannerBg }};border-radius:var(--radius-md);padding:16px 18px;display:flex;flex-direction:column;gap:6px">
+                <strong style="font-size:15px;font-weight:800;color:{{ bannerFg }}">{{ bannerTitle }}</strong>
+                <span style="font-size:14px;line-height:1.6;color:var(--color-text-secondary);max-width:640px">{{ bannerBody }}</span>
+              </div>
+            </sc-if>
+
+            <section style="border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-surface);padding:24px;display:flex;flex-direction:column;gap:18px">
+              <strong style="font-size:17px;font-weight:800;letter-spacing:-.01em;color:var(--color-text-primary)">기본 정보</strong>
+              <div style="display:flex;gap:18px;align-items:center">
+                <span style="width:80px;height:80px;flex:none;border-radius:var(--radius-full);background:var(--color-primary-100);color:var(--color-primary-700);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800">김도</span>
+                <span style="display:flex;flex-direction:column;gap:8px">
+                  <span style="display:flex;gap:8px">
+                    <button style="height:40px;padding:0 16px;border:1px solid var(--color-border-strong);border-radius:var(--radius-md);background:var(--color-surface);color:var(--color-text-primary);font-size:14px;font-weight:700;cursor:pointer" style-hover="background:var(--color-surface-hover)">사진 변경</button>
+                    <button style="height:40px;padding:0 14px;border:none;border-radius:var(--radius-md);background:transparent;color:var(--color-text-tertiary);font-size:14px;font-weight:700;cursor:pointer" style-hover="background:var(--color-bg-subtle)">삭제</button>
+                  </span>
+                  <span style="font-size:13px;color:var(--color-text-tertiary)">정사각형 400×400 이상 권장 · JPG·PNG · 5MB 이하</span>
+                </span>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                {{ fieldNameD }}
+                {{ fieldPhoneD }}
+              </div>
+            </section>
+
+            <section style="border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-surface);padding:24px;display:flex;flex-direction:column;gap:18px">
+              <span style="display:flex;flex-direction:column;gap:4px">
+                <strong style="font-size:17px;font-weight:800;letter-spacing:-.01em;color:var(--color-text-primary)">전문 분야와 활동 지역</strong>
+                <span style="font-size:14px;color:var(--color-text-tertiary)">여기서 고른 조합에 맞는 의뢰만 <a href="#">받은 의뢰</a>에 노출됩니다.</span>
+              </span>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <span style="font-size:14px;font-weight:700;color:var(--color-text-secondary)">공종 (최대 3개)</span>
+                <div style="display:flex;flex-wrap:wrap;gap:8px">
+                  <sc-for list="{{ trades }}" as="c" hint-placeholder-count="7">
+                    <button onClick="{{ c.onClick }}" aria-pressed="{{ c.active }}" style="height:40px;padding:0 16px;border-radius:var(--radius-full);border:1px solid {{ c.border }};background:{{ c.bg }};color:{{ c.fg }};font-size:15px;font-weight:600;cursor:pointer;transition:all .12s">{{ c.label }}</button>
+                  </sc-for>
+                </div>
+                <sc-if value="{{ tradeError }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-size:13px;font-weight:600;color:var(--color-danger)">공종을 1개 이상 선택해 주세요.</span>
+                </sc-if>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <span style="font-size:14px;font-weight:700;color:var(--color-text-secondary)">활동 지역</span>
+                <div style="display:flex;flex-wrap:wrap;gap:8px">
+                  <sc-for list="{{ regions }}" as="c" hint-placeholder-count="6">
+                    <button onClick="{{ c.onClick }}" aria-pressed="{{ c.active }}" style="height:40px;padding:0 16px;border-radius:var(--radius-full);border:1px solid {{ c.border }};background:{{ c.bg }};color:{{ c.fg }};font-size:15px;font-weight:600;cursor:pointer;transition:all .12s">{{ c.label }}</button>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:200px 1fr;gap:16px;align-items:start">
+                {{ fieldYearsD }}
+              </div>
+            </section>
+
+            <section style="border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-surface);padding:24px;display:flex;flex-direction:column;gap:18px">
+              <strong style="font-size:17px;font-weight:800;letter-spacing:-.01em;color:var(--color-text-primary)">소개</strong>
+              {{ fieldBioD }}
+            </section>
+
+            <section style="border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-surface);padding:24px;display:flex;flex-direction:column;gap:18px">
+              <span style="display:flex;flex-direction:column;gap:4px">
+                <strong style="font-size:17px;font-weight:800;letter-spacing:-.01em;color:var(--color-text-primary)">인증 서류</strong>
+                <span style="font-size:14px;line-height:1.6;color:var(--color-text-tertiary);max-width:640px">사업자등록증과 자격증을 올리면 관리자 확인 후 <strong style="color:var(--color-secondary-600)">인증 시공자</strong> 배지가 붙습니다. 서류 없이도 활동할 수 있지만, 고객 목록에서 인증 배지가 있는 시공자가 먼저 노출됩니다.</span>
+              </span>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">
+                {{ fieldBizD }}
+                {{ uploadBoxD }}
+              </div>
+            </section>
+
+            <section style="border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-surface);padding:24px;display:flex;flex-direction:column;gap:14px">
+              <strong style="font-size:17px;font-weight:800;letter-spacing:-.01em;color:var(--color-text-primary)">공개 설정</strong>
+              <sc-for list="{{ toggles }}" as="t" hint-placeholder-count="2">
+                <button onClick="{{ t.onClick }}" aria-pressed="{{ t.on }}" style="display:flex;align-items:center;justify-content:space-between;gap:20px;text-align:left;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);padding:16px 18px;cursor:pointer" style-hover="background:var(--color-surface-hover)">
+                  <span style="display:flex;flex-direction:column;gap:4px">
+                    <strong style="font-size:15px;font-weight:700;color:var(--color-text-primary)">{{ t.title }}</strong>
+                    <span style="font-size:14px;line-height:1.55;color:var(--color-text-secondary)">{{ t.body }}</span>
+                  </span>
+                  <span style="flex:none;width:50px;height:30px;border-radius:var(--radius-full);background:{{ t.trackBg }};position:relative;transition:background .12s">
+                    <span style="position:absolute;top:3px;left:{{ t.knobLeftD }};width:24px;height:24px;border-radius:var(--radius-full);background:#FFFFFF;box-shadow:var(--shadow-1);transition:left .12s"></span>
+                  </span>
+                </button>
+              </sc-for>
+            </section>
+
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;border-top:1px solid var(--color-border);padding-top:20px">
+              <span style="font-size:13px;color:var(--color-text-tertiary)">{{ saveHint }}</span>
+              <div style="display:flex;gap:10px">
+                <button style="height:48px;padding:0 20px;border:1px solid var(--color-border-strong);border-radius:var(--radius-md);background:var(--color-surface);color:var(--color-text-primary);font-size:15px;font-weight:700;cursor:pointer" style-hover="background:var(--color-surface-hover)">취소</button>
+                {{ primaryButtonDesktop }}
+              </div>
+            </div>
+          </div>
+
+          <aside style="position:sticky;top:24px;display:flex;flex-direction:column;gap:16px">
+            <div style="border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-surface);overflow:hidden;box-shadow:var(--shadow-1)">
+              <div style="padding:12px 16px;border-bottom:1px solid var(--color-border);background:var(--color-bg-subtle);display:flex;align-items:center;justify-content:space-between">
+                <span style="font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:var(--color-text-tertiary)">고객에게 보이는 카드</span>
+                <a href="#" style="font-size:12px;font-weight:700">C-07에서 보기</a>
+              </div>
+              <div style="padding:18px;display:flex;flex-direction:column;gap:14px">
+                <div style="display:flex;gap:12px;align-items:flex-start">
+                  <span style="width:52px;height:52px;flex:none;border-radius:var(--radius-full);background:var(--color-primary-100);color:var(--color-primary-700);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800">김도</span>
+                  <span style="display:flex;flex-direction:column;gap:5px;min-width:0">
+                    <span style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+                      <strong style="font-size:16px;font-weight:800;color:var(--color-text-primary)">{{ previewName }}</strong>
+                      <sc-if value="{{ previewVerified }}" hint-placeholder-val="{{ false }}">
+                        <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:var(--radius-sm);background:var(--color-secondary-100);color:var(--color-secondary-600);border:1px solid var(--color-secondary-300);font-size:11px;font-weight:700">인증 시공자</span>
+                      </sc-if>
+                    </span>
+                    <span style="font-size:13px;color:var(--color-text-secondary)">{{ previewMeta }}</span>
+                    <span style="font-size:13px;color:var(--color-text-tertiary)">{{ previewRegion }}</span>
+                  </span>
+                </div>
+                <span style="font-size:13px;line-height:1.6;color:var(--color-text-secondary)">{{ previewBio }}</span>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+                  <div style="aspect-ratio:1;border-radius:var(--radius-sm);background:repeating-linear-gradient(135deg,#C4CAD1 0 10px,#B9C0C7 10px 20px)"></div>
+                  <div style="aspect-ratio:1;border-radius:var(--radius-sm);background:repeating-linear-gradient(135deg,#C4CAD1 0 10px,#B9C0C7 10px 20px)"></div>
+                  <div style="aspect-ratio:1;border-radius:var(--radius-sm);background:repeating-linear-gradient(135deg,#C4CAD1 0 10px,#B9C0C7 10px 20px)"></div>
+                </div>
+              </div>
+            </div>
+
+            <div style="border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-surface);padding:18px;display:flex;flex-direction:column;gap:12px">
+              <span style="display:flex;align-items:baseline;justify-content:space-between">
+                <strong style="font-size:15px;font-weight:800;color:var(--color-text-primary)">완성도</strong>
+                <span style="font-size:15px;font-weight:800;color:var(--color-primary-500)">{{ completion }}</span>
+              </span>
+              <div style="height:6px;border-radius:var(--radius-full);background:var(--color-bg-sunken);overflow:hidden">
+                <div style="height:100%;width:{{ completionPct }};background:var(--color-primary-500)"></div>
+              </div>
+              <sc-for list="{{ checklist }}" as="c" hint-placeholder-count="5">
+                <span style="display:flex;align-items:flex-start;gap:8px">
+                  <span style="flex:none;width:18px;height:18px;margin-top:1px;border-radius:var(--radius-full);background:{{ c.dotBg }};color:{{ c.dotFg }};font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center">{{ c.mark }}</span>
+                  <span style="font-size:13px;line-height:1.5;color:{{ c.fg }}">{{ c.label }}</span>
+                </span>
+              </sc-for>
+            </div>
+          </aside>
+        </div>
+
+        {{ desktopToast }}
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440},&quot;initialView&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;onboarding&quot;,&quot;editing&quot;,&quot;invalid&quot;,&quot;saving&quot;,&quot;saved&quot;,&quot;pending&quot;,&quot;rejected&quot;],&quot;default&quot;:&quot;onboarding&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  state = {
+    view: "onboarding",
+    trades: ["도배"],
+    regions: ["성북구", "강북구"],
+    tShowCost: true,
+    tOpenToWork: true
+  };
+
+  field(opts) {
+    const R = React.createElement;
+    const { label, value, placeholder, hint, error, mono, area, suffix, disabled } = opts;
+    return R("label", { style: { display: "flex", flexDirection: "column", gap: "6px" } },
+      R("span", { style: { fontSize: "14px", fontWeight: 700, color: "var(--color-text-secondary)" } }, label),
+      R("span", { style: { position: "relative", display: "flex", alignItems: "center" } },
+        R(area ? "textarea" : "input", {
+          defaultValue: value, placeholder, disabled,
+          rows: area ? 4 : undefined,
+          style: {
+            width: "100%", minHeight: area ? "96px" : "48px", height: area ? undefined : "48px",
+            padding: area ? "12px 14px" : "0 14px", paddingRight: suffix ? "56px" : undefined,
+            border: "1px solid " + (error ? "var(--color-danger)" : "var(--color-border-strong)"),
+            borderRadius: "var(--radius-md)",
+            background: disabled ? "var(--color-bg-subtle)" : "var(--color-surface)",
+            color: disabled ? "var(--color-text-tertiary)" : "var(--color-text-primary)",
+            fontSize: "15px", lineHeight: area ? 1.6 : undefined, resize: area ? "vertical" : undefined,
+            fontFamily: mono ? "var(--font-mono)" : "inherit"
+          }
+        }),
+        suffix ? R("span", { style: { position: "absolute", right: "14px", fontSize: "14px", color: "var(--color-text-tertiary)", pointerEvents: "none" } }, suffix) : null),
+      error
+        ? R("span", { style: { fontSize: "13px", fontWeight: 600, color: "var(--color-danger)" } }, error)
+        : hint ? R("span", { style: { fontSize: "13px", color: "var(--color-text-tertiary)" } }, hint) : null);
+  }
+
+  chipList(items, selected, key, max) {
+    return items.map(label => {
+      const active = selected.indexOf(label) >= 0;
+      return {
+        label, active,
+        bg: active ? "var(--color-primary-500)" : "var(--color-surface)",
+        fg: active ? "#FFFFFF" : "var(--color-text-secondary)",
+        border: active ? "var(--color-primary-500)" : "var(--color-border-strong)",
+        onClick: () => this.setState(s => {
+          const cur = s[key];
+          if (cur.indexOf(label) >= 0) return { [key]: cur.filter(x => x !== label) };
+          if (max && cur.length >= max) return null;
+          return { [key]: cur.concat(label) };
+        })
+      };
+    });
+  }
+
+  renderVals() {
+    const R = React.createElement;
+    const view = this.state.view;
+    const empty = view === "onboarding";
+    const invalid = view === "invalid";
+    const saving = view === "saving";
+    const pending = view === "pending";
+    const rejected = view === "rejected";
+    const saved = view === "saved";
+
+    const tabs = [
+      ["onboarding", "신규 온보딩(빈 폼)"], ["editing", "수정 중"], ["invalid", "검증 오류"],
+      ["saving", "저장 중"], ["saved", "저장 완료"], ["pending", "인증 심사 대기"], ["rejected", "인증 반려"]
+    ];
+    const notes = {
+      onboarding: "G-03에서 “시공자로 시작”을 고른 직후 도착하는 화면. 여기를 통과하지 못하면 신규 시공자는 의뢰 목록(P-04)에 접근할 수 없다. 필수는 활동명·공종·지역 세 가지뿐이고 나머지는 나중에 채울 수 있게 둔다.",
+      editing: "기존 시공자가 프로필을 고치는 상태. 변경 사항이 있으면 하단 저장 바가 활성화되고, 오른쪽 미리보기 카드가 즉시 따라 바뀐다.",
+      invalid: "PUT /me/pro-profile 400. 서버 검증 실패 항목만 빨갛게 표시하고 첫 오류 필드로 포커스를 옮긴다. 다른 입력값은 유지된다.",
+      saving: "저장 요청 진행 중. 버튼만 비활성화하고 폼은 잠그지 않는다(응답 지연 시 사용자가 계속 읽을 수 있게).",
+      saved: "저장 성공. 전체 화면 전환 없이 토스트로 알린다. 온보딩 경로였다면 여기서 P-02 포트폴리오 등록으로 넘어가는 CTA가 뜬다.",
+      pending: "사업자 서류 제출 완료 · 관리자 승인 대기(A-01 큐에 들어간 상태). 프로필은 공개되지만 인증 배지는 아직 없다.",
+      rejected: "관리자가 서류를 반려함. 반려 사유를 그대로 보여주고 재제출 경로만 남긴다."
+    };
+    const stateTabs = tabs.map(([k, label]) => ({
+      label, active: view === k,
+      bg: view === k ? "var(--color-primary-500)" : "var(--color-surface)",
+      fg: view === k ? "#FFFFFF" : "var(--color-text-secondary)",
+      border: view === k ? "var(--color-primary-500)" : "var(--color-border-strong)",
+      onClick: () => this.setState({ view: k })
+    }));
+
+    const status = pending
+      ? { label: "심사 대기", bg: "var(--color-warning-bg)", fg: "var(--color-warning)" }
+      : rejected ? { label: "인증 반려", bg: "var(--color-danger-bg)", fg: "var(--color-danger)" }
+      : empty ? { label: "미완성", bg: "var(--color-bg-sunken)", fg: "var(--color-text-tertiary)" }
+      : { label: "인증 시공자", bg: "var(--color-secondary-100)", fg: "var(--color-secondary-600)" };
+
+    const banner = rejected
+      ? { title: "서류가 반려되었습니다", body: "제출한 사업자등록증의 상호가 활동명과 다릅니다. 상호를 맞추거나 실제 상호로 활동명을 바꾼 뒤 다시 제출해 주세요. 문의: help@fitter.kr",
+          bg: "var(--color-danger-bg)", border: "#EFC4BC", fg: "var(--color-danger)" }
+      : pending
+      ? { title: "서류 확인 중입니다 · 보통 영업일 1~2일", body: "심사 중에도 포트폴리오 등록과 제안은 가능합니다. 인증 배지는 승인 즉시 붙습니다.",
+          bg: "var(--color-warning-bg)", border: "#EBD8A8", fg: "var(--color-warning)" }
+      : invalid
+      ? { title: "3개 항목을 확인해 주세요", body: "휴대폰 번호 형식, 공종 선택, 사업자등록번호 자릿수가 저장되지 않았습니다.",
+          bg: "var(--color-danger-bg)", border: "#EFC4BC", fg: "var(--color-danger)" }
+      : empty
+      ? { title: "프로필을 채워야 의뢰를 받을 수 있습니다", body: "활동명·공종·활동 지역까지만 채우면 바로 의뢰 목록이 열립니다. 서류와 소개는 나중에 추가해도 됩니다.",
+          bg: "var(--color-primary-50)", border: "var(--color-primary-200)", fg: "var(--color-primary-700)" }
+      : null;
+
+    const name = empty ? "" : "김도배";
+    const bio = empty ? "" : "성북·강북 일대에서 11년째 도배만 합니다. 합지·실크 모두 시공하며, 시공 전 벽면 상태를 사진으로 먼저 확인해 드립니다. 하루 시공 원칙이라 이사 일정에 맞추기 쉽습니다.";
+
+    const nameField = d => this.field({
+      label: "활동명", value: name, placeholder: "예) 김도배 · 성북도배",
+      hint: d ? "고객 목록과 제안에 그대로 노출됩니다. 실명 또는 상호를 권장합니다." : "고객에게 보이는 이름"
+    });
+    const phoneField = () => this.field({
+      label: "휴대폰 번호", value: invalid ? "0101234" : "010-2841-7736", mono: true,
+      error: invalid ? "숫자 11자리를 하이픈 없이 입력해 주세요." : null,
+      hint: "컨택이 수락된 고객에게만 공개됩니다."
+    });
+    const yearsField = d => this.field({
+      label: "경력", value: empty ? "" : "11", placeholder: "0", suffix: "년",
+      hint: d ? "카드에 “경력 N년”으로 표시됩니다." : null
+    });
+    const bioField = d => this.field({
+      label: "한 줄 소개와 시공 방식", value: bio, area: true,
+      placeholder: "어떤 현장을 주로 하는지, 어떤 방식으로 일하는지 적어주세요. 300자 이내.",
+      hint: (bio.length || 0) + " / 300자" + (d ? " · 광고 문구보다 실제 시공 방식이 더 잘 통합니다." : "")
+    });
+    const bizField = () => this.field({
+      label: "사업자등록번호", value: invalid ? "123-45-678" : (empty ? "" : "412-31-90287"),
+      placeholder: "000-00-00000", mono: true,
+      error: invalid ? "10자리를 정확히 입력해 주세요." : null,
+      hint: invalid ? null : "선택 · 국세청 조회로 상호가 자동 확인됩니다."
+    });
+
+    const uploaded = !empty && !rejected;
+    const upload = () => R("div", {
+      style: { display: "flex", flexDirection: "column", gap: "6px" } },
+      R("span", { style: { fontSize: "14px", fontWeight: 700, color: "var(--color-text-secondary)" } }, "서류 파일"),
+      uploaded
+        ? R("div", { style: { border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", background: "var(--color-bg-subtle)", padding: "12px 14px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px" } },
+            R("span", { style: { display: "flex", flexDirection: "column", gap: "2px", minWidth: 0 } },
+              R("strong", { style: { fontSize: "14px", fontWeight: 700, color: "var(--color-text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } }, "사업자등록증.pdf"),
+              R("span", { style: { fontSize: "12px", color: "var(--color-text-tertiary)" } }, pending ? "확인 중 · 1.2MB" : "확인 완료 · 1.2MB")),
+            R("button", { style: { flex: "none", height: "36px", padding: "0 12px", border: "1px solid var(--color-border-strong)", borderRadius: "var(--radius-md)", background: "var(--color-surface)", color: "var(--color-text-primary)", fontSize: "13px", fontWeight: 700, cursor: "pointer" } }, "교체"))
+        : R("button", { style: { border: "1px dashed " + (rejected ? "var(--color-danger)" : "var(--color-border-strong)"), borderRadius: "var(--radius-md)", background: rejected ? "var(--color-danger-bg)" : "var(--color-bg-subtle)", padding: "22px 16px", display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", cursor: "pointer", width: "100%" } },
+            R("strong", { style: { fontSize: "14px", fontWeight: 700, color: "var(--color-text-primary)" } }, rejected ? "수정한 서류 다시 올리기" : "파일 선택 또는 끌어다 놓기"),
+            R("span", { style: { fontSize: "12px", color: "var(--color-text-tertiary)" } }, "PDF·JPG · 10MB 이하")));
+
+    const toggles = [
+      { key: "tShowCost", title: "예상 비용 공개", body: "포트폴리오에 시공 단가를 함께 노출합니다. 공개한 시공자가 컨택을 2배 더 받습니다." },
+      { key: "tOpenToWork", title: "지금 일감 받는 중", body: "끄면 목록에서 내려가고 새 제안도 보낼 수 없습니다." }
+    ].map(t => {
+      const on = this.state[t.key];
+      return {
+        title: t.title, body: t.body, on,
+        trackBg: on ? "var(--color-primary-500)" : "var(--color-border-strong)",
+        knobLeft: on ? "21px" : "3px",
+        knobLeftD: on ? "23px" : "3px",
+        onClick: () => this.setState({ [t.key]: !on })
+      };
+    });
+
+    const done = [!empty, this.state.trades.length > 0, this.state.regions.length > 0, !empty, uploaded];
+    const pct = Math.round(done.filter(Boolean).length / done.length * 100);
+    const checklist = ["활동명과 연락처", "공종 선택", "활동 지역", "소개 문구", "인증 서류"].map((label, i) => ({
+      label, mark: done[i] ? "✓" : "",
+      dotBg: done[i] ? "var(--color-success-bg)" : "var(--color-bg-sunken)",
+      dotFg: done[i] ? "var(--color-success)" : "transparent",
+      fg: done[i] ? "var(--color-text-secondary)" : "var(--color-text-tertiary)"
+    }));
+
+    const primaryLabel = saving ? "저장 중…" : empty ? "저장하고 의뢰 보러 가기" : "변경 사항 저장";
+    const primary = big => R("button", {
+      disabled: saving,
+      style: {
+        height: big ? "48px" : "52px", padding: big ? "0 24px" : undefined, width: big ? undefined : "100%",
+        border: "none", borderRadius: "var(--radius-md)",
+        background: saving ? "var(--color-primary-300)" : "var(--color-primary-500)",
+        color: "#FFFFFF", fontSize: big ? "15px" : "17px", fontWeight: 800,
+        cursor: saving ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px"
+      }
+    },
+      saving ? R("span", { style: { width: "16px", height: "16px", borderRadius: "50%", border: "2px solid rgba(255,255,255,.45)", borderTopColor: "#FFFFFF", animation: "fit-spin .7s linear infinite" } }) : null,
+      primaryLabel);
+
+    const toast = d => saved ? R("div", {
+      style: {
+        position: "absolute", left: "50%", transform: "translateX(-50%)", bottom: d ? "24px" : "90px",
+        background: "#171B20", color: "#FFFFFF", borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-3)",
+        padding: d ? "14px 18px" : "12px 14px", display: "flex", alignItems: "center", gap: "14px", maxWidth: d ? "560px" : "340px", zIndex: 20
+      }
+    },
+      R("span", { style: { fontSize: d ? "15px" : "14px", fontWeight: 700 } }, "프로필을 저장했습니다"),
+      R("a", { href: "#", style: { fontSize: d ? "15px" : "14px", fontWeight: 800, color: "#B3C9DE", whiteSpace: "nowrap" } }, "포트폴리오 올리러 가기")) : null;
+
+    return {
+      stateTabs, stateNote: notes[view],
+      statusLabel: status.label, statusBg: status.bg, statusFg: status.fg,
+      isOnboarding: empty,
+      hasBanner: !!banner,
+      bannerTitle: banner && banner.title, bannerBody: banner && banner.body,
+      bannerBg: banner && banner.bg, bannerBorder: banner && banner.border, bannerFg: banner && banner.fg,
+      pageTitle: empty ? "시공자 프로필을 만들어 주세요" : "프로필 편집",
+      pageSub: empty
+        ? "고객은 이 정보만 보고 컨택할지 정합니다. 화려한 소개보다 정확한 공종·지역이 더 많은 의뢰로 이어집니다."
+        : "저장하면 고객 목록(C-06)과 시공자 상세(C-07)에 즉시 반영됩니다.",
+      trades: this.chipList(["도배", "바닥·장판", "타일", "목공", "조명·전기", "욕실", "필름", "철거"], this.state.trades, "trades", 3),
+      regions: this.chipList(["성북구", "강북구", "노원구", "도봉구", "중랑구", "동대문구", "성동구", "종로구"], this.state.regions, "regions"),
+      tradeError: invalid && this.state.trades.length === 0,
+      fieldName: nameField(false), fieldNameD: nameField(true),
+      fieldPhone: phoneField(), fieldPhoneD: phoneField(),
+      fieldYears: yearsField(false), fieldYearsD: yearsField(true),
+      fieldBio: bioField(false), fieldBioD: bioField(true),
+      fieldBiz: bizField(), fieldBizD: bizField(),
+      uploadBox: upload(), uploadBoxD: upload(),
+      toggles, checklist,
+      completion: pct + "%", completionPct: pct + "%",
+      showDirty: view === "editing" || invalid,
+      saveHint: saving ? "저장 중입니다. 창을 닫지 마세요." : empty ? "필수 항목 3개를 채우면 저장할 수 있습니다." : "마지막 저장 2일 전 · 저장 즉시 공개 프로필에 반영됩니다.",
+      primaryButtonMobile: primary(false), primaryButtonDesktop: primary(true),
+      mobileToast: toast(false), desktopToast: toast(true),
+      previewName: name || "활동명 미입력",
+      previewVerified: !empty && !pending && !rejected,
+      previewMeta: (this.state.trades.join("·") || "공종 미선택") + " · 경력 " + (empty ? "-" : "11") + "년 · 시공 " + (empty ? 0 : 87) + "건",
+      previewRegion: (this.state.regions.length ? "서울 " + this.state.regions.join("·") : "활동 지역 미선택") + " · 평균 응답 3시간",
+      previewBio: bio || "소개가 비어 있습니다. 고객은 소개가 없는 프로필을 잘 누르지 않습니다."
+    };
+  }
+}
+</script>
+</body>
+</html>
