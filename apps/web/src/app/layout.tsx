@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 
+import { SiteFooter } from '../components/SiteFooter';
 import { SiteHeader } from '../components/SiteHeader';
 import { SessionProvider } from '../lib/session';
 
@@ -44,6 +45,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <div id="main" tabIndex={-1}>
             {children}
           </div>
+          {/* 통신판매중개자 고지는 법적 요구다. 랜딩에만 두지 않고 모든 화면에 둔다. */}
+          <SiteFooter />
         </SessionProvider>
       </body>
     </html>
