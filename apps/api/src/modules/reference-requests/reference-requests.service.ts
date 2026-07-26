@@ -181,6 +181,142 @@ export class ReferenceRequestsService {
     await this.prisma.referenceRequest.update({ where: { id }, data: { deletedAt: new Date() } });
   }
 
+  /**
+   * 이 의뢰가 받은 제안 목록 (C-03).
+   *
+   * **`GET /contacts` 로는 안 되는 이유가 있다.** 그 목록은 "내 컨택 전부"를 상대 요약과
+   * 함께 주는데, C-03 은 한 의뢰 안에서 **제안을 서로 비교**하는 화면이라
+   * 시공자의 승인 여부·경력·활동 지역·사례 사진까지 필요하다. 목록을 보고
+   * 프로필로 나갔다 돌아오게 만들면 비교가 안 된다.
+   *
+   * 소유자만 본다. 남의 의뢰에 누가 제안했는지는 존재 자체가 비밀이라 404 다.
+   */
+  async proposals(userId: string, id: string, options: { cursor?: string; limit?: number } = {}) {
+    await this.findOwned(userId, id);
+
+    const limit = Math.min(Math.max(options.limit ?? 20, 1), 50);
+    const decoded = decodeCursor(options.cursor);
+
+    const rows = await this.prisma.contactRequest.findMany({
+      where: {
+        referenceRequestId: id,
+        direction: 'PRO_TO_REQUEST',
+        deletedAt: null,
+        ...(decoded
+          ? {
+              OR: [
+                { createdAt: { lt: decoded.createdAt } },
+                { createdAt: decoded.createdAt, id: { lt: decoded.id } },
+              ],
+            }
+          : {}),
+      },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      take: limit + 1,
+      select: {
+        id: true,
+        status: true,
+        message: true,
+        proposedAmount: true,
+        proposedAmountNote: true,
+        expiresAt: true,
+        respondedAt: true,
+        createdAt: true,
+        /*
+         * **연락처는 SELECT 하지 않는다.** 수락 후 연락처는 컨택 상세(M-02)가
+         * 전이를 확인한 뒤 명시적으로 공개한다. 목록이 그 판단을 대신하지 않는다.
+         */
+        requester: {
+          select: {
+            id: true,
+            nickname: true,
+            profiles: {
+              where: { type: 'PRO', deletedAt: null },
+              select: {
+                proProfile: {
+                  select: {
+                    businessName: true,
+                    careerYears: true,
+                    isApproved: true,
+                    workCategories: {
+                      select: { workCategory: { select: { code: true, nameKo: true } } },
+                    },
+                    serviceAreas: { select: { region: { select: { sigunguName: true } } } },
+                  },
+                },
+              },
+              take: 1,
+            },
+          },
+        },
+      },
+    });
+
+    const hasMore = rows.length > limit;
+    const page = hasMore ? rows.slice(0, limit) : rows;
+
+    /*
+     * 제안자의 사례 사진 3장을 한 번에 가져온다.
+     *
+     * 제안마다 따로 조회하면 N+1 이다. 제안이 20건이면 21번 쿼리가 나간다 —
+     * [[API 명세]] 의 「N+1이 나기 쉬운 곳」이 지목한 자리다.
+     */
+    const proUserIds = page.map((row) => row.requester.id);
+    const covers =
+      proUserIds.length === 0
+        ? []
+        : await this.prisma.portfolioItem.findMany({
+            where: { proUserId: { in: proUserIds }, status: 'PUBLISHED', deletedAt: null },
+            orderBy: [{ createdAt: 'desc' }],
+            select: {
+              id: true,
+              proUserId: true,
+              /* 커버는 컬럼이 아니라 대표 사진에서 파생한다. → pros.service.ts 와 같은 모양 */
+              images: {
+                where: { deletedAt: null, isCover: true },
+                select: { thumb400Key: true },
+                take: 1,
+              },
+            },
+          });
+
+    const coversByPro = new Map<string, { id: string; coverThumbKey: string | null }[]>();
+    for (const row of covers) {
+      const list = coversByPro.get(row.proUserId) ?? [];
+      /* 시공자당 3장까지. 정렬이 최신순이므로 앞 3개가 최근 사례다. */
+      if (list.length < 3) {
+        list.push({ id: row.id, coverThumbKey: row.images[0]?.thumb400Key ?? null });
+      }
+      coversByPro.set(row.proUserId, list);
+    }
+
+    const last = page.at(-1);
+
+    return {
+      items: page.map((row) => {
+        const pro = row.requester.profiles[0]?.proProfile ?? null;
+        const { requester, ...rest } = row;
+        return {
+          ...rest,
+          pro: {
+            /* 식별자는 `userId` 다. `/pros/:id` 와 같은 이름을 써야 링크가 산다. */
+            id: requester.id,
+            /* 활동명이 비면 닉네임으로 대신한다. 빈 이름의 카드를 세우지 않는다. */
+            businessName: pro?.businessName?.trim() || requester.nickname,
+            careerYears: pro?.careerYears ?? 0,
+            isApproved: pro?.isApproved ?? false,
+            categories: pro?.workCategories.map((c) => c.workCategory) ?? [],
+            serviceAreas: pro?.serviceAreas.map((a) => a.region.sigunguName) ?? [],
+            /* 승인된 시공자만 공개 프로필이 있다. → pros.service.ts 의 visible */
+            hasPublicProfile: !!pro?.isApproved && !!pro?.businessName?.trim(),
+          },
+          recentCovers: coversByPro.get(requester.id) ?? [],
+        };
+      }),
+      nextCursor: hasMore && last ? encodeCursor(last.createdAt, last.id) : null,
+    };
+  }
+
   async detail(userId: string, id: string) {
     const request = await this.prisma.referenceRequest.findFirst({
       where: { id, deletedAt: null },

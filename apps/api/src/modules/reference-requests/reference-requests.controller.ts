@@ -72,6 +72,22 @@ export class ReferenceRequestsController {
     await this.requests.remove(actor.id, id);
   }
 
+  /**
+   * 이 의뢰가 받은 제안 (C-03).
+   *
+   * 소유자 전용이다. 남의 의뢰에 누가 제안했는지는 존재 자체가 비밀이므로
+   * 권한 실패도 404 다 — 서비스의 `findOwned` 가 그렇게 던진다.
+   */
+  @Roles('CUSTOMER')
+  @Get('reference-requests/:id/proposals')
+  async proposals(
+    @CurrentUser() actor: RequestUser,
+    @Param('id') id: string,
+    @Query(new ZodValidationPipe(listQuerySchema)) query: ListQueryInput,
+  ) {
+    return this.requests.proposals(actor.id, id, query);
+  }
+
   /** 내 의뢰 목록. DRAFT도 여기서는 보인다 — 이어쓰기를 해야 하기 때문이다. */
   @Roles('CUSTOMER')
   @Get('me/reference-requests')

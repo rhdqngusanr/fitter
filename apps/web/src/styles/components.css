@@ -5048,3 +5048,645 @@ select.input {
     padding: var(--space-3) 14px;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────
+   C-03 의뢰 상세 (내 것)
+   시안: design/C-03 의뢰 상세(내 것).dc.html
+
+   2단 구성은 `.split` 을 쓴다. 여기 있는 건 제안 카드와 마감 다이얼로그다.
+   ───────────────────────────────────────────────────────────────── */
+
+.req {
+  padding: var(--space-6) 0 var(--space-12);
+}
+
+.req__crumb {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-caption);
+  color: var(--color-text-tertiary);
+  margin-bottom: var(--space-3);
+}
+
+.req__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.req__status-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+/* 등록일·조회수. 세는 곳이 있는 값만 싣는다. */
+.req__stamp {
+  font-size: var(--text-caption);
+  color: var(--color-text-tertiary);
+}
+
+.req__h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--color-text-primary);
+}
+
+.req__sub {
+  margin: 0;
+  font-size: var(--text-body);
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+/* 사진 모자이크. 시안: 2fr 1fr 1fr · 2행 132px · gap 10 */
+.req__photos {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-rows: repeat(2, 132px);
+  gap: 10px;
+  margin-bottom: var(--space-6);
+}
+
+.req__photo {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-bg-sunken);
+  position: relative;
+}
+
+.req__photo:first-child {
+  grid-row: span 2;
+  border-radius: var(--radius-lg);
+}
+
+.req__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.req__photo-more {
+  position: absolute;
+  inset: 0;
+  background: var(--color-scrim);
+  color: #ffffff;
+  font-size: var(--text-h3);
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 의뢰 내용 표. 라벨-값 쌍이다. */
+.req-specs {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.req-specs__title {
+  font-size: var(--text-h3);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+}
+
+.req-specs__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-4);
+}
+
+.req-spec {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.req-spec__label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-tertiary);
+}
+
+.req-spec__value {
+  font-size: var(--text-body);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.req-specs__desc {
+  margin: 0;
+  font-size: var(--text-body);
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-4);
+}
+
+/* ── 받은 제안 ────────────────────────────────────────── */
+
+.req-proposals__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-4);
+}
+
+.req-proposals__title {
+  font-size: var(--text-h2);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+
+.req-proposals__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* 제안 카드. 시안: padding 20 · gap 16 · radius-lg */
+.prop {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* 수락한 제안은 초록 테두리로 고정된다. */
+.prop--accepted {
+  border-color: var(--color-success);
+}
+
+/* 마감된 의뢰에서 수락하지 않은 제안은 흐리게 둔다. */
+.prop--dimmed {
+  opacity: 0.6;
+}
+
+.prop__accepted-chip {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: var(--radius-full);
+  background: var(--color-success-bg);
+  color: var(--color-success);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.prop__top {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.prop__who {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.prop__ident {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.prop__name-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.prop__name {
+  font-size: var(--text-h3);
+  font-weight: 800;
+  color: var(--color-text-primary);
+}
+
+.prop__trade {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+.prop__region {
+  font-size: 14px;
+  color: var(--color-text-tertiary);
+}
+
+/* 금액. 비교의 핵심이라 오른쪽에 크게 세운다. */
+.prop__price-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex: none;
+}
+
+.prop__price {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+}
+
+/* 금액을 안 적은 제안. 빈칸으로 두면 0원으로 읽힌다. */
+.prop__price--none {
+  font-size: var(--text-body);
+  font-weight: 700;
+  color: var(--color-text-tertiary);
+}
+
+.prop__price-note {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+}
+
+.prop__msg {
+  margin: 0;
+  font-size: var(--text-body);
+  line-height: 1.65;
+  color: var(--color-text-secondary);
+}
+
+.prop__shots {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+}
+
+.prop__shot {
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--color-bg-sunken);
+}
+
+.prop__shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.prop__actions {
+  display: flex;
+  gap: var(--space-2);
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-3);
+  flex-wrap: wrap;
+}
+
+/* 마감 후에는 액션 대신 왜 못 누르는지 적는다. */
+.prop__closed-note {
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-3);
+  font-size: var(--text-caption);
+  color: var(--color-text-tertiary);
+}
+
+/* 제안 0건. 빈 상태가 아니라 "기다리는 중"이다 — 할 일을 준다. */
+.req-waiting {
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-subtle);
+  padding: var(--space-10) var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+
+.req-waiting__title {
+  font-size: var(--text-h2);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+}
+
+.req-waiting__body {
+  font-size: var(--text-body);
+  line-height: 1.65;
+  color: var(--color-text-secondary);
+  max-width: 520px;
+}
+
+.req-waiting__actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  flex-wrap: wrap;
+}
+
+/* 마감 안내 배너. */
+.req-closed {
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-bg-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: var(--space-6);
+}
+
+.req-closed__text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.req-closed__text strong {
+  font-size: var(--text-body);
+  font-weight: 800;
+  color: var(--color-text-primary);
+}
+
+.req-closed__text span {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+/* ── 우측 패널 ────────────────────────────────────────── */
+
+.req-side {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.req-side__title {
+  font-size: var(--text-body);
+  font-weight: 800;
+  color: var(--color-text-primary);
+}
+
+.req-side__note {
+  font-size: var(--text-caption);
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+.req-side__stats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-4);
+}
+
+.req-side__stat {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.req-side__stat-label {
+  font-size: var(--text-caption);
+  color: var(--color-text-tertiary);
+}
+
+.req-side__stat-value {
+  font-size: var(--text-body);
+  font-weight: 800;
+  color: var(--color-text-primary);
+}
+
+.req-side__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* ── 마감 확인 다이얼로그 ──────────────────────────────── */
+
+.req-close {
+  position: fixed;
+  inset: 0;
+  background: var(--color-scrim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 30;
+  padding: var(--space-6);
+}
+
+.req-close__box {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-3);
+  padding: 28px;
+  width: 480px;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.req-close__title {
+  margin: 0;
+  font-size: var(--text-h2);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+
+.req-close__body {
+  margin: 0;
+  font-size: var(--text-body);
+  line-height: 1.65;
+  color: var(--color-text-secondary);
+}
+
+.req-close__reasons {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+  padding: var(--space-3) 14px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.req-close__reasons-label {
+  font-size: var(--text-caption);
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+
+.req-close__actions {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: flex-end;
+  margin-top: var(--space-1);
+}
+
+@media (max-width: 900px) {
+  .req {
+    padding: var(--space-5) 0 0;
+  }
+
+  .req__h1 {
+    font-size: var(--text-h1);
+  }
+
+  /* 모바일은 가로 4칸 스트립이다 — 시안이 그렇게 그렸다. */
+  .req__photos {
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: none;
+    gap: var(--space-2);
+  }
+
+  .req__photo,
+  .req__photo:first-child {
+    grid-row: auto;
+    aspect-ratio: 1;
+    border-radius: var(--radius-md);
+  }
+
+  .req-specs,
+  .prop {
+    padding: var(--space-4);
+    gap: var(--space-3);
+  }
+
+  .prop__name {
+    font-size: var(--text-body);
+  }
+
+  .prop__price {
+    font-size: var(--text-h3);
+  }
+
+  .prop__shots {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .prop__shot {
+    aspect-ratio: 1;
+  }
+
+  /* 좁으면 액션이 세로로 쌓이고 주 버튼이 꽉 찬다. */
+  .prop__actions {
+    flex-direction: column;
+  }
+
+  .prop__actions .btn {
+    width: 100%;
+  }
+
+  .req-waiting {
+    padding: 28px var(--space-5);
+  }
+
+  .req-waiting__title {
+    font-size: var(--text-h3);
+  }
+
+  /* 다이얼로그는 하단 시트가 된다. */
+  .req-close {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .req-close__box {
+    width: 100%;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    padding: 22px 18px 26px;
+  }
+
+  .req-close__title {
+    font-size: 19px;
+  }
+
+  .req-close__actions {
+    flex-direction: column-reverse;
+  }
+
+  .req-close__actions .btn {
+    width: 100%;
+  }
+}
+
+/*
+ * 내 의뢰 카드 (C-02).
+ *
+ * 이 화면은 시안이 없다. 여기 있는 건 **카드 전체를 상세로 가는 링크로 만들면서**
+ * 필요해진 것뿐이다 — 목록이 어디로도 이어지지 않아 C-03 이 도달 불가였다.
+ */
+.mine-card {
+  display: flex;
+  gap: var(--space-4);
+  align-items: center;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.12s;
+}
+
+.mine-card:hover {
+  background: var(--color-surface-hover);
+  border-color: var(--color-border-strong);
+}
+
+.mine-card__thumb {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-sunken);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.mine-card__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.mine-card__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.mine-card__title {
+  display: block;
+  font-size: var(--text-body);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}

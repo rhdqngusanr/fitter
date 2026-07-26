@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import { REQUEST_STATUS_LABELS, type RequestStatus } from '@fitter/shared';
@@ -99,55 +100,38 @@ export default function MyRequestsPage() {
           }}
         >
           {items.map((item) => (
-            <li
-              key={item.id}
-              style={{
-                display: 'flex',
-                gap: 'var(--space-4)',
-                alignItems: 'center',
-                padding: 'var(--space-4)',
-                border: '1px solid var(--color-border)',
-                borderRadius: 'var(--radius-lg)',
-                background: 'var(--color-surface)',
-              }}
-            >
-              <div
-                style={{
-                  width: 72,
-                  height: 72,
-                  borderRadius: 'var(--radius-md)',
-                  background: 'var(--color-bg-sunken)',
-                  flexShrink: 0,
-                  overflow: 'hidden',
-                }}
-              >
-                {imageUrl(item.coverThumbKey) && (
-                  <img
-                    src={imageUrl(item.coverThumbKey) ?? ''}
-                    alt=""
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                  />
-                )}
-              </div>
+            <li key={item.id}>
+              {/*
+                **카드 전체가 상세(C-03)로 가는 링크다.** 전에는 목록이 어디로도
+                이어지지 않아서 받은 제안을 비교할 방법이 없었고, 의뢰를 마감할
+                방법도 없었다(API 는 있는데 부르는 화면이 없었다).
+              */}
+              <Link href={`/requests/${item.id}`} className="mine-card">
+                <div className="mine-card__thumb">
+                  {imageUrl(item.coverThumbKey) && (
+                    <img src={imageUrl(item.coverThumbKey) ?? ''} alt="" />
+                  )}
+                </div>
 
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <strong style={{ display: 'block' }}>{item.title ?? '제목 없는 의뢰'}</strong>
-                <span className="mine__status">{REQUEST_STATUS_LABELS[item.status]}</span>
-              </div>
+                <div className="mine-card__body">
+                  <strong className="mine-card__title">{item.title ?? '제목 없는 의뢰'}</strong>
+                  <span className="mine__status">{REQUEST_STATUS_LABELS[item.status]}</span>
+                </div>
 
-              {/* 올리고 나서 제일 궁금한 숫자다. 0이어도 보여준다 — 없는 것과 모르는 건 다르다. */}
-              <span
-                className="mine__count"
-                style={{
-                  fontWeight: 600,
-                  color:
-                    item.contactCount > 0
-                      ? 'var(--color-primary-600)'
-                      : 'var(--color-text-tertiary)',
-                }}
-              >
-                문의 {item.contactCount}
-              </span>
+                {/* 올리고 나서 제일 궁금한 숫자다. 0이어도 보여준다 — 없는 것과 모르는 건 다르다. */}
+                <span
+                  className="mine__count"
+                  style={{
+                    fontWeight: 600,
+                    color:
+                      item.contactCount > 0
+                        ? 'var(--color-primary-600)'
+                        : 'var(--color-text-tertiary)',
+                  }}
+                >
+                  제안 {item.contactCount}
+                </span>
+              </Link>
             </li>
           ))}
         </ul>
