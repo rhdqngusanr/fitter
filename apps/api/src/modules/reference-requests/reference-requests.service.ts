@@ -91,16 +91,33 @@ export class ReferenceRequestsService {
     /* 매직 넘버 검증과 의도 소비. 실패하면 스토리지 잔여물까지 정리된다. */
     await this.images.verifyAndConsume({ userId, storageKey: input.storageKey });
 
-    return this.prisma.referenceImage.create({
-      data: {
-        referenceRequestId: request.id,
-        storageKey: input.storageKey,
-        sourceType: input.sourceType,
-        sourceUrl: input.sourceType === 'EXTERNAL' ? input.sourceUrl : null,
-        sortOrder: input.sortOrder,
-        isCover: count === 0 ? true : input.isCover,
-      },
-      select: { id: true, storageKey: true, isCover: true, thumb400Key: true },
+    /* 첫 장은 무조건 커버다. 커버가 없는 의뢰는 목록에 그릴 게 없다. */
+    const isCover = count === 0 ? true : input.isCover;
+
+    /*
+     * 커버를 새로 지정하면 기존 커버를 먼저 내린다.
+     * 포트폴리오와 같은 이유다 — 부분 유니크 인덱스가 커버를 하나로 강제하므로
+     * 내리지 않고 넣으면 제약 위반이 500으로 샌다. 한 트랜잭션으로 묶어야
+     * 내리기만 성공하고 넣기가 실패하는 상태가 남지 않는다.
+     */
+    return this.prisma.$transaction(async (tx) => {
+      if (isCover) {
+        await tx.referenceImage.updateMany({
+          where: { referenceRequestId: request.id, isCover: true, deletedAt: null },
+          data: { isCover: false },
+        });
+      }
+      return tx.referenceImage.create({
+        data: {
+          referenceRequestId: request.id,
+          storageKey: input.storageKey,
+          sourceType: input.sourceType,
+          sourceUrl: input.sourceType === 'EXTERNAL' ? input.sourceUrl : null,
+          sortOrder: input.sortOrder,
+          isCover,
+        },
+        select: { id: true, storageKey: true, isCover: true, thumb400Key: true },
+      });
     });
   }
 

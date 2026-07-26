@@ -153,15 +153,36 @@ export class PortfoliosService {
 
     await this.images.verifyAndConsume({ userId, storageKey: input.storageKey });
 
-    return this.prisma.portfolioImage.create({
-      data: {
-        portfolioItemId: id,
-        storageKey: input.storageKey,
-        phase: input.phase,
-        sortOrder: input.sortOrder,
-        isCover: count === 0 ? true : input.isCover,
-      },
-      select: { id: true, isCover: true, phase: true, thumb400Key: true },
+    /* 첫 장은 무조건 커버다. 커버가 하나도 없는 항목은 목록에 그릴 게 없다. */
+    const isCover = count === 0 ? true : input.isCover;
+
+    /*
+     * **커버를 새로 지정하면 기존 커버를 먼저 내린다.**
+     *
+     * 커버는 하나만 존재할 수 있고 DB의 부분 유니크 인덱스가 그걸 강제한다.
+     * 내리지 않고 그냥 넣으면 제약 위반이 500으로 새어 나간다 —
+     * 사용자 입장에서는 "이걸 대표 사진으로" 라는 정당한 요청인데 서버가 터진 것처럼 보인다.
+     *
+     * 한 트랜잭션으로 묶는 이유는, 내리기만 성공하고 넣기가 실패하면
+     * 커버가 하나도 없는 항목이 남기 때문이다.
+     */
+    return this.prisma.$transaction(async (tx) => {
+      if (isCover) {
+        await tx.portfolioImage.updateMany({
+          where: { portfolioItemId: id, isCover: true, deletedAt: null },
+          data: { isCover: false },
+        });
+      }
+      return tx.portfolioImage.create({
+        data: {
+          portfolioItemId: id,
+          storageKey: input.storageKey,
+          phase: input.phase,
+          sortOrder: input.sortOrder,
+          isCover,
+        },
+        select: { id: true, isCover: true, phase: true, thumb400Key: true },
+      });
     });
   }
 
