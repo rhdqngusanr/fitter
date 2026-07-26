@@ -2308,6 +2308,621 @@
   }
 }
 
+/* ─────────────────────────── 컨택 (M-01 · M-02) ─────────────────────────── */
+
+/*
+ * **시안의 데스크톱은 목록·상세를 나란히 둔다** (`392px / 1fr`).
+ * 구현은 두 페이지가 완전히 분리돼 있어서 컨택을 하나 처리할 때마다 목록으로
+ * 돌아갔다 다시 들어와야 했다. 받은 문의가 여러 건일 때 그게 전부 왕복이 된다.
+ *
+ * 모바일은 시안대로 화면이 갈린다 — 390px 에 두 판을 넣을 수 없다.
+ */
+.contacts {
+  display: grid;
+  grid-template-columns: 392px minmax(0, 1fr);
+  max-width: 1280px;
+  margin: 0 auto;
+  min-height: 760px;
+  border-top: 1px solid var(--color-border);
+}
+
+.contacts__list {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--color-border);
+  min-width: 0;
+}
+
+/* 받은 것 / 보낸 것. 시안은 칩이 아니라 밑줄 탭이다 — 둘 중 하나라는 게 더 분명하다. */
+.box-tabs {
+  display: flex;
+  flex: none;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.box-tab {
+  flex: 1;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--color-text-tertiary);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.box-tab[aria-current='page'] {
+  border-bottom-color: var(--color-primary-500);
+  color: var(--color-text-primary);
+  font-weight: 800;
+}
+
+/* 답을 기다리는 건수. 빨간 점이 아니라 숫자다 — 몇 건인지가 곧 할 일의 크기다. */
+.box-tab__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  min-width: 20px;
+  padding: 0 6px;
+  border-radius: var(--radius-full);
+  background: var(--color-danger);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.contacts__filters {
+  flex: none;
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  padding: var(--space-3) var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.contacts__rows {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px var(--space-5) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.contact-row {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  width: 100%;
+  text-align: left;
+  padding: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  color: inherit;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.contact-row:hover {
+  background: var(--color-surface-hover);
+  text-decoration: none;
+}
+
+/* 지금 보고 있는 건. 목록과 상세가 나란히 있으니 어느 줄인지 표시해야 한다. */
+.contact-row[aria-current='page'] {
+  border-color: var(--color-primary-500);
+  background: var(--color-primary-50);
+}
+
+.contact-row__body {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+  min-width: 0;
+}
+
+.contact-row__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.contact-row__name {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.contact-row__when {
+  flex: none;
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+}
+
+.contact-row__sub {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.contact-row__foot {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: 2px;
+}
+
+.contact-row__extra {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+}
+
+/* 목록 안의 작은 상태 뱃지. 기본 `.badge`(26px)보다 한 단 작다. */
+.badge--xs {
+  height: 22px;
+  padding: 0 8px;
+  font-size: 11px;
+}
+
+.contacts__detail {
+  padding: 28px 36px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  min-width: 0;
+}
+
+.contacts__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+}
+
+/* 상세 맨 위의 상태. 목록의 뱃지보다 크다 — 이 화면에서 가장 먼저 읽어야 하는 값이다. */
+.contact-status {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  height: 30px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.contact-h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.contact-meta {
+  font-size: 15px;
+  color: var(--color-text-tertiary);
+}
+
+/*
+ * 진행 타임라인. 요청 → 응답 → 연락처 공개.
+ * 이 서비스의 상태 머신을 사람 말로 옮긴 것이고, "지금 무엇을 기다리는가"가 여기서 읽힌다.
+ */
+.timeline {
+  display: flex;
+  align-items: flex-start;
+  padding: 16px 20px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+}
+
+.timeline__step {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-right: var(--space-2);
+}
+
+.timeline__step:last-child {
+  padding-right: 0;
+}
+
+.timeline__marks {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.timeline__dot {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--color-border-strong);
+  background: var(--color-bg);
+}
+
+.timeline__step--done .timeline__dot {
+  border-color: var(--color-primary-500);
+  background: var(--color-primary-500);
+}
+
+.timeline__line {
+  flex: 1;
+  height: 2px;
+  background: var(--color-border);
+}
+
+.timeline__line--done {
+  background: var(--color-primary-500);
+}
+
+.timeline__k {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-tertiary);
+}
+
+.timeline__step--done .timeline__k {
+  color: var(--color-text-primary);
+}
+
+.timeline__at {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--color-text-tertiary);
+}
+
+/* 상세 본문 2단 — 메시지·상대 정보 / 우측 연락처 블록. */
+.contacts__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: var(--space-6);
+  align-items: flex-start;
+}
+
+.contacts__main {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+}
+
+.contact-section-title {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.contact-message {
+  margin: 0;
+  max-width: 620px;
+  padding: 16px 18px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+  white-space: pre-wrap;
+  text-wrap: pretty;
+}
+
+.contact-party {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding-top: 18px;
+  border-top: 1px solid var(--color-border);
+}
+
+.contact-party__name {
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.contact-party__meta {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+/* 제안 금액. 메시지 아래에서 한 단 굵게 — 받은 쪽이 제일 먼저 보고 싶어 하는 숫자다. */
+.contact-amount {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.contact-reason {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+/*
+ * 연락처 블록.
+ *
+ * 공개됐을 때만 success 테두리다. 아직이면 점선 + 마스킹된 자리다 —
+ * **마스킹은 화면의 표현일 뿐이고 서버 응답에는 키 자체가 없다.**
+ */
+.contact-reveal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border: 1px solid var(--color-success);
+  border-radius: var(--radius-lg);
+  background: var(--color-success-bg);
+}
+
+.contact-reveal__title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--color-success);
+}
+
+.contact-reveal__row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+}
+
+.contact-reveal__k {
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+}
+
+.contact-reveal__v {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.contact-reveal__v--tel {
+  font-family: var(--font-mono);
+}
+
+.contact-reveal__note {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+.contact-locked {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-subtle);
+}
+
+.contact-locked__title {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.contact-locked__row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 10px 12px;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+}
+
+.contact-locked__masked {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-tertiary);
+}
+
+.contact-locked__note {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+/*
+ * 거절 확인 시트.
+ *
+ * 시안: "종료 상태로 가는 전이는 되돌릴 수 없으므로 한 번 더 묻고, 사유는 선택으로 받는다."
+ * 전에는 `window.prompt` 였다 — 브라우저 기본 대화상자는 되돌릴 수 없다는 경고를 담을
+ * 자리가 없고, 사유 보기를 줄 수도 없다.
+ */
+.decline-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-md);
+  background: var(--color-danger-bg);
+}
+
+.decline-sheet__title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--color-danger);
+}
+
+.decline-sheet__body {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+}
+
+/*
+ * 액션 자리가 둘이다. 시안의 데스크톱은 제목 옆, 모바일은 본문 아래다.
+ *
+ * 일반 유틸리티(`.hide-on-mobile`, 768px)를 쓰지 않는 이유: 이 화면은 900px 에서
+ * 갈라진다. 경계가 어긋나면 768~900px 구간에서 **버튼이 두 벌 보인다.**
+ * 같은 화면의 두 요소는 같은 경계를 써야 한다.
+ */
+.contacts__actions {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.contacts__actions--mobile,
+.contacts__back {
+  display: none;
+}
+
+/* 시안의 컨택 액션 버튼은 52px 다. 되돌릴 수 없는 결정이라 크게 둔다. */
+.contacts__actions .btn {
+  height: 52px;
+  padding: 0 22px;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.contacts__note {
+  flex: 1;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-text-tertiary);
+}
+
+/* 목록만 보여주는 화면(=/contacts)의 우측 판. */
+.contacts__placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  padding: var(--space-16) var(--space-8);
+  color: var(--color-text-tertiary);
+}
+
+@media (max-width: 1000px) {
+  .contacts__body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  /*
+   * 모바일은 시안대로 화면이 갈린다. 목록 화면에서는 목록만, 상세에서는 상세만.
+   * 어느 쪽을 숨길지는 페이지가 `.contacts--list` / `.contacts--detail` 로 정한다.
+   */
+  .contacts {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+    border-top: none;
+  }
+
+  .contacts__list {
+    border-right: none;
+  }
+
+  .contacts--detail .contacts__list,
+  .contacts--list .contacts__detail,
+  .contacts--list .contacts__placeholder {
+    display: none;
+  }
+
+  .contacts__filters {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 10px var(--space-4);
+  }
+
+  .contacts__rows {
+    padding: var(--space-3) var(--space-4) var(--space-5);
+  }
+
+  .box-tab {
+    height: 48px;
+  }
+
+  .contacts__detail {
+    padding: var(--space-4) var(--space-4) var(--space-5);
+    gap: 18px;
+  }
+
+  .contact-status {
+    height: 28px;
+    padding: 0 11px;
+  }
+
+  .contact-h1 {
+    font-size: 22px;
+    line-height: 1.3;
+  }
+
+  .contact-meta {
+    font-size: 14px;
+  }
+
+  .timeline {
+    padding: 14px;
+  }
+
+  .timeline__k {
+    font-size: 12px;
+  }
+
+  .timeline__at {
+    font-size: 11px;
+  }
+
+  .contact-message {
+    font-size: 15px;
+    line-height: 1.65;
+    padding: 14px;
+  }
+
+  .contacts__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .contacts__actions .btn {
+    width: 100%;
+  }
+
+  /* 여기서 자리를 바꾼다 — 데스크톱 것은 접고 모바일 것을 편다. */
+  .contacts__actions--desktop {
+    display: none;
+  }
+
+  .contacts__actions--mobile {
+    display: flex;
+  }
+
+  /*
+   * 뒤로 가기는 모바일에만 있다. 데스크톱에서 "← 컨택 목록" 은 거짓말이 된다 —
+   * 목록이 이미 화면 왼쪽에 있어서 돌아갈 데가 없다.
+   */
+  .contacts__back {
+    display: inline-flex;
+    width: fit-content;
+  }
+}
+
 /* ─────────────────────────── 인풋 ─────────────────────────── */
 
 .input {

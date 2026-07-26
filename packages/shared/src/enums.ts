@@ -42,6 +42,18 @@ export const CONTACT_STATUS_LABELS: Readonly<Record<ContactStatus, string>> = {
   EXPIRED: '기간 지남',
 };
 
+/**
+ * 거절 사유 보기.
+ *
+ * **시안(M-02)의 거절 확인 시트가 셋을 제시한다** — 일정 · 지역 · 공종.
+ * 자유 입력으로만 받으면 대부분 비워두고, 그러면 왜 거절됐는지 아무도 모른다.
+ * 상대에게는 이 문구가 그대로 보이므로 사람이 읽을 말이어야 한다.
+ *
+ * 서버는 자유 문자열(500자)로 받는다. 보기는 화면이 주는 편의이고 강제가 아니다 —
+ * 여기 없는 이유로 거절하는 경우를 막을 이유가 없다.
+ */
+export const DECLINE_REASONS = ['일정이 맞지 않음', '활동 지역 밖', '공종이 맞지 않음'] as const;
+
 export const CONTACT_DIRECTIONS = ['PRO_TO_REQUEST', 'CUSTOMER_TO_PRO'] as const;
 export type ContactDirection = (typeof CONTACT_DIRECTIONS)[number];
 
