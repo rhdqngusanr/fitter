@@ -2,10 +2,47 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "api-dev",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": [
+        "--filter",
+        "@fitter/api",
+        "exec",
+        "nest",
+        "start",
+        "--watch"
+      ],
+      "port": 3001,
+      "autoPort": false
+    },
+    {
       "name": "web-dev",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["--filter", "@fitter/web", "exec", "next", "dev", "--port", "3000"],
+      "runtimeArgs": [
+        "--filter",
+        "@fitter/web",
+        "exec",
+        "next",
+        "dev",
+        "--port",
+        "3000"
+      ],
       "port": 3000,
+      "autoPort": false
+    },
+    {
+      "name": "design-static",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "--yes",
+        "http-server",
+        "design",
+        "-p",
+        "4321",
+        "-c-1",
+        "--silent"
+      ],
+      "port": 4321,
       "autoPort": false
     }
   ]

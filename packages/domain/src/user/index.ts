@@ -9,7 +9,7 @@
  *
  * 아직 여기 없는 것 (P4-1 이후):
  *   user.ts        엔티티
- *   pro-profile.ts 프로필 완성도 계산
  */
 
 export * from './pro-approval';
+export * from './pro-profile';

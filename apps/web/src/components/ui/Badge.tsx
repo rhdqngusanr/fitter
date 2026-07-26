@@ -15,6 +15,22 @@ import type { ReactNode } from 'react';
 
 type Tone = 'verified' | 'success' | 'warning' | 'danger' | 'info' | 'neutral' | 'muted';
 
-export function Badge({ children, tone = 'neutral' }: { children: ReactNode; tone?: Tone }) {
-  return <span className={`badge badge--${tone}`}>{children}</span>;
+/**
+ * `xs` 는 시안이 좁은 카드 안에서 쓰는 22px 높이 변형이다.
+ * 크기는 두 개뿐이다 — 늘리면 같은 뱃지가 화면마다 달라진다.
+ */
+type Size = 'xs' | 'md';
+
+export function Badge({
+  children,
+  tone = 'neutral',
+  size = 'md',
+}: {
+  children: ReactNode;
+  tone?: Tone;
+  size?: Size;
+}) {
+  return (
+    <span className={`badge badge--${tone}${size === 'xs' ? ' badge--xs' : ''}`}>{children}</span>
+  );
 }

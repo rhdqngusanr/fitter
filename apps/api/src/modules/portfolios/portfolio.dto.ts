@@ -38,7 +38,18 @@ export const attachPortfolioImageSchema = z.object({
 });
 export type AttachPortfolioImageInput = z.infer<typeof attachPortfolioImageSchema>;
 
-/** 시공자 프로필. 승인 심사의 대상이다. */
+/**
+ * 시공자 프로필. 승인 심사의 대상이다.
+ *
+ * 상한이 화면(P-01)과 다른 곳이 둘 있고, 둘 다 **서버가 더 관대한 쪽**이다.
+ *
+ * - `intro` — 화면은 300자에서 막지만 서버는 2000자를 받는다. 이미 저장된 긴 소개를
+ *   거부하지 않기 위해서다. 새 데이터는 화면이 300자로 들어온다.
+ * - `workCategoryCodes` — 화면은 3개까지만 고르게 하지만 서버는 13개를 받는다.
+ *   3개 제한은 "고른 조합이 곧 의뢰 피드"라는 제품 판단이고 데이터 제약이 아니다.
+ *
+ * 반대 방향(서버가 더 엄격)으로 만들면 화면이 통과시킨 입력이 저장에서 터진다.
+ */
 export const proProfileSchema = z.object({
   businessName: z.string().trim().min(1).max(60),
   intro: z.string().trim().max(2000).optional(),
@@ -46,6 +57,13 @@ export const proProfileSchema = z.object({
   businessNumber: z.string().trim().max(20).optional(),
   workCategoryCodes: z.array(z.string().min(1).max(40)).max(13).optional(),
   regionCodes: z.array(z.string().length(5)).max(30).optional(),
+  /**
+   * 화면의 `지금 일감 받는 중` 토글의 반대값이다.
+   *
+   * 컬럼은 처음부터 있었지만 입력 스키마에 없어서 **끌 방법이 없었다.**
+   * 휴면은 승인 취소와 다르다 — 본인이 잠시 내려두는 것이고 되돌릴 수 있어야 한다.
+   */
+  isDormant: z.boolean().optional(),
 });
 export type ProProfileInput = z.infer<typeof proProfileSchema>;
 

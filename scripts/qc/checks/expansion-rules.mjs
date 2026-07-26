@@ -94,8 +94,22 @@ export function run() {
           );
         }
 
-        /* 3조 — 지역은 행정구역 코드다. 주소 원문을 저장하지 않는다 */
-        if (/<input/.test(line) && /placeholder="[^"]*[가-힣]+(구|시|동)[^"]*"/.test(element)) {
+        /*
+         * 3조 — 지역은 행정구역 코드다. 주소 원문을 저장하지 않는다.
+         *
+         * **행정구역 접미사는 낱말 끝에서만 센다.** 전에는 `[가-힣]+(구|시|동)` 을
+         * 문자열 아무 곳에서나 찾아서, `자동으로` 의 `동` 이나 `구성` 의 `구` 같은
+         * 평범한 낱말이 주소로 잡혔다. 실제로 "하이픈은 자동으로 지웁니다" 라는
+         * 전화번호 플레이스홀더가 지역 위반으로 걸렸다.
+         *
+         * 주소는 `성북구`, `정릉동` 처럼 **낱말 자체가 접미사로 끝난다.**
+         * 공백으로 끊어 각 낱말의 끝만 본다.
+         */
+        const placeholderText = /placeholder="([^"]*)"/.exec(element)?.[1] ?? '';
+        const looksLikeAddress = placeholderText
+          .split(/[\s·,)(]+/)
+          .some((word) => /^[가-힣]{2,}(구|시|군|동|읍|면)$/.test(word));
+        if (/<input/.test(line) && looksLikeAddress) {
           findings.push(
             finding({
               severity: target.severity,

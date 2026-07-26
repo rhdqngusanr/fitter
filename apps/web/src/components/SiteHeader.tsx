@@ -99,6 +99,13 @@ export function SiteHeader() {
                     <a href="/portfolios/mine" className="site-header__mine">
                       내 사례
                     </a>
+                    {/*
+                      P-01 의 데스크톱 내비가 `받은 의뢰 · 내 포트폴리오 · 프로필` 셋이다.
+                      프로필로 돌아갈 길이 없으면 한 번 저장한 뒤로는 고칠 방법이 없다.
+                    */}
+                    <a href="/pro/profile" className="site-header__mine">
+                      프로필
+                    </a>
                   </>
                 )}
                 <a href="/contacts" className="site-header__mine">

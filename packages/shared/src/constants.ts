@@ -51,3 +51,22 @@ export const SQUARE_METERS_PER_PYEONG = 400 / 121;
  */
 export const MIN_PYEONG = 1;
 export const MAX_PYEONG = 500;
+
+/*
+ * 시공자 프로필 입력 한도 (P-01).
+ *
+ * 위의 면적 상수와 같은 이유로 여기 있다 — 화면(P-01)과 완성도 계산(domain)이
+ * 같은 숫자를 봐야 하고, 화면은 domain 을 import 할 수 없다.
+ */
+
+/**
+ * 공종은 최대 3개.
+ *
+ * 데이터 제약이 아니라 **제품 판단**이다. 고른 조합이 곧 의뢰 피드(P-04)라서,
+ * 다 고르면 필터가 아무것도 걸러내지 않는 목록이 된다.
+ * 서버 스키마는 13개까지 받는다 — 화면이 더 엄격한 쪽이다.
+ */
+export const PRO_CATEGORY_LIMIT = 3;
+
+/** 소개는 300자. 카드에 실리는 글이라 길어지면 아무도 안 읽는다. */
+export const PRO_INTRO_LIMIT = 300;

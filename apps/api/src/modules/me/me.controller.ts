@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post } from '@nestjs/common';
 
 import { ConflictError, NotFoundError } from '@fitter/domain';
 
@@ -7,6 +7,7 @@ import { REVEALED_PHONE_KEY } from '../../common/interceptors';
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
 import { PrismaService } from '../../infra/prisma/prisma.service';
 import { selectProfileSchema, type SelectProfileInput } from '../auth/auth.dto';
+import { patchMeSchema, type PatchMeInput } from './me.dto';
 
 @Controller('me')
 export class MeController {
@@ -39,6 +40,28 @@ export class MeController {
       /* 본인 것이므로 명시적으로 공개한다. 직렬화 인터셉터가 이 이름만 통과시킨다. */
       [REVEALED_PHONE_KEY]: phone,
     };
+  }
+
+  /**
+   * 닉네임·연락처 수정.
+   *
+   * 응답이 `GET /me` 와 같은 모양인 이유는 화면이 저장 후 다시 조회하지 않아도 되게 하려는
+   * 것이다. 요청 한 번 줄이는 것보다, **저장한 값과 화면이 보는 값이 갈라질 틈을 없애는
+   * 것**이 목적이다.
+   */
+  @Patch()
+  async patchMe(
+    @CurrentUser() actor: RequestUser,
+    @Body(new ZodValidationPipe(patchMeSchema)) body: PatchMeInput,
+  ) {
+    /* 탈퇴한 계정에는 쓰지 않는다. updateMany 로 조건을 걸어 한 번에 확인한다. */
+    const { count } = await this.prisma.user.updateMany({
+      where: { id: actor.id, deletedAt: null },
+      data: body,
+    });
+    if (count === 0) throw new NotFoundError('사용자를 찾을 수 없습니다.');
+
+    return this.me(actor);
   }
 
   /**

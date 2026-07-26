@@ -5,11 +5,13 @@ import {
   NotFoundError,
   ValidationError,
   assertCanPerform,
+  evaluateProProfile,
   pyeongToSquareMeters,
 } from '@fitter/domain';
 import { MAX_PORTFOLIO_IMAGES } from '@fitter/shared';
 
 import { assertOwner } from '../../common/authz/assert-owner';
+import { REVEALED_PHONE_KEY } from '../../common/interceptors';
 import { PrismaService } from '../../infra/prisma/prisma.service';
 import { ImagesService } from '../images/images.service';
 import type {
@@ -37,7 +39,7 @@ export class PortfoliosService {
   async saveProProfile(userId: string, input: ProProfileInput) {
     const profile = await this.prisma.userProfile.findFirst({
       where: { userId, type: 'PRO', deletedAt: null },
-      select: { id: true },
+      select: { id: true, user: { select: { phone: true } } },
     });
     if (!profile) throw new NotFoundError('시공자 프로필이 없습니다.');
 
@@ -73,15 +75,50 @@ export class PortfoliosService {
           data: regions.map((r) => ({ proProfileId: profile.id, regionCode: r.code })),
         });
       }
+
+      /*
+       * 완성도를 같은 트랜잭션에서 갱신한다.
+       *
+       * 컬럼은 처음부터 있었지만 아무도 쓰지 않아 **항상 0이었다.** 저장 후에 따로
+       * 계산하면 공종·지역 교체가 성공하고 완성도만 실패하는 창이 생긴다.
+       *
+       * 읽는 값은 트랜잭션 안의 것이어야 한다 — 방금 위에서 갈아치운 개수다.
+       */
+      const [categoryCount, areaCount] = await Promise.all([
+        tx.proWorkCategory.count({ where: { proProfileId: profile.id } }),
+        tx.proServiceArea.count({ where: { proProfileId: profile.id } }),
+      ]);
+      const { percent } = evaluateProProfile({
+        businessName: input.businessName,
+        phone: profile.user.phone,
+        workCategoryCount: categoryCount,
+        serviceAreaCount: areaCount,
+        intro: input.intro ?? null,
+        businessNumber: input.businessNumber ?? null,
+      });
+      await tx.proProfile.update({
+        where: { userProfileId: profile.id },
+        data: { profileCompleteness: percent },
+      });
     });
 
     return this.myProProfile(userId);
   }
 
+  /**
+   * 본인 프로필. **P-01 이 여는 화면이 이것 하나로 그려진다.**
+   *
+   * 연락처를 함께 싣는 이유는 화면이 그것을 편집하기 때문이다. 본인 것이므로
+   * `__revealedPhone` 으로 명시 공개한다 — 그 이름만 직렬화 인터셉터를 통과한다.
+   * 이 값이 남에게 갈 경로는 없다. `/pros` 는 `phone` 을 SELECT 조차 하지 않는다.
+   *
+   * 완성도는 도메인이 계산한다. 화면이 세면 저장 결과와 어긋난다.
+   */
   async myProProfile(userId: string) {
     const profile = await this.prisma.userProfile.findFirst({
       where: { userId, type: 'PRO', deletedAt: null },
       select: {
+        user: { select: { nickname: true, phone: true } },
         proProfile: {
           include: {
             workCategories: { select: { workCategory: { select: { code: true, nameKo: true } } } },
@@ -94,10 +131,25 @@ export class PortfoliosService {
     if (!pro) throw new NotFoundError('시공자 프로필이 없습니다.');
 
     const { workCategories, serviceAreas, ...rest } = pro;
+    const phone = profile?.user.phone ?? null;
+
+    const completeness = evaluateProProfile({
+      businessName: pro.businessName,
+      phone,
+      workCategoryCount: workCategories.length,
+      serviceAreaCount: serviceAreas.length,
+      intro: pro.intro,
+      businessNumber: pro.businessNumber,
+    });
+
     return {
       ...rest,
+      nickname: profile?.user.nickname ?? '',
+      /* 본인 것이므로 명시적으로 공개한다. → common/interceptors/contact-privacy.interceptor.ts */
+      [REVEALED_PHONE_KEY]: phone,
       workCategories: workCategories.map((c) => c.workCategory),
       serviceAreas: serviceAreas.map((a) => a.region),
+      completeness,
     };
   }
 

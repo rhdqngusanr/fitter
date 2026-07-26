@@ -82,8 +82,14 @@ function RolePicker() {
       return;
     }
     if (user.profileType) {
-      /* 카드에 적어둔 "다음 화면"과 같은 곳으로 보낸다. 말한 것과 다른 데로 가면 안 된다. */
-      const landing = user.profileType === 'PRO' ? '/portfolios/new' : '/requests/new';
+      /*
+       * 카드에 적어둔 "다음 화면"과 같은 곳으로 보낸다. 말한 것과 다른 데로 가면 안 된다.
+       *
+       * 시공자는 **프로필 편집(P-01)** 이 먼저다. 서버도 `POST /me/profile` 응답에서
+       * 같은 주소를 약속한다. 전에는 그 화면이 없어서 `/portfolios/new` 로 보냈는데,
+       * 프로필이 비면 승인이 시작되지 않아 사례를 영원히 공개할 수 없었다.
+       */
+      const landing = user.profileType === 'PRO' ? '/pro/profile' : '/requests/new';
       /*
        * **`next` 를 그대로 따르면 방금 고른 역할이 못 가는 곳으로 보낼 수 있다.**
        * `/portfolios/new` 에서 튕겨온 사람이 고객을 고르면 다시 거기로 가고, 그 화면의
@@ -91,7 +97,7 @@ function RolePicker() {
        * 브라우저에서 실제로 그렇게 됐다. 역할에 안 맞는 `next` 는 버리고 착지점으로 간다.
        */
       const mismatched =
-        (user.profileType === 'CUSTOMER' && next.startsWith('/portfolios')) ||
+        (user.profileType === 'CUSTOMER' && (next.startsWith('/portfolios') || next.startsWith('/pro/'))) ||
         (user.profileType === 'PRO' && next.startsWith('/requests'));
       router.replace(next === '/' || mismatched ? landing : next);
     }
