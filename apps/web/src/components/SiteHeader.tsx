@@ -49,6 +49,11 @@ export function SiteHeader() {
                 내 의뢰
               </a>
             )}
+            {user.profileType === 'PRO' && (
+              <a href="/portfolios/mine" style={{ color: 'var(--color-text-secondary)' }}>
+                내 사례
+              </a>
+            )}
           </>
         )}
 

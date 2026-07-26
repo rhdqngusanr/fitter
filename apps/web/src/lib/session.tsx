@@ -150,6 +150,16 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       },
       selectProfile: async (type) => {
         await authFetch('/me/profile', { method: 'POST', body: JSON.stringify({ type }) });
+        /*
+         * **토큰을 반드시 다시 받아야 한다.**
+         *
+         * 역할은 액세스 토큰 안에 박혀 있고, 가입 시점에는 아직 없어서 `null` 이다.
+         * 역할을 고른 뒤에도 옛 토큰을 계속 쓰면 역할 가드가 걸린 모든 API가 403 이 된다 —
+         * 방금 시공자를 선택한 사람이 포트폴리오를 못 올린다.
+         * 리프레시는 DB에서 역할을 다시 읽어 새 토큰을 준다.
+         */
+        const res = await api<AuthResponse>('/auth/refresh', { method: 'POST' });
+        token.current = res.accessToken;
         await loadProfile();
       },
       authFetch,
