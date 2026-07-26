@@ -241,6 +241,40 @@ textarea {
 }
 
 /*
+ * 눈에는 안 보이지만 스크린리더에는 남는다.
+ *
+ * `display:none` 과 다르다. 시안의 모바일 프레임이 제목을 지운 화면이 몇 개 있는데
+ * (갤러리가 그렇다 — 390px 에서는 사진이 먼저다) `display:none` 으로 지우면 문서에
+ * h1 이 없어진다. 보이는 것과 읽히는 것을 따로 정할 때 쓴다.
+ */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* 모바일에서만 숨긴다. 데스크톱에서는 평범하게 보인다. */
+@media (max-width: 768px) {
+  .hide-on-mobile {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+}
+
+/*
  * 타이포 스케일 클래스. 시안 02 TYPE 의 한 행 = 여기 한 클래스다.
  * spec 열(`40/800/1.2/-0.03em`)의 네 값을 통째로 옮겼다 — 크기만 맞추고 굵기를
  * 화면에서 다시 정하면 시안과 대조가 안 된다.

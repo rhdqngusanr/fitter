@@ -4,9 +4,9 @@
     {
       "name": "web-dev",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["--filter", "@fitter/web", "exec", "next", "dev"],
+      "runtimeArgs": ["--filter", "@fitter/web", "exec", "next", "dev", "--port", "3000"],
       "port": 3000,
-      "autoPort": true
+      "autoPort": false
     }
   ]
 }

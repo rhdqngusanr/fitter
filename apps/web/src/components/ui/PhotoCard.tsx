@@ -24,6 +24,7 @@ export function PhotoCard({
   meta,
   fallback,
   eager = false,
+  wide = false,
 }: {
   href: string;
   src?: string | null;
@@ -36,9 +37,11 @@ export function PhotoCard({
   fallback?: ReactNode;
   /** 첫 화면에 바로 보이는 카드만 켠다. 전부 eager 면 아래쪽 사진이 위쪽을 늦춘다. */
   eager?: boolean;
+  /** 데스크톱 4열 그리드용. 시안이 이때 본문 크기를 한 단 키운다. */
+  wide?: boolean;
 }) {
   return (
-    <a href={href} className="card-photo">
+    <a href={href} className={wide ? 'card-photo card-photo--wide' : 'card-photo'}>
       <div className="card-photo__media">
         {src ? (
           /*
