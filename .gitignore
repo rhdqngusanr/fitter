@@ -8,7 +8,8 @@
 *.jks
 credentials.json
 serviceAccount*.json
-secrets/
+# 위와 같은 이유로 루트 고정. 소스 트리에 secrets 라는 폴더가 생겨도 안 삼키게.
+/secrets/
 config/local.*
 
 # 의존성 / 빌드
@@ -21,12 +22,18 @@ coverage/
 *.tsbuildinfo
 
 # 데이터베이스 / 업로드
+#
+# **앞의 슬래시가 중요하다.** `storage/` 라고 쓰면 이름이 storage 인 디렉터리가
+# 트리 어디에 있든 전부 걸린다 — 실제로 `apps/api/src/infra/storage/` 가 통째로
+# 빠져서 GitHub 에 소스가 없었고, 로컬 빌드는 파일이 있으니 멀쩡히 통과하는데
+# 배포 서버에서만 `Cannot find module` 로 죽었다.
+# 여기서 막으려는 건 레포 루트에 생기는 로컬 업로드 폴더뿐이므로 루트에 고정한다.
 *.sqlite
 *.sqlite3
 *.db
-uploads/
-storage/
-tmp/
+/uploads/
+/storage/
+/tmp/
 
 # 로그
 *.log
