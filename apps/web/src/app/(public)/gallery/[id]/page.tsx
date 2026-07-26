@@ -229,6 +229,14 @@ function ProCard({ item }: { item: PortfolioDetail }) {
         >
           이 시공자에게 문의
         </a>
+
+        {/*
+          `프로필 전체 보기`. 1차 대조에서는 C-07 화면이 없어서 못 넣었다(2026-07-26에 생겼다).
+          문의 직전에 "이 사람의 다른 작업"을 보고 싶은 건 자연스러운 요구다.
+        */}
+        <a href={`/pros/${item.pro.id}`} className="btn btn--secondary btn--lg btn--block">
+          프로필 전체 보기
+        </a>
       </div>
     </div>
   );

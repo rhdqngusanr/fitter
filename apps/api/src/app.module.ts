@@ -19,6 +19,7 @@ import { ReportsModule } from './modules/reports/reports.module';
 import { ImagesModule } from './modules/images/images.module';
 import { MeModule } from './modules/me/me.module';
 import { PortfoliosModule } from './modules/portfolios/portfolios.module';
+import { ProsModule } from './modules/pros/pros.module';
 import { ReferenceRequestsModule } from './modules/reference-requests/reference-requests.module';
 import { EstimatePolicyModule } from './modules/pricing/estimate-policy.module';
 import { HealthModule } from './health/health.module';
@@ -44,6 +45,7 @@ import { HealthModule } from './health/health.module';
     ImagesModule,
     ReferenceRequestsModule,
     PortfoliosModule,
+    ProsModule,
     ContactsModule,
     NotificationsModule,
     RegionsModule,

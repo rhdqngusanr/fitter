@@ -3952,6 +3952,241 @@
   }
 }
 
+/* ─────────────────────────── 시공자 목록·상세 (C-06 · C-07) ─────────────────────────── */
+
+.pro-card {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+  width: 100%;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  color: inherit;
+}
+
+.pro-card:hover {
+  background: var(--color-surface-hover);
+  text-decoration: none;
+}
+
+.pro-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+  min-width: 0;
+}
+
+.pro-card__head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.pro-card__name {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.pro-card__meta {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+.pro-card__area {
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+}
+
+/* 최근 사례 넉 장. 목록에서 실력을 보여주는 건 이것뿐이다. */
+.pro-card__strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-top: var(--space-1);
+}
+
+.pro-card__strip span {
+  aspect-ratio: 1;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-sunken);
+  overflow: hidden;
+}
+
+.pro-card__strip img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 사례가 없는 시공자. 시안이 이 상태를 따로 그렸다 — 막지 말고 설명하라. */
+.pro-card__fresh {
+  padding: 10px 12px;
+  margin-top: var(--space-1);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-subtle);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+/* ── C-07 프로필 ── */
+
+.pro-detail {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-10) var(--space-10);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.pro-detail__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 28px;
+  align-items: start;
+}
+
+.pro-detail__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.pro-detail__head {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.pro-detail__name {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+}
+
+.pro-detail__meta {
+  font-size: 15px;
+  color: var(--color-text-secondary);
+}
+
+.pro-detail__area {
+  font-size: 15px;
+  color: var(--color-text-tertiary);
+}
+
+/* 신뢰 지표 칸. 우리가 실제로 아는 숫자만 넣는다. */
+.pro-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+}
+
+.pro-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  align-items: center;
+  padding: 12px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+}
+
+.pro-stat__v {
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.pro-stat__k {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  text-align: center;
+}
+
+.pro-verified {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 9px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.pro-verified__k {
+  font-size: 14px;
+  color: var(--color-text-tertiary);
+}
+
+.pro-verified__v {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.pro-verified__v--yes {
+  color: var(--color-success);
+}
+
+.pro-verified__v--no {
+  color: var(--color-text-tertiary);
+}
+
+/* 프로필의 사례 그리드. 갤러리보다 한 열 적다 — 옆에 패널이 있다. */
+.pro-portfolio {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+@media (max-width: 1000px) {
+  .pro-detail__body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .pro-card {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .pro-card__name {
+    font-size: 16px;
+  }
+
+  .pro-card__meta {
+    font-size: 13px;
+  }
+
+  .pro-detail {
+    padding: var(--space-4) var(--space-4) var(--space-5);
+    gap: var(--space-4);
+  }
+
+  .pro-detail__name {
+    font-size: 22px;
+  }
+
+  .pro-detail__meta,
+  .pro-detail__area {
+    font-size: 14px;
+  }
+
+  .pro-portfolio {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 /* ─────────────────────────── 인풋 ─────────────────────────── */
 
 .input {

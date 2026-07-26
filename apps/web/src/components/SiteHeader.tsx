@@ -25,12 +25,16 @@ import { Avatar } from './ui/Avatar';
 /*
  * 주요 내비.
  *
+ * `시공자 찾기`(C-06)는 그 화면이 생기면 켜기로 했고, 2026-07-26 에 켰다.
+ *
  * 시안의 세 번째 항목 `이용 방법` 은 아직 없다. 해당 시안도 화면도 없어서
- * 만들면 내가 지어내는 것이 된다 — brain/00-허브/열린 질문.md 에 올렸다.
- * `시공자 찾기`(C-06)는 시안 대조 큐에 있고 그 화면이 생기면 여기 한 줄을 켠다.
+ * 만들면 내가 지어내는 것이 된다 — brain/00-허브/열린 질문.md Q8 에 올렸다.
  * **없는 화면으로 링크를 걸어두지 않는다.** 404 는 메뉴가 없는 것보다 나쁘다.
  */
-const NAV = [{ href: '/gallery', label: '시공 사진' }];
+const NAV = [
+  { href: '/gallery', label: '시공 사진' },
+  { href: '/pros', label: '시공자 찾기' },
+];
 
 export function SiteHeader() {
   const { user, loading, logout } = useSession();
