@@ -170,18 +170,38 @@ export function ImageUploader({ mode, images, max, onChange, authFetch }: Props)
             borderRadius: 'var(--radius-md)',
           }}
         >
-          <img
-            src={img.previewUrl}
-            alt={img.name}
-            style={{
-              width: 88,
-              height: 88,
-              objectFit: 'cover',
-              borderRadius: 'var(--radius-sm)',
-              background: 'var(--color-bg-sunken)',
-              flexShrink: 0,
-            }}
-          />
+          <span style={{ position: 'relative', flexShrink: 0 }}>
+            <img
+              src={img.previewUrl}
+              alt={img.name}
+              style={{
+                width: 88,
+                height: 88,
+                objectFit: 'cover',
+                borderRadius: 'var(--radius-sm)',
+                background: 'var(--color-bg-sunken)',
+                display: 'block',
+              }}
+            />
+            {/* 첫 장이 대표다. 글로만 말하지 않고 사진 위에 표시한다. */}
+            {i === 0 && (
+              <span
+                style={{
+                  position: 'absolute',
+                  left: 4,
+                  top: 4,
+                  background: 'rgba(255,255,255,.94)',
+                  color: 'var(--color-text-primary)',
+                  fontSize: 10,
+                  fontWeight: 700,
+                  padding: '2px 6px',
+                  borderRadius: 'var(--radius-sm)',
+                }}
+              >
+                대표
+              </span>
+            )}
+          </span>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div
               style={{
