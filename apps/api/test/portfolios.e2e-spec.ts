@@ -213,6 +213,67 @@ describe('포트폴리오 (e2e)', () => {
     });
   });
 
+  /*
+   * before/after 대비가 실력을 가장 설득력 있게 보여준다. 그래서 단계를 코드로 받는다.
+   * 등록 화면(P-02)이 이 계약에 기대고 있어서 여기서 고정한다.
+   */
+  describe('사진 단계와 커버', () => {
+    const addPhoto = async (id: string, body: Record<string, unknown>, expected = 201) => {
+      const presigned = await request(server())
+        .post('/api/images/presign')
+        .set(auth())
+        .send({ namespace: 'PORTFOLIO', contentType: 'image/jpeg', contentLength: 512 })
+        .expect(201);
+      await fetch(presigned.body.url, {
+        method: 'PUT',
+        body: jpeg(),
+        headers: { 'Content-Type': 'image/jpeg', 'Content-Length': '512' },
+      });
+      return request(server())
+        .post(`/api/portfolios/${id}/images`)
+        .set(auth())
+        .send({ storageKey: presigned.body.storageKey, ...body })
+        .expect(expected);
+    };
+
+    it('시공 전·후를 같이 올릴 수 있다', async () => {
+      const id = await readyPortfolio();
+      await addPhoto(id, { phase: 'BEFORE', sortOrder: 1 });
+
+      const res = await request(server()).get(`/api/portfolios/${id}`).set(auth()).expect(200);
+      const phases = (res.body.images as { phase: string | null }[]).map((i) => i.phase);
+      expect(phases).toContain('BEFORE');
+      expect(phases).toContain('AFTER');
+    });
+
+    it('알 수 없는 단계는 거부한다 — 한글 라벨을 넣을 자리가 아니다', async () => {
+      const id = await readyPortfolio();
+      await addPhoto(id, { phase: '시공전' }, 400);
+    });
+
+    it('단계는 선택이다 — 전후 구분이 애매한 사진도 있다', async () => {
+      const id = await readyPortfolio();
+      await addPhoto(id, { sortOrder: 2 });
+    });
+
+    /*
+     * 커버가 둘이면 목록에서 어느 걸 보여줄지 알 수 없다. DB의 부분 유니크 인덱스가 막는다.
+     *
+     * 그래서 새 커버를 지정하면 기존 커버를 먼저 내려야 한다. 안 내리고 넣었더니
+     * 제약 위반이 500으로 샜다 — 사용자에게는 "이걸 대표 사진으로"라는 정당한 요청인데
+     * 서버가 터진 것처럼 보였다. 이 테스트가 그걸 잡았다.
+     */
+    it('커버를 새로 지정하면 기존 커버가 내려간다 — 커버는 언제나 정확히 하나다', async () => {
+      const id = await readyPortfolio();
+      const before = await addPhoto(id, { phase: 'BEFORE', sortOrder: 1, isCover: true });
+      expect(before.body.isCover).toBe(true);
+
+      const res = await request(server()).get(`/api/portfolios/${id}`).set(auth()).expect(200);
+      const covers = (res.body.images as { isCover: boolean }[]).filter((i) => i.isCover);
+      expect(covers).toHaveLength(1);
+    });
+  });
+
   describe('비용 공개', () => {
     it('공개하지 않으면 금액을 저장하지 않는다', async () => {
       const created = await request(server()).post('/api/portfolios').set(auth()).expect(201);

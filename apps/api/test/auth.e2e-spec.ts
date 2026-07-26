@@ -133,6 +133,31 @@ describe('인증과 역할 (e2e)', () => {
       expect(res.body).toEqual({ profileType: 'CUSTOMER', next: '/requests/new' });
     });
 
+    /*
+     * 역할이 토큰 안에 박혀 있다는 사실을 계약으로 고정한다.
+     *
+     * 실제로 이걸 놓쳐서 신규 가입자가 전부 막힌 적이 있다. 역할을 고른 뒤에도
+     * 화면이 옛 토큰을 계속 써서 역할 가드가 걸린 모든 API가 403이 났다.
+     * 서버는 잘못한 게 없다 — 무상태를 택한 대가이고, 클라이언트가 갱신해야 한다.
+     *
+     * 이 테스트가 없으면 다음 사람은 "가드가 DB를 읽게 하면 되잖아"로 고치려 든다.
+     * 그러면 모든 요청에 조회가 하나 붙는다. 그 선택을 되돌리려면 근거가 남아 있어야 한다.
+     */
+    it('역할을 골라도 옛 토큰에는 반영되지 않는다 — 갱신은 클라이언트 몫이다', async () => {
+      /* 위 테스트에서 CUSTOMER를 골랐지만 token 은 그 이전에 발급된 것이다. */
+      await request(server())
+        .get('/api/me/reference-requests')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(403);
+
+      /* 리프레시는 DB에서 역할을 다시 읽는다. 새 토큰이면 통과한다. */
+      const login = await request(server()).post('/api/auth/login').send(customer).expect(200);
+      await request(server())
+        .get('/api/me/reference-requests')
+        .set('Authorization', `Bearer ${login.body.accessToken}`)
+        .expect(200);
+    });
+
     it('역할은 스스로 바꿀 수 없다 — 두 번째 선택은 409', async () => {
       const res = await request(server())
         .post('/api/me/profile')
