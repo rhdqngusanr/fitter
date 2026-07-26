@@ -1,18 +1,27 @@
 import { WORK_CATEGORY_SEEDS } from '@fitter/shared';
 
-import { api, imageUrl, type GalleryResponse } from '../../lib/api';
+import { PhotoCard } from '../../components/ui/PhotoCard';
+import { PhotoImg } from '../../components/ui/PhotoImg';
+import { WelcomeBanner } from '../../components/WelcomeBanner';
+import { api, imageUrl, type GalleryItem, type GalleryResponse } from '../../lib/api';
 
 /** 최근 시공이 몇 분씩 안 바뀌면 "죽은 서비스"로 보인다. */
 export const revalidate = 0;
 
-/** 랜딩에 거는 최근 시공. 시안과 같은 6장이다. */
-const RECENT_LIMIT = 6;
+/**
+ * 히어로 콜라주 3장 + 그리드 8장.
+ *
+ * 시안의 데스크톱은 히어로에 사진 3장, 아래 그리드에 8장을 쓴다. 같은 사진이 한 화면에
+ * 두 번 나오면 버그처럼 보이므로 겹치지 않게 앞 3장과 그 뒤 8장으로 나눈다.
+ */
+const COLLAGE_COUNT = 3;
+const GRID_COUNT = 8;
 
 /**
  * 랜딩 (G-01).
  *
  * **3초 안에 전달할 하나는 "종합업체 없이 사진으로 시공자를 직접 고른다"** 이다.
- * 헤드라인 다음이 곧바로 실제 시공 사진 그리드인 이유가 그것이다 — 설명보다 사진이 빠르다.
+ * 헤드라인 다음이 곧바로 실제 시공 사진인 이유가 그것이다 — 설명보다 사진이 빠르다.
  *
  * 콜드스타트일 때 화면이 통째로 바뀐다. 사진이 0장인데 "이번 주 올라온 시공"이라고
  * 써놓으면 죽은 서비스로 보이고, 숫자 통계에 0을 박으면 안 하느니만 못하다.
@@ -23,171 +32,129 @@ const RECENT_LIMIT = 6;
 export default async function HomePage() {
   let recent: GalleryResponse = { hasAnyContent: false, items: [], nextCursor: null };
   try {
-    recent = await api<GalleryResponse>(`/portfolios?limit=${RECENT_LIMIT}`, { revalidate: 0 });
+    recent = await api<GalleryResponse>(`/portfolios?limit=${COLLAGE_COUNT + GRID_COUNT}`, {
+      revalidate: 0,
+    });
   } catch {
     /* 랜딩은 API가 죽어도 떠야 한다. 사진 없이 서비스 설명만 보여준다. */
   }
 
   const cold = !recent.hasAnyContent;
+  const collage = recent.items.slice(0, COLLAGE_COUNT);
+  const grid = recent.items.slice(COLLAGE_COUNT, COLLAGE_COUNT + GRID_COUNT);
+  /** 가장 최근 사례. 콜드스타트가 아니어도 응답이 비어 있을 수 있으므로 따로 잡아둔다. */
+  const lead = recent.items[0];
 
   return (
     <main>
       {/* ── 히어로 ─────────────────────────────────────── */}
-      <section
-        style={{
-          background: 'var(--color-primary-50)',
-          borderBottom: '1px solid var(--color-border)',
-        }}
-      >
-        <div
-          style={{ maxWidth: 1120, margin: '0 auto', padding: 'var(--space-16) var(--space-4)' }}
-        >
-          <span
-            style={{
-              display: 'inline-block',
-              fontSize: 13,
-              fontWeight: 700,
-              color: 'var(--color-primary-600)',
-              marginBottom: 'var(--space-4)',
-            }}
-          >
-            반셀프 인테리어 · 공종 직거래
-          </span>
+      <section className="shell">
+        <WelcomeBanner />
 
-          <h1 style={{ fontSize: 36, lineHeight: 1.3, margin: 0, maxWidth: 640, fontWeight: 800 }}>
-            종합업체 없이,
-            <br />
-            사진으로 시공자를 직접 고릅니다
-          </h1>
+        <div className="landing-hero">
+          <div className="landing-hero__copy">
+            <span className="landing-eyebrow">반셀프 인테리어 · 공종 직거래</span>
 
-          <p
-            style={{
-              fontSize: 17,
-              lineHeight: 1.7,
-              color: 'var(--color-text-secondary)',
-              maxWidth: 560,
-              margin: 'var(--space-4) 0 var(--space-8)',
-            }}
-          >
-            &ldquo;이렇게 해주세요&rdquo; 사진을 올리면 그게 곧 의뢰입니다. 도배·바닥·타일처럼
-            공종별로 직접 맡기고 일감비만 지불하세요.
-          </p>
+            <h1 className="landing-h1">
+              종합업체 없이,
+              <br />
+              사진으로 시공자를 직접 고릅니다
+            </h1>
 
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: 'var(--space-3)',
-              marginBottom: 'var(--space-10)',
-            }}
-          >
-            <Cta href="/requests/new" variant="primary">
-              사진 올리고 의뢰 등록
-            </Cta>
-            <Cta href="/signup" variant="secondary">
-              시공자로 시작하기
-            </Cta>
+            <p className="landing-lead">
+              &ldquo;이렇게 해주세요&rdquo; 사진을 올리면 그게 곧 의뢰입니다. 도배·바닥·타일처럼
+              공종별로 직접 맡기고{' '}
+              <strong style={{ color: 'var(--color-text-primary)' }}>일감비만</strong> 지불하세요.
+            </p>
+
+            {/*
+              콜드스타트에서는 CTA 순서를 뒤집어 시공자 가입을 앞세운다.
+              사진이 없는 상태에서 고객을 데려와도 보여줄 게 없다 — 공급이 먼저다.
+            */}
+            <div className="landing-cta-row">
+              {cold ? (
+                <>
+                  <a href="/signup" className="btn btn--primary landing-cta">
+                    시공자로 등록하기
+                  </a>
+                  <a href="/requests/new" className="btn btn--secondary landing-cta">
+                    의뢰 먼저 올리기
+                  </a>
+                </>
+              ) : (
+                <>
+                  <a href="/requests/new" className="btn btn--primary landing-cta">
+                    사진 올리고 의뢰 등록
+                  </a>
+                  <a href="/signup" className="btn btn--secondary landing-cta">
+                    시공자로 시작하기
+                  </a>
+                </>
+              )}
+            </div>
+
+            {/*
+              콜드스타트에서는 숫자를 쓰지 않는다. "0건"은 안 쓰느니만 못하고
+              "6건"도 초라하다. 대신 콘텐츠 양과 무관하게 항상 참인 것을 말한다.
+            */}
+            <dl className="landing-proof">
+              {(cold
+                ? [
+                    { value: '중간 마진 0원', label: '일감비만 지불' },
+                    { value: '서울 4개 구', label: '성북·강북·노원·도봉' },
+                    { value: '무료', label: '등록과 이용' },
+                  ]
+                : [
+                    {
+                      value: `${recent.totalCount ?? recent.items.length}건`,
+                      label: '등록된 시공 사진',
+                    },
+                    { value: '중간 마진 0원', label: '일감비만 지불' },
+                    { value: '무료', label: '등록과 이용' },
+                  ]
+              ).map((stat) => (
+                <div key={stat.label}>
+                  <dt className="landing-proof__value">{stat.value}</dt>
+                  <dd className="landing-proof__label">{stat.label}</dd>
+                </div>
+              ))}
+            </dl>
           </div>
 
-          {/*
-            콜드스타트에서는 숫자를 쓰지 않는다. "0건"은 안 쓰느니만 못하고
-            "6건"도 초라하다. 대신 콘텐츠 양과 무관하게 항상 참인 것을 말한다.
-          */}
-          <dl
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-              gap: 'var(--space-5)',
-              margin: 0,
-              maxWidth: 640,
-            }}
-          >
-            {(cold
-              ? [
-                  { value: '중간 마진 0원', label: '일감비만 지불' },
-                  { value: '서울 4개 구', label: '성북·강북·노원·도봉' },
-                  { value: '무료', label: '등록과 이용' },
-                ]
-              : [
-                  {
-                    value: `${recent.totalCount ?? recent.items.length}건`,
-                    label: '등록된 시공 사진',
-                  },
-                  { value: '중간 마진 0원', label: '일감비만 지불' },
-                  { value: '무료', label: '등록과 이용' },
-                ]
-            ).map((stat) => (
-              <div key={stat.label}>
-                <dt style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-text-primary)' }}>
-                  {stat.value}
-                </dt>
-                <dd
-                  style={{
-                    margin: 'var(--space-1) 0 0',
-                    fontSize: 13,
-                    color: 'var(--color-text-tertiary)',
-                  }}
-                >
-                  {stat.label}
-                </dd>
-              </div>
-            ))}
-          </dl>
+          {cold ? <ColdCollage /> : <Collage items={collage} />}
         </div>
       </section>
 
       {/* ── 공종 칩 ────────────────────────────────────── */}
-      <nav
-        aria-label="공종"
-        style={{
-          background: 'var(--color-bg)',
-          borderBottom: '1px solid var(--color-border)',
-          display: 'flex',
-          gap: 'var(--space-2)',
-          overflowX: 'auto',
-          padding: 'var(--space-3) var(--space-4)',
-          scrollbarWidth: 'none',
-        }}
-      >
-        {WORK_CATEGORY_SEEDS.map((category) => (
-          <a
-            key={category.code}
-            href={`/gallery?categories=${category.code}`}
-            style={{
-              flex: '0 0 auto',
-              display: 'inline-flex',
-              alignItems: 'center',
-              height: 36,
-              padding: '0 15px',
-              borderRadius: 'var(--radius-full)',
-              border: '1px solid var(--color-border-strong)',
-              background: 'var(--color-surface)',
-              color: 'var(--color-text-secondary)',
-              fontSize: 14,
-              fontWeight: 600,
-              textDecoration: 'none',
-            }}
-          >
-            {category.nameKo}
-          </a>
-        ))}
-      </nav>
+      <section className="shell" style={{ paddingBottom: 'var(--space-4)' }}>
+        <div className="chip-row" role="group" aria-label="공종">
+          {WORK_CATEGORY_SEEDS.map((category) => (
+            <a
+              key={category.code}
+              href={`/gallery?categories=${category.code}`}
+              className="chip"
+              aria-pressed={false}
+            >
+              {category.nameKo}
+            </a>
+          ))}
+        </div>
+      </section>
 
       {/* ── 최근 시공 ──────────────────────────────────── */}
-      <section
-        style={{ maxWidth: 1120, margin: '0 auto', padding: 'var(--space-10) var(--space-4)' }}
-      >
+      <section className="shell" style={{ paddingBottom: 'var(--space-12)' }}>
         <div
           style={{
             display: 'flex',
-            justifyContent: 'space-between',
             alignItems: 'baseline',
-            marginBottom: 'var(--space-5)',
+            justifyContent: 'space-between',
+            gap: 'var(--space-4)',
+            marginBottom: 'var(--space-4)',
           }}
         >
-          <h2 style={{ fontSize: 20, margin: 0 }}>{cold ? '곧 채워집니다' : '최근 올라온 시공'}</h2>
+          <h2 className="landing-h2">{cold ? '곧 채워집니다' : '이번 주 올라온 시공'}</h2>
           {!cold && (
-            <a href="/gallery" style={{ fontSize: 14, fontWeight: 600 }}>
+            <a href="/gallery" className="landing-more">
               전체 보기
             </a>
           )}
@@ -199,129 +166,46 @@ export default async function HomePage() {
            * 빈 그리드를 보여주는 대신 **지금 등록하면 유리하다**는 걸 말한다.
            */
           <div
-            style={{
-              border: '1px dashed var(--color-border-strong)',
-              borderRadius: 'var(--radius-lg)',
-              background: 'var(--color-bg-subtle)',
-              padding: 'var(--space-10) var(--space-6)',
-              textAlign: 'center',
-            }}
+            className="empty"
+            style={{ borderRadius: 'var(--radius-lg)', padding: '44px var(--space-8)' }}
           >
-            <strong style={{ fontSize: 18 }}>첫 시공자를 모집하고 있습니다</strong>
-            <p
-              style={{
-                color: 'var(--color-text-secondary)',
-                maxWidth: 520,
-                margin: 'var(--space-3) auto var(--space-6)',
-                lineHeight: 1.7,
-              }}
-            >
+            <span className="empty__icon" aria-hidden="true" />
+            <strong className="landing-empty__title">첫 시공자를 모집하고 있습니다</strong>
+            <span className="landing-empty__body">
               지금 등록하는 시공자는 서울 전 지역 의뢰에 가장 먼저 노출됩니다. 고객이라면 의뢰를
               먼저 올려두세요 — 시공자가 들어오는 즉시 제안이 갑니다.
-            </p>
+            </span>
             <div
               style={{
                 display: 'flex',
-                gap: 'var(--space-3)',
-                justifyContent: 'center',
+                gap: 'var(--space-2)',
+                marginTop: 6,
                 flexWrap: 'wrap',
+                justifyContent: 'center',
               }}
             >
-              <Cta href="/signup" variant="primary">
+              <a href="/signup" className="btn btn--primary btn--lg">
                 시공자로 등록하기
-              </Cta>
-              <Cta href="/requests/new" variant="secondary">
+              </a>
+              <a href="/requests/new" className="btn btn--secondary btn--lg">
                 의뢰 먼저 올리기
-              </Cta>
+              </a>
             </div>
           </div>
         ) : (
-          <ul
-            style={{
-              listStyle: 'none',
-              padding: 0,
-              margin: 0,
-              display: 'grid',
-              gap: 'var(--space-3)',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-            }}
-          >
-            {recent.items.map((item, index) => (
+          <ul className="landing-grid">
+            {grid.map((item, index) => (
               <li key={item.id}>
-                <a
+                <PhotoCard
                   href={`/gallery/${item.id}`}
-                  style={{
-                    display: 'block',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: 'var(--radius-md)',
-                    overflow: 'hidden',
-                    background: 'var(--color-bg)',
-                    color: 'inherit',
-                    textDecoration: 'none',
-                  }}
-                >
-                  <span
-                    style={{
-                      position: 'relative',
-                      display: 'block',
-                      aspectRatio: '4 / 3',
-                      background: 'var(--color-bg-sunken)',
-                    }}
-                  >
-                    {imageUrl(item.coverThumbKey) && (
-                      <img
-                        src={imageUrl(item.coverThumbKey) ?? ''}
-                        alt={item.title}
-                        loading={index < 3 ? 'eager' : 'lazy'}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
-                          display: 'block',
-                        }}
-                      />
-                    )}
-                    {item.categories[0] && (
-                      <span
-                        style={{
-                          position: 'absolute',
-                          left: 'var(--space-2)',
-                          top: 'var(--space-2)',
-                          background: 'rgba(255,255,255,.94)',
-                          color: 'var(--color-text-primary)',
-                          fontSize: 11,
-                          fontWeight: 700,
-                          padding: '3px 8px',
-                          borderRadius: 'var(--radius-sm)',
-                        }}
-                      >
-                        {item.categories[0].nameKo}
-                      </span>
-                    )}
-                  </span>
-                  <span
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 'var(--space-1)',
-                      padding: '10px 12px 12px',
-                    }}
-                  >
-                    <span style={{ fontSize: 14, fontWeight: 700, lineHeight: 1.4 }}>
-                      {item.title}
-                    </span>
-                    <span style={{ fontSize: 12, color: 'var(--color-text-tertiary)' }}>
-                      {[
-                        item.region?.sigunguName,
-                        item.areaPyeong ? `${Number(item.areaPyeong)}평` : null,
-                      ]
-                        .filter(Boolean)
-                        .join(' ')}
-                      {' · '}
-                      {item.pro.businessName}
-                    </span>
-                  </span>
-                </a>
+                  src={imageUrl(item.coverThumbKey)}
+                  alt={item.title}
+                  tag={item.categories[0]?.nameKo}
+                  count={item.photoCount}
+                  title={item.title}
+                  meta={metaLine(item)}
+                  eager={index < 4}
+                />
               </li>
             ))}
           </ul>
@@ -331,25 +215,16 @@ export default async function HomePage() {
       {/* ── 3단계 ──────────────────────────────────────── */}
       <section
         style={{
-          background: 'var(--color-bg)',
+          background: 'var(--color-bg-subtle)',
           borderTop: '1px solid var(--color-border)',
-          borderBottom: '1px solid var(--color-border)',
+          padding: '48px 0',
         }}
       >
-        <div
-          style={{ maxWidth: 1120, margin: '0 auto', padding: 'var(--space-12) var(--space-4)' }}
-        >
-          <h2 style={{ fontSize: 20, margin: '0 0 var(--space-6)' }}>3단계로 끝납니다</h2>
-          <ol
-            style={{
-              listStyle: 'none',
-              padding: 0,
-              margin: 0,
-              display: 'grid',
-              gap: 'var(--space-6)',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-            }}
-          >
+        <div className="shell">
+          <h2 className="landing-h2" style={{ marginBottom: 'var(--space-6)' }}>
+            3단계로 끝납니다
+          </h2>
+          <ol className="landing-steps">
             {[
               {
                 title: '사진을 올린다',
@@ -363,74 +238,223 @@ export default async function HomePage() {
                 title: '직접 고른다',
                 body: '수락하면 연락처가 열립니다. 비용은 시공자와 직접 정하고, 중간 마진은 없습니다.',
               },
-            ].map((step, i) => (
-              <li key={step.title}>
-                <span
-                  aria-hidden="true"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: 32,
-                    height: 32,
-                    borderRadius: 'var(--radius-full)',
-                    background: 'var(--color-primary-500)',
-                    color: 'var(--color-text-inverse)',
-                    fontWeight: 800,
-                    marginBottom: 'var(--space-3)',
-                  }}
-                >
-                  {i + 1}
+            ].map((step, index) => (
+              <li key={step.title} className="landing-step">
+                <span className="landing-step__n" aria-hidden="true">
+                  {index + 1}
                 </span>
-                <strong style={{ display: 'block', fontSize: 16, marginBottom: 'var(--space-2)' }}>
-                  {step.title}
-                </strong>
-                <span
-                  style={{
-                    fontSize: 14,
-                    lineHeight: 1.7,
-                    color: 'var(--color-text-secondary)',
-                  }}
-                >
-                  {step.body}
+                <span style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <strong className="landing-step__title">{step.title}</strong>
+                  <span className="landing-step__body">{step.body}</span>
                 </span>
               </li>
             ))}
           </ol>
         </div>
       </section>
+
+      {/* ── 판단 근거 ──────────────────────────────────── */}
+      {!cold && lead && (
+        /*
+          좌우 여백은 `.shell` 이 정한다. 여기서 padding 을 통째로 인라인으로 쓰면
+          모바일 분기(16px)까지 덮어써서 데스크톱 여백이 그대로 남는다.
+        */
+        <section style={{ padding: '48px 0' }}>
+          <div className="shell landing-trust">
+            <div className="landing-trust__copy">
+              <h2 className="landing-h2">
+                맡겨도 되는 사람인지,
+                <br />
+                카드 한 장에서 판단합니다
+              </h2>
+              <p className="landing-trust__lead">
+                승인 여부, 경력, 활동 지역, 비용 공개 여부. 판단에 필요한 것만 앞에 둡니다. 연락처는
+                양쪽이 수락한 뒤에 열립니다.
+              </p>
+              <div
+                style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)', marginTop: 6 }}
+              >
+                <span className="badge badge--verified">사업자·자격 확인</span>
+                <span className="badge badge--success">비용 공개</span>
+                <span className="badge badge--info">수락 후 연락처 공개</span>
+              </div>
+            </div>
+
+            <ProCard lead={lead} items={recent.items} />
+          </div>
+        </section>
+      )}
+
+      {/* ── 마지막 CTA ─────────────────────────────────── */}
+      <section className="landing-band">
+        <div className="shell landing-band__inner">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+            <strong className="landing-band__title">사진 몇 장이면 의뢰가 완성됩니다</strong>
+            <span className="landing-band__sub">
+              가입은 30초, 등록은 3분. 비용은 시공자와 직접 정합니다.
+            </span>
+          </div>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            <a href="/requests/new" className="btn btn--primary landing-cta">
+              의뢰 등록하기
+            </a>
+            <a href="/signup" className="btn btn--secondary landing-cta">
+              시공자로 시작
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/*
+        모바일 하단 고정 CTA. 시안의 모바일 프레임은 밴드 대신 이걸 갖고 있다.
+        데스크톱에서는 `.sticky-cta` 가 숨는다 — 히어로와 밴드에 이미 같은 버튼이 있다.
+      */}
+      <div className="shell">
+        <div className="sticky-cta">
+          <a
+            href={cold ? '/signup' : '/requests/new'}
+            className="btn btn--primary btn--lg btn--block"
+          >
+            {cold ? '시공자로 등록하기' : '사진 올리고 의뢰 등록'}
+          </a>
+        </div>
+      </div>
     </main>
   );
 }
 
-function Cta({
-  href,
-  variant,
-  children,
-}: {
-  href: string;
-  variant: 'primary' | 'secondary';
-  children: React.ReactNode;
-}) {
-  const primary = variant === 'primary';
+/** 카드 메타 한 줄. 시안은 `성북구 24평 · 김도배` 형식이다. */
+function metaLine(item: GalleryItem) {
+  return [
+    [item.region?.sigunguName, item.areaPyeong ? `${Number(item.areaPyeong)}평` : null]
+      .filter(Boolean)
+      .join(' '),
+    item.pro.businessName,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+}
+
+/**
+ * 히어로 콜라주. 큰 사진 하나 + 작은 둘.
+ *
+ * 큰 사진에만 캡션을 얹는다. 셋 다 얹으면 사진이 아니라 글자가 먼저 읽힌다.
+ */
+function Collage({ items }: { items: GalleryItem[] }) {
+  const lead = items[0];
+  if (!lead) return null;
+  const rest = items.slice(1);
+  const leadSrc = imageUrl(lead.coverThumbKey);
+
   return (
-    <a
-      href={href}
-      role="button"
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        padding: '0 var(--space-8)',
-        borderRadius: 'var(--radius-md)',
-        fontWeight: 700,
-        fontSize: 15,
-        textDecoration: 'none',
-        background: primary ? 'var(--color-primary-500)' : 'var(--color-surface)',
-        color: primary ? 'var(--color-text-inverse)' : 'var(--color-primary-600)',
-        border: `1px solid ${primary ? 'var(--color-primary-500)' : 'var(--color-border-strong)'}`,
-      }}
-    >
-      {children}
-    </a>
+    <div className="landing-collage" aria-hidden="true">
+      <div className="landing-collage__cell landing-collage__cell--big">
+        {leadSrc && <PhotoImg src={leadSrc} alt="" eager />}
+        <span className="landing-collage__caption">{metaLine(lead)}</span>
+      </div>
+      {rest.slice(0, 2).map((item) => {
+        const src = imageUrl(item.coverThumbKey);
+        return (
+          <div key={item.id} className="landing-collage__cell">
+            {src && <PhotoImg src={src} alt="" eager />}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/**
+ * 콜드스타트의 히어로 오른쪽.
+ *
+ * 사진 자리를 빈 채로 두지 않고 **모집 중이라는 사실**로 채운다.
+ * 시안이 여기에 공종별 대기 현황을 놓은 이유는, 비어 있다는 걸 숨기는 대신
+ * "지금 들어오면 첫 번째"라는 유인으로 바꾸기 때문이다.
+ */
+function ColdCollage() {
+  return (
+    <div className="landing-cold">
+      <span className="landing-cold__label">OPENING SOON · SEOUL</span>
+      <strong className="landing-cold__title">
+        아직 시공 사진이 없습니다.&nbsp;첫 번째가 되면 모든 의뢰에 가장 먼저 노출됩니다.
+      </strong>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+        {WORK_CATEGORY_SEEDS.slice(0, 3).map((category) => (
+          <div key={category.code} className="landing-cold__row">
+            <span className="landing-cold__name">{category.nameKo}</span>
+            <span className="landing-cold__note">모집 중</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * 시공자 카드 예시.
+ *
+ * **시안은 이 자리에 `김도배 · 경력 11년 · 시공 87건` 같은 만들어낸 카드를 그렸다.**
+ * 그대로 옮기면 랜딩에 없는 실적을 적는 것이 되므로 **실제 데이터로 그린다** —
+ * 가장 최근 사례의 시공자, 그 사람의 실제 경력과 활동 지역, 그 사람의 실제 사진들이다.
+ *
+ * 시공 건수와 평균 응답 시간은 API 에 집계가 없어서 뺐다. 없는 숫자를 지어내는 것보다
+ * 있는 것만 보여주는 쪽이 이 섹션의 주장("판단에 필요한 것만 앞에 둔다")에 맞다.
+ */
+function ProCard({ lead, items }: { lead: GalleryItem; items: GalleryItem[] }) {
+  const pro = lead.pro;
+  /* 같은 시공자의 사진을 먼저 채우고, 부족하면 다른 사례로 채운다. */
+  const mine = items.filter((item) => item.pro.id === pro.id);
+  const strip = [...mine, ...items.filter((item) => item.pro.id !== pro.id)].slice(0, 4);
+
+  return (
+    <div className="landing-procard">
+      <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+        <span className="avatar avatar--52" aria-hidden="true">
+          {pro.businessName.slice(0, 2)}
+        </span>
+        <span style={{ display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0 }}>
+          <span
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--space-2)',
+              flexWrap: 'wrap',
+            }}
+          >
+            <strong className="landing-procard__name">{pro.businessName}</strong>
+            {pro.isApproved && <span className="badge badge--verified">승인 시공자</span>}
+          </span>
+          <span className="landing-procard__meta">
+            {[lead.categories.map((c) => c.nameKo).join('·'), `경력 ${pro.careerYears}년`]
+              .filter(Boolean)
+              .join(' · ')}
+          </span>
+          {lead.region && (
+            <span className="landing-procard__area">활동 지역 {lead.region.sigunguName}</span>
+          )}
+        </span>
+      </div>
+
+      <div className="landing-procard__strip" aria-hidden="true">
+        {strip.map((item) => {
+          const src = imageUrl(item.coverThumbKey);
+          return <span key={item.id}>{src && <PhotoImg src={src} alt="" />}</span>;
+        })}
+      </div>
+
+      <div className="landing-procard__foot">
+        {/*
+          연락처 자리를 점으로 보여주는 것 자체가 이 서비스의 규칙을 설명한다.
+          "수락 후 공개"라고 글로만 쓰면 안 읽힌다.
+        */}
+        <span className="landing-procard__phone">
+          연락처 <span style={{ fontFamily: 'var(--font-mono)' }}>010-••••-••••</span> · 수락 후
+          공개
+        </span>
+        <a href={`/gallery/${lead.id}`} className="btn btn--primary btn--md">
+          사례 보기
+        </a>
+      </div>
+    </div>
   );
 }

@@ -234,6 +234,28 @@
   gap: var(--space-2);
 }
 
+.site-footer__logo {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--color-text-primary);
+}
+
+/* 통신판매중개자 고지. 시안은 12px/1.6 tertiary 다 — 읽히되 주인공이 아니어야 한다. */
+.site-footer__notice {
+  margin: 0;
+  max-width: 640px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--color-text-tertiary);
+}
+
+.site-footer__links {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-1);
+  font-size: 12px;
+}
+
 @media (max-width: 768px) {
   .site-footer__inner {
     padding: var(--space-6) var(--space-4) var(--space-10);
@@ -672,6 +694,574 @@
   .skeleton,
   .spinner {
     animation: none;
+  }
+}
+
+/* ─────────────────────────── 랜딩 (G-01) ─────────────────────────── */
+
+/*
+ * **랜딩만 타이포 스케일 밖의 크기를 쓴다.**
+ *
+ * 시안 두 개가 서로 다른 말을 한다. 디자인 시스템의 `display` 는 40px(모바일 32px)이고
+ * 용도를 "랜딩 히어로 1개"라고 못 박았는데, 정작 G-01 랜딩의 h1 은 **52px** 이다.
+ * 섹션 제목도 스케일의 h2(22px)가 아니라 26px 다.
+ *
+ * 어느 쪽을 따를까. **화면 시안을 따랐다** — 사용자가 비교하는 건 그 화면이다.
+ * 대신 숫자를 화면(tsx)에 흩뿌리지 않고 여기 한 곳에 모았다. 시안끼리 어긋난다는
+ * 사실 자체는 brain/30-설계/시안 검수 결과.md 에 결함으로 올렸다.
+ */
+
+.landing-hero {
+  padding: 56px 0 40px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: var(--space-12);
+  align-items: center;
+}
+
+.landing-hero__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.landing-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  height: 28px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-full);
+  background: var(--color-primary-50);
+  color: var(--color-primary-600);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.landing-h1 {
+  margin: 0;
+  font-size: 52px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.035em;
+  text-wrap: pretty;
+}
+
+.landing-lead {
+  margin: 0;
+  max-width: 520px;
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  text-wrap: pretty;
+}
+
+.landing-cta-row {
+  display: flex;
+  gap: 10px;
+  margin-top: var(--space-1);
+}
+
+/* 시안의 히어로 CTA 는 lg(48)보다 큰 56px 다. 랜딩의 주 행동이라 한 단 키웠다. */
+.landing-cta.btn {
+  height: 56px;
+  padding: 0 26px;
+  font-size: 17px;
+}
+
+.landing-cta.btn--primary {
+  font-weight: 800;
+}
+
+.landing-proof {
+  display: flex;
+  gap: var(--space-8);
+  padding-top: 14px;
+  border-top: 1px solid var(--color-border);
+  margin: var(--space-2) 0 0;
+}
+
+.landing-proof__value {
+  display: block;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--color-text-primary);
+}
+
+.landing-proof__label {
+  display: block;
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+}
+
+/*
+ * 히어로 콜라주. 큰 사진 하나가 두 줄을 차지하고 작은 둘이 옆에 쌓인다.
+ * 모바일 시안에는 이 블록이 없다 — 390px 에서는 히어로가 텍스트와 CTA 만이다.
+ */
+.landing-collage {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  grid-template-rows: repeat(2, 140px);
+  gap: var(--space-3);
+}
+
+.landing-collage__cell {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-sunken);
+}
+
+.landing-collage__cell--big {
+  grid-row: span 2;
+}
+
+.landing-collage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 사진 위 흰 글자는 scrim 위에만 얹는다 — 시안 01 의 오버레이 규칙. */
+.landing-collage__caption {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  padding: 12px 14px;
+  background: linear-gradient(to top, var(--color-scrim) 0%, rgba(14, 17, 20, 0) 55%);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+.landing-h2 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.landing-more {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/*
+ * 콜드스타트 히어로. 사진 자리를 비워두는 대신 "모집 중"이라는 사실로 채운다.
+ * 비어 있다는 걸 숨기지 않고 "지금 들어오면 첫 번째"라는 유인으로 바꾸는 자리다.
+ */
+.landing-cold {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  justify-content: center;
+  min-height: 292px;
+  padding: 36px var(--space-8);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-subtle);
+}
+
+.landing-cold__label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  color: var(--color-text-tertiary);
+}
+
+.landing-cold__title {
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+}
+
+.landing-cold__row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 10px 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.landing-cold__name {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.landing-cold__note {
+  font-size: 14px;
+  color: var(--color-text-tertiary);
+}
+
+/* 콜드스타트의 큰 빈 상태. 기본 `.empty` 보다 한 단 크다 — 이 화면의 주인공이라서다. */
+.landing-empty__title {
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.landing-empty__body {
+  max-width: 440px;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+}
+
+.landing-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-4);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* 3단계. 데스크톱은 카드 3장, 모바일은 카드 껍데기를 벗고 줄로 눕는다. */
+.landing-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-5);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.landing-step {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 22px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.landing-step__n {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-500);
+  color: var(--color-text-inverse);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.landing-step__title {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.landing-step__body {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+/* 신뢰 근거 2단 섹션. */
+.landing-trust {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-8);
+  align-items: center;
+}
+
+.landing-trust__copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.landing-trust__lead {
+  margin: 0;
+  max-width: 440px;
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--color-text-secondary);
+}
+
+.landing-procard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
+}
+
+.landing-procard__strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-2);
+}
+
+.landing-procard__strip span {
+  aspect-ratio: 1;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-sunken);
+  overflow: hidden;
+}
+
+.landing-procard__strip img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.landing-procard__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-top: 14px;
+  border-top: 1px solid var(--color-border);
+}
+
+.landing-procard__name {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.landing-procard__meta {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+.landing-procard__area {
+  font-size: 14px;
+  color: var(--color-text-tertiary);
+}
+
+.landing-procard__phone {
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+}
+
+/*
+ * 마지막 CTA 밴드.
+ *
+ * 색을 토큰으로 쓴 이유가 있다. 시안은 배경 `--color-primary-800` 위에 `#FFFFFF` 글자인데,
+ * 다크 모드에서 primary-800 은 **밝은 색**(#D3E4F2)이 되므로 흰 글자가 사라진다.
+ * `--color-text-inverse` 는 라이트에서 흰색이고 다크에서 어두운 색이라 양쪽에서 읽힌다.
+ * 라이트 모드 결과는 시안과 정확히 같다.
+ */
+/* 배경은 화면 폭 전체로 깔고 내용만 1280 안에 둔다. 시안의 밴드가 프레임 끝까지 닿는다. */
+.landing-band {
+  background: var(--color-primary-800);
+  padding: 48px 0;
+}
+
+.landing-band__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-8);
+  flex-wrap: wrap;
+}
+
+.landing-band__title {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--color-text-inverse);
+}
+
+/* 시안의 `#B3C9DE` 가 곧 primary-200 이다. */
+.landing-band__sub {
+  font-size: 16px;
+  color: var(--color-primary-200);
+}
+
+.landing-band .btn--primary {
+  background: var(--color-text-inverse);
+  color: var(--color-primary-700);
+}
+
+.landing-band .btn--primary:hover {
+  background: var(--color-primary-100);
+}
+
+.landing-band .btn--secondary {
+  background: transparent;
+  border-color: var(--color-primary-400);
+  color: var(--color-text-inverse);
+}
+
+.landing-band .btn--secondary:hover {
+  background: var(--color-primary-700);
+  border-color: var(--color-primary-400);
+}
+
+/* 로그인한 사람이 랜딩에 다시 온 경우. 마케팅 히어로 위에 "지금 처리할 일"을 얹는다. */
+.landing-welcome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+  margin-top: var(--space-5);
+  padding: var(--space-5) var(--space-6);
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.landing-welcome__title {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.landing-welcome__body {
+  font-size: 15px;
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 900px) {
+  .landing-hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-6);
+  }
+
+  /* 시안의 모바일 히어로에는 콜라주가 없다. */
+  .landing-collage {
+    display: none;
+  }
+
+  .landing-trust {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+  }
+}
+
+@media (max-width: 768px) {
+  .landing-hero {
+    padding: 28px 0 20px;
+    gap: 14px;
+  }
+
+  .landing-eyebrow {
+    height: 26px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+
+  .landing-h1 {
+    font-size: 32px;
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+  }
+
+  .landing-lead {
+    font-size: 15px;
+  }
+
+  /* 모바일에서는 CTA 를 세로로 쌓고 전폭으로 만든다. 나란히 두면 둘 다 좁아진다. */
+  .landing-cta-row {
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .landing-cta.btn {
+    width: 100%;
+    height: 52px;
+  }
+
+  .landing-proof {
+    gap: 14px;
+    flex-wrap: wrap;
+    border-top: none;
+    padding-top: var(--space-1);
+    margin-top: 0;
+  }
+
+  .landing-proof__value {
+    font-size: 17px;
+  }
+
+  .landing-proof__label {
+    font-size: 12px;
+  }
+
+  .landing-h2 {
+    font-size: 20px;
+    letter-spacing: -0.015em;
+  }
+
+  .landing-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+
+  /* 시안의 모바일 그리드는 6장이다. 데스크톱 8장 중 뒤 둘을 접는다. */
+  .landing-grid > li:nth-child(n + 7) {
+    display: none;
+  }
+
+  .landing-steps {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+
+  /* 모바일 3단계는 카드가 아니라 줄이다. 카드 3장을 쌓으면 화면 하나를 다 먹는다. */
+  .landing-step {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: 0;
+    background: none;
+    border: none;
+  }
+
+  .landing-step__n {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+  }
+
+  .landing-step__title {
+    font-size: 16px;
+  }
+
+  .landing-step__body {
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  /*
+   * 모바일 시안에는 이 밴드가 없다. 대신 하단 고정 CTA 가 그 일을 한다 —
+   * 390px 에서 밴드는 화면 하나를 통째로 먹으면서 스크롤해야 보이고,
+   * 고정 CTA 는 항상 보이면서 자리를 52px 만 쓴다.
+   */
+  .landing-band {
+    display: none;
+  }
+
+  .landing-welcome {
+    padding: 14px;
+    gap: 10px;
+    margin-top: var(--space-3);
+  }
+
+  .landing-welcome__title {
+    font-size: 15px;
+  }
+
+  .landing-welcome__body {
+    font-size: 13px;
+    line-height: 1.5;
   }
 }
 

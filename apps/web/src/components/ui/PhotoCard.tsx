@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
 
+import { PhotoImg } from './PhotoImg';
+
 /**
  * 사진 카드.
  *
@@ -21,6 +23,7 @@ export function PhotoCard({
   title,
   meta,
   fallback,
+  eager = false,
 }: {
   href: string;
   src?: string | null;
@@ -29,8 +32,10 @@ export function PhotoCard({
   count?: number;
   title: string;
   meta: ReactNode;
-  /** 이미지가 없거나 실패했을 때 그 자리에 보여줄 것. 시안의 "이미지 실패" 상태. */
+  /** 사진 키 자체가 없을 때 그 자리에 보여줄 것. 로드 실패는 `PhotoImg` 가 따로 다룬다. */
   fallback?: ReactNode;
+  /** 첫 화면에 바로 보이는 카드만 켠다. 전부 eager 면 아래쪽 사진이 위쪽을 늦춘다. */
+  eager?: boolean;
 }) {
   return (
     <a href={href} className="card-photo">
@@ -39,8 +44,11 @@ export function PhotoCard({
           /*
            * 목록에는 400px 파생만 온다. next/image 를 쓰지 않는 이유는 파생을 이미
            * 우리 파이프라인이 만들기 때문이다 — 두 번 리사이즈할 이유가 없다.
+           *
+           * `PhotoImg` 로 감싸는 이유는 시안이 그린 "이미지 에러" 상태다 —
+           * 로드가 실패하면 카드 자리를 유지한 채 재시도 버튼을 준다.
            */
-          <img src={src} alt={alt} loading="lazy" />
+          <PhotoImg src={src} alt={alt} eager={eager} />
         ) : (
           (fallback ?? <PhotoFallback />)
         )}

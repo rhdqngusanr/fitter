@@ -15,32 +15,14 @@ export function SiteFooter() {
   return (
     <footer className="site-footer">
       <div className="site-footer__inner">
-        <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--color-text-primary)' }}>
-          Fitter
-        </span>
+        <span className="site-footer__logo">Fitter</span>
 
-        <p
-          style={{
-            margin: 0,
-            fontSize: 12,
-            lineHeight: 1.6,
-            color: 'var(--color-text-tertiary)',
-            maxWidth: 640,
-          }}
-        >
+        <p className="site-footer__notice">
           Fitter는 통신판매중개자이며 시공 계약의 당사자가 아닙니다. 시공 책임은 각 시공자에게
           있습니다.
         </p>
 
-        <nav
-          aria-label="약관"
-          style={{
-            display: 'flex',
-            gap: 'var(--space-3)',
-            fontSize: 12,
-            marginTop: 'var(--space-1)',
-          }}
-        >
+        <nav aria-label="약관" className="site-footer__links">
           <a href="/terms">이용약관</a>
           <a href="/privacy">개인정보처리방침</a>
           <a href="/support">문의</a>
