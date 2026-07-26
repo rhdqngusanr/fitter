@@ -220,12 +220,15 @@ export default async function PortfolioDetailPage({ params }: PageProps) {
         )}
 
         {/*
-          로그인 UI가 아직 없으므로 비로그인 문구로 보낸다.
-          연락처는 컨택이 ACCEPTED가 되기 전에는 어떤 경로로도 나오지 않는다 —
+          문의 화면으로 바로 보낸다. 비로그인이면 거기서 로그인으로 튕기고,
+          로그인 뒤 다시 여기로 돌아온다 — 로그인 여부를 SSR이 알 수 없으므로
+          판단을 클라이언트 쪽 화면 하나에 몰아둔다.
+
+          연락처는 컨택이 ACCEPTED가 되기 전에는 어떤 경로로도 나오지 않는다.
           이 버튼은 컨택을 "요청"할 뿐이고 수락 여부는 시공자가 정한다.
         */}
         <a
-          href={`/login?next=/gallery/${item.id}`}
+          href={`/contacts/new?portfolioItemId=${item.id}`}
           role="button"
           style={{
             display: 'inline-flex',
@@ -237,7 +240,7 @@ export default async function PortfolioDetailPage({ params }: PageProps) {
             fontWeight: 600,
           }}
         >
-          로그인하고 문의하기
+          이 시공자에게 문의
         </a>
       </section>
     </main>

@@ -28,6 +28,20 @@ export type ContactStatus = (typeof CONTACT_STATUSES)[number];
 /** 종료 상태에서 나가는 전이는 없다. 마음이 바뀌면 새 요청을 만든다. */
 export const TERMINAL_CONTACT_STATUSES = ['ACCEPTED', 'DECLINED', 'CANCELLED', 'EXPIRED'] as const;
 
+/**
+ * 화면에 쓰는 한글 라벨.
+ *
+ * "매칭 완료" 같은 말은 쓰지 않는다. 우리는 연결만 하고 계약을 보증하지 않는데
+ * 그 표현은 플랫폼이 거래를 책임진다는 인상을 준다. QC 금지어에도 들어 있다.
+ */
+export const CONTACT_STATUS_LABELS: Readonly<Record<ContactStatus, string>> = {
+  REQUESTED: '답변 기다리는 중',
+  ACCEPTED: '수락됨',
+  DECLINED: '거절됨',
+  CANCELLED: '취소됨',
+  EXPIRED: '기간 지남',
+};
+
 export const CONTACT_DIRECTIONS = ['PRO_TO_REQUEST', 'CUSTOMER_TO_PRO'] as const;
 export type ContactDirection = (typeof CONTACT_DIRECTIONS)[number];
 
