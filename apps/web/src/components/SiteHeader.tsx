@@ -40,6 +40,13 @@ export function SiteHeader() {
   const { user, loading, logout } = useSession();
   const pathname = usePathname();
 
+  /*
+   * **관리자 콘솔은 자기 내비를 갖는다.** 시안(A-01)이 좌측 사이드바 하나로만
+   * 그려져 있고, 서비스 헤더를 얹으면 `시공 사진 · 시공자 찾기` 같은 고객용 메뉴가
+   * 운영 화면 위에 붙는다. 다른 표면이므로 여기서 물러난다.
+   */
+  if (pathname.startsWith('/admin')) return null;
+
   return (
     <>
       {/*

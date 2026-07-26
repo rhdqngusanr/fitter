@@ -5690,3 +5690,630 @@ select.input {
   font-weight: 700;
   color: var(--color-text-primary);
 }
+
+/* ─────────────────────────────────────────────────────────────────
+   A-01 · A-02 관리자 콘솔
+   시안: design/A-01 A-02 관리자.dc.html
+
+   **모바일을 지원하지 않는다.** 시안이 1440px 데스크톱 단독으로만 그려졌고
+   운영 콘솔이라 그게 맞다. 좁은 화면에서는 표를 가로로 스크롤시킨다 —
+   억지로 카드로 접으면 한 줄에 판단 근거를 모으는 이 화면의 설계가 무너진다.
+   ───────────────────────────────────────────────────────────────── */
+
+.adm {
+  display: grid;
+  grid-template-columns: 236px minmax(0, 1fr);
+  min-height: 100vh;
+  background: var(--color-bg);
+}
+
+/* ── 좌측 내비 ────────────────────────────────────────── */
+
+.adm__side {
+  background: var(--color-primary-800);
+  padding: 22px var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.adm__brand {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 var(--space-2);
+}
+
+.adm__brand-name {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+}
+
+.adm__brand-sub {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: #85a7c7;
+}
+
+.adm__nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.adm__nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  height: 42px;
+  padding: 0 var(--space-3);
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: #b3c9de;
+  font-size: var(--text-body);
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  text-decoration: none;
+}
+
+.adm__nav-item:hover {
+  background: #245176;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.adm__nav-item[aria-current='page'] {
+  background: #245176;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.adm__nav-count {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: #85a7c7;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+}
+
+.adm__nav-item[aria-current='page'] .adm__nav-count {
+  color: #ffffff;
+  background: var(--color-primary-500);
+}
+
+.adm__who {
+  margin-top: auto;
+  border-top: 1px solid #245176;
+  padding-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.adm__who-name {
+  font-size: var(--text-caption);
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.adm__who-mail {
+  font-size: 12px;
+  color: #85a7c7;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.adm__who-note {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #5583ac;
+  margin-top: var(--space-1);
+  line-height: 1.5;
+}
+
+/* ── 본문 ────────────────────────────────────────────── */
+
+.adm__main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.adm__head {
+  height: 68px;
+  border-bottom: 1px solid var(--color-border);
+  padding: 0 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+  flex: none;
+}
+
+.adm__title-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.adm__h1 {
+  margin: 0;
+  font-size: var(--text-h2);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+.adm__endpoint {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.adm__search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 38px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  width: 280px;
+  flex: none;
+}
+
+.adm__search input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  width: 100%;
+  color: var(--color-text-primary);
+}
+
+.adm__search-icon {
+  font-size: 14px;
+  color: var(--color-text-tertiary);
+}
+
+.adm__bar {
+  padding: var(--space-5) 28px;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+  flex: none;
+}
+
+.adm__kpis {
+  display: flex;
+  gap: var(--space-5);
+}
+
+.adm__kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-end;
+}
+
+.adm__kpi-value {
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--color-text-primary);
+}
+
+.adm__kpi-value--warning {
+  color: var(--color-warning);
+}
+
+.adm__kpi-value--danger {
+  color: var(--color-danger);
+}
+
+.adm__kpi-value--success {
+  color: var(--color-success);
+}
+
+.adm__kpi-label {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+}
+
+/* 일괄 처리 바. 선택이 있을 때만 나타난다. */
+.adm__bulk {
+  padding: var(--space-3) 28px;
+  background: var(--color-primary-50);
+  border-bottom: 1px solid var(--color-primary-200);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex: none;
+}
+
+.adm__bulk-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-primary-700);
+}
+
+.adm__bulk-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* 표. 좁은 화면에서는 가로 스크롤한다. */
+.adm__table-wrap {
+  overflow-x: auto;
+  padding-bottom: 28px;
+}
+
+.adm-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1100px;
+}
+
+.adm-table th {
+  text-align: left;
+  padding: 10px var(--space-4);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--color-text-tertiary);
+  background: var(--color-bg-subtle);
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+
+.adm-table td {
+  padding: 14px var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+
+.adm-table tbody tr[data-selected='true'] {
+  background: var(--color-bg-subtle);
+}
+
+.adm-table tbody tr[data-open='true'] {
+  background: var(--color-primary-50);
+}
+
+/* 셀 안의 2줄 구성 (이름 + 부가정보) */
+.adm-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.adm-cell__strong {
+  font-size: var(--text-body);
+  font-weight: 800;
+  color: var(--color-text-primary);
+}
+
+.adm-cell__mono {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+}
+
+.adm-cell__main {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.adm-cell__sub {
+  font-size: var(--text-caption);
+  color: var(--color-text-tertiary);
+}
+
+.adm-cell__count {
+  font-size: var(--text-body);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.adm-cell__count--zero {
+  color: var(--color-danger);
+}
+
+.adm-cell__flags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.adm-cell__actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.adm-check {
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: transparent;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.adm-check[aria-pressed='true'] {
+  border-color: var(--color-primary-500);
+  background: var(--color-primary-500);
+  color: #ffffff;
+}
+
+/* 빈 큐. "다 봤다"를 확신시키는 게 목적이다. */
+.adm-empty {
+  margin: 28px;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-subtle);
+  padding: 72px var(--space-8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  text-align: center;
+}
+
+.adm-empty__title {
+  font-size: var(--text-h2);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+
+.adm-empty__body {
+  font-size: var(--text-body);
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  max-width: 460px;
+}
+
+.adm-empty__actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+/* ── 우측 드로어 ──────────────────────────────────────── */
+
+.adm-drawer {
+  position: fixed;
+  inset: 0;
+  background: var(--color-scrim);
+  display: flex;
+  justify-content: flex-end;
+  z-index: 30;
+}
+
+.adm-drawer__box {
+  width: 520px;
+  max-width: 100%;
+  background: var(--color-surface);
+  height: 100%;
+  overflow-y: auto;
+  box-shadow: var(--shadow-3);
+  display: flex;
+  flex-direction: column;
+}
+
+.adm-drawer__head {
+  padding: var(--space-6) 28px var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: sticky;
+  top: 0;
+  background: var(--color-surface);
+  z-index: 1;
+}
+
+.adm-drawer__title {
+  margin: 0;
+  font-size: var(--text-h2);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+
+.adm-drawer__sub {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-text-tertiary);
+}
+
+.adm-drawer__body {
+  padding: var(--space-5) 28px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  flex: 1;
+}
+
+.adm-drawer__section-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--color-text-primary);
+}
+
+.adm-drawer__rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.adm-drawer__row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.adm-drawer__row-key {
+  font-size: 14px;
+  color: var(--color-text-tertiary);
+  flex: none;
+}
+
+.adm-drawer__row-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  text-align: right;
+  min-width: 0;
+  word-break: break-word;
+}
+
+.adm-drawer__note {
+  font-size: var(--text-caption);
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) 14px;
+}
+
+.adm-drawer__actions {
+  padding: var(--space-5) 28px var(--space-6);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  position: sticky;
+  bottom: 0;
+  background: var(--color-surface);
+}
+
+.adm-drawer__action-row {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* 되돌리기 토스트. */
+.adm-toast {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: var(--space-6);
+  background: #171b20;
+  color: #ffffff;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-3);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  z-index: 40;
+}
+
+.adm-toast span {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.adm-toast button {
+  border: none;
+  background: transparent;
+  color: #b3c9de;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  padding: 0;
+  white-space: nowrap;
+}
+
+/* 좁은 화면 안내. 콘솔은 모바일을 지원하지 않는다. */
+.adm__narrow {
+  display: none;
+}
+
+@media (max-width: 1000px) {
+  .adm {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .adm__side {
+    /* 좁으면 좌측 내비를 가로 줄로 접는다. 표가 주인공이라 폭을 내준다. */
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    overflow-x: auto;
+  }
+
+  .adm__nav {
+    flex-direction: row;
+  }
+
+  .adm__who,
+  .adm__brand-sub {
+    display: none;
+  }
+
+  .adm__who {
+    margin-top: 0;
+  }
+
+  .adm__narrow {
+    display: block;
+    margin: var(--space-4) var(--space-4) 0;
+    border: 1px solid var(--color-warning);
+    background: var(--color-warning-bg);
+    border-radius: var(--radius-md);
+    padding: var(--space-3) 14px;
+    font-size: var(--text-caption);
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+  }
+
+  .adm__head {
+    height: auto;
+    padding: var(--space-4);
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
+  .adm__search {
+    width: 100%;
+  }
+
+  .adm__bar {
+    padding: var(--space-4);
+  }
+
+  .adm-drawer__box {
+    width: 100%;
+  }
+}

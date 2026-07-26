@@ -1,3 +1,7 @@
+'use client';
+
+import { usePathname } from 'next/navigation';
+
 /**
  * 푸터.
  *
@@ -12,6 +16,14 @@
  * 사용자가 어느 화면에서 들어오든 같은 고지를 봐야 하므로 레이아웃에 둔다.
  */
 export function SiteFooter() {
+  const pathname = usePathname();
+
+  /*
+   * 관리자 콘솔에는 푸터를 두지 않는다. 통신판매중개자 고지는 **사용자에게** 하는
+   * 것이고, 운영 화면은 표가 화면을 꽉 채우는 게 목적이다.
+   */
+  if (pathname.startsWith('/admin')) return null;
+
   return (
     <footer className="site-footer">
       <div className="site-footer__inner">
