@@ -3210,6 +3210,334 @@
   }
 }
 
+/* ─────────────────────────── 역할 선택 (G-03) ─────────────────────────── */
+
+/*
+ * 내용은 1차 대조에서 맞췄고 남은 건 **크기와 정렬**이었다.
+ * 시안의 데스크톱은 화면 한가운데에 크게 두 장을 놓는다(h1 38px · 카드 26px 패딩 ·
+ * CTA 56px). 구현은 760px 왼쪽 정렬에 h1 26px 이라 "설정 페이지 한 칸" 처럼 보였다.
+ *
+ * 이 화면은 **카드 두 장 외에 아무것도 두지 않는다** — 여기서 고민이 길어지면 이탈한다.
+ * 그래서 크게, 가운데, 둘만.
+ */
+.onboard {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 56px var(--space-10) 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+}
+
+.onboard__head {
+  width: 100%;
+  max-width: 760px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: center;
+}
+
+.onboard__h1 {
+  margin: 0;
+  font-size: 38px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  text-wrap: pretty;
+}
+
+.onboard__lead {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+/* 역할이 없으면 어떤 경로로 들어와도 여기로 되돌린다. 강제하되 이유를 말한다. */
+.onboard__forced {
+  display: inline-flex;
+  align-self: center;
+  align-items: center;
+  width: fit-content;
+  height: 28px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-full);
+  background: var(--color-primary-50);
+  color: var(--color-primary-600);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.onboard__cards {
+  display: flex;
+  gap: var(--space-5);
+  width: 100%;
+  max-width: 880px;
+  align-items: stretch;
+}
+
+.role-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  text-align: left;
+  padding: 26px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg);
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    background 0.12s,
+    border-color 0.12s;
+}
+
+.role-card:hover {
+  background: var(--color-surface-hover);
+}
+
+/*
+ * 고른 카드는 **테두리가 두꺼워진다**(1px → 2px). 색만 바꾸면 색각 이상에서 구분이 약하고,
+ * 라디오 점 하나로는 카드 두 장 중 어느 쪽인지 훑어서 안 보인다.
+ * 두께가 바뀌어도 카드 크기는 그대로여야 해서 안쪽 패딩을 1px 줄인다.
+ */
+.role-card[aria-checked='true'] {
+  border: 2px solid var(--color-primary-500);
+  padding: 25px;
+  background: var(--color-primary-50);
+  box-shadow: var(--shadow-1);
+}
+
+.role-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.role-card__title {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+/* 라디오 점. 채워진 원이 아니라 두꺼운 링이다 — 시안의 `7px solid`. */
+.role-card__dot {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  background: var(--color-bg);
+}
+
+.role-card[aria-checked='true'] .role-card__dot {
+  border: 7px solid var(--color-primary-500);
+}
+
+.role-card__lead {
+  font-size: 16px;
+  color: var(--color-text-secondary);
+}
+
+.role-card__does {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-border);
+}
+
+.role-card[aria-checked='true'] .role-card__does {
+  border-top-color: var(--color-primary-200);
+}
+
+.role-card__bullet {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+}
+
+.role-card__bullet::before {
+  content: '';
+  flex: none;
+  width: 5px;
+  height: 5px;
+  margin-top: 8px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-400);
+}
+
+.role-card__next {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-subtle);
+  color: var(--color-text-tertiary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.role-card[aria-checked='true'] .role-card__next {
+  background: var(--color-bg);
+}
+
+/*
+ * 승인 고지. **상자로 둔다.** 평문으로 흘리면 안 읽고, 안 읽으면
+ * 시공자를 고른 뒤에 승인 심사를 알게 된다 — 그게 배신감이 된다.
+ */
+.role-card__gate {
+  display: flex;
+  gap: var(--space-2);
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+  font-size: 13px;
+  line-height: 1.5;
+  font-weight: 600;
+}
+
+.onboard__foot {
+  width: 100%;
+  max-width: 880px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+/* 시안의 확정 버튼은 56px · 최소 320px 다. 전폭이 아니라 가운데 놓인 큰 버튼. */
+.onboard__cta.btn {
+  min-width: 320px;
+  height: 56px;
+  padding: 0 32px;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.onboard__note {
+  max-width: 520px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-text-tertiary);
+  text-align: center;
+}
+
+/* 하단 고정 바에서 버튼이 잠긴 이유를 말한다. 잠긴 이유를 모르면 사람은 화면을 떠난다. */
+.onboard__hint {
+  display: block;
+  margin-bottom: var(--space-2);
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+  text-align: center;
+}
+
+/* 모바일에서만 쓰는 되돌릴 수 없음 상자. 데스크톱은 CTA 아래 한 문장으로 끝낸다. */
+.onboard__warnbox {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+}
+
+.onboard__warnbox strong {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.onboard__warnbox span {
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 900px) {
+  .onboard {
+    padding: var(--space-6) var(--space-4) var(--space-5);
+    align-items: stretch;
+    gap: 18px;
+  }
+
+  .onboard__head {
+    text-align: left;
+  }
+
+  .onboard__forced {
+    align-self: flex-start;
+  }
+
+  .onboard__h1 {
+    font-size: 28px;
+    line-height: 1.25;
+    letter-spacing: -0.025em;
+  }
+
+  .onboard__lead {
+    font-size: 15px;
+  }
+
+  /* 390px 에 카드 두 장을 나란히 두면 둘 다 못 읽는다. */
+  .onboard__cards {
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .role-card {
+    padding: 18px;
+    gap: var(--space-3);
+  }
+
+  .role-card[aria-checked='true'] {
+    padding: 17px;
+  }
+
+  .role-card__title {
+    font-size: 19px;
+  }
+
+  .role-card__lead {
+    font-size: 15px;
+  }
+
+  .role-card__bullet {
+    font-size: 14px;
+  }
+
+  .role-card__does {
+    padding-top: var(--space-3);
+  }
+
+  .role-card__gate {
+    font-size: 12px;
+  }
+
+  /* 모바일은 되돌릴 수 없음을 상자로 본문에 두고, CTA 아래 문장은 없앤다. */
+  .onboard__warnbox {
+    display: flex;
+  }
+
+  .onboard__note {
+    display: none;
+  }
+
+  .onboard__foot {
+    display: none;
+  }
+}
+
 /* ─────────────────────────── 인풋 ─────────────────────────── */
 
 .input {

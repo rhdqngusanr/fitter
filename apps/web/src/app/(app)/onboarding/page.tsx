@@ -3,9 +3,10 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
+import { FormError } from '../../../components/form';
+import { Button } from '../../../components/ui/Button';
 import { ApiError } from '../../../lib/api';
 import { useSession } from '../../../lib/session';
-import { FormError } from '../../../components/form';
 
 /**
  * 역할 선택 온보딩 (G-03).
@@ -83,7 +84,16 @@ function RolePicker() {
     if (user.profileType) {
       /* 카드에 적어둔 "다음 화면"과 같은 곳으로 보낸다. 말한 것과 다른 데로 가면 안 된다. */
       const landing = user.profileType === 'PRO' ? '/portfolios/new' : '/requests/new';
-      router.replace(next === '/' ? landing : next);
+      /*
+       * **`next` 를 그대로 따르면 방금 고른 역할이 못 가는 곳으로 보낼 수 있다.**
+       * `/portfolios/new` 에서 튕겨온 사람이 고객을 고르면 다시 거기로 가고, 그 화면의
+       * 역할 가드가 또 홈으로 튕긴다 — 역할을 골랐는데 아무 데도 도착하지 못한다.
+       * 브라우저에서 실제로 그렇게 됐다. 역할에 안 맞는 `next` 는 버리고 착지점으로 간다.
+       */
+      const mismatched =
+        (user.profileType === 'CUSTOMER' && next.startsWith('/portfolios')) ||
+        (user.profileType === 'PRO' && next.startsWith('/requests'));
+      router.replace(next === '/' || mismatched ? landing : next);
     }
   }, [loading, user, next, router]);
 
@@ -102,222 +112,110 @@ function RolePicker() {
     }
   }
 
+  /*
+   * 보호된 화면에서 튕겨 온 경우다(시안의 "이탈 후 재진입").
+   * 역할이 없으면 어떤 경로로 들어와도 여기로 되돌리는데, 이유를 안 말하면
+   * 사용자는 자기가 왜 여기 있는지 모른다. 강제하되 이유는 설명한다.
+   */
+  const forced = raw !== '/';
+
+  const cta = (
+    <Button
+      variant="primary"
+      size="lg"
+      className="onboard__cta"
+      pending={pending}
+      disabled={!picked}
+      onClick={() => void confirm()}
+    >
+      {picked ? '이 역할로 시작하기' : '역할을 하나 골라주세요'}
+    </Button>
+  );
+
   return (
-    <main style={{ maxWidth: 760, margin: '0 auto', padding: 'var(--space-12) var(--space-4)' }}>
-      <h1 style={{ fontSize: 26, margin: '0 0 var(--space-2)', fontWeight: 800 }}>
-        어느 쪽으로 시작하시겠어요?
-      </h1>
-      <p
-        style={{
-          color: 'var(--color-text-secondary)',
-          margin: '0 0 var(--space-8)',
-          lineHeight: 1.7,
-        }}
-      >
-        고른 역할에 맞춰 첫 화면과 메뉴가 달라집니다. 계정당 하나만 고를 수 있습니다.
-      </p>
+    <>
+      <main className="onboard">
+        <div className="onboard__head">
+          {forced && <span className="onboard__forced">이 단계를 마쳐야 다음으로 넘어갑니다</span>}
+          <h1 className="onboard__h1">어느 쪽으로 시작하시겠어요?</h1>
+          <p className="onboard__lead">
+            고른 역할에 맞춰 첫 화면과 메뉴가 달라집니다. 계정당 하나만 고를 수 있습니다.
+          </p>
+        </div>
 
-      <FormError message={error} />
+        <FormError message={error} />
 
-      {/* 라디오 그룹이다. 둘 중 하나만 고를 수 있다는 걸 스크린리더도 알아야 한다. */}
-      <div
-        role="radiogroup"
-        aria-label="역할"
-        style={{
-          display: 'grid',
-          gap: 'var(--space-4)',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          marginBottom: 'var(--space-5)',
-        }}
-      >
-        {CHOICES.map((choice) => {
-          const on = picked === choice.type;
-          return (
+        {/* 라디오 그룹이다. 둘 중 하나만 고를 수 있다는 걸 스크린리더도 알아야 한다. */}
+        <div role="radiogroup" aria-label="역할" className="onboard__cards">
+          {CHOICES.map((choice) => (
             <button
               key={choice.type}
               type="button"
               role="radio"
-              aria-checked={on}
+              aria-checked={picked === choice.type}
               onClick={() => setPicked(choice.type)}
-              style={{
-                textAlign: 'left',
-                cursor: 'pointer',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 'var(--space-3)',
-                padding: 18,
-                borderRadius: 'var(--radius-lg)',
-                border: `1px solid ${on ? 'var(--color-primary-500)' : 'var(--color-border)'}`,
-                background: on ? 'var(--color-primary-50)' : 'var(--color-bg)',
-                fontFamily: 'inherit',
-              }}
+              className="role-card"
             >
-              <span
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: 'var(--space-3)',
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: 19,
-                    fontWeight: 800,
-                    letterSpacing: '-0.02em',
-                    color: 'var(--color-text-primary)',
-                  }}
-                >
-                  {choice.title}
-                </span>
+              <span className="role-card__head">
+                <span className="role-card__title">{choice.title}</span>
                 {/* 라디오 점. 눌린 게 뭔지 색만으로 알리지 않는다 — 색각 이상에서도 보여야 한다. */}
-                <span
-                  aria-hidden="true"
-                  style={{
-                    width: 24,
-                    height: 24,
-                    flex: '0 0 auto',
-                    borderRadius: 'var(--radius-full)',
-                    border: `2px solid ${on ? 'var(--color-primary-500)' : 'var(--color-border-strong)'}`,
-                    background: on ? 'var(--color-primary-500)' : 'var(--color-bg)',
-                    boxShadow: on ? 'inset 0 0 0 4px var(--color-bg)' : 'none',
-                  }}
-                />
+                <span className="role-card__dot" aria-hidden="true" />
               </span>
 
-              <span style={{ fontSize: 15, color: 'var(--color-text-secondary)' }}>
-                {choice.subtitle}
-              </span>
+              <span className="role-card__lead">{choice.subtitle}</span>
 
-              <span
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 7,
-                  borderTop: '1px solid var(--color-border)',
-                  paddingTop: 'var(--space-3)',
-                }}
-              >
+              <span className="role-card__does">
                 {choice.bullets.map((bullet) => (
-                  <span
-                    key={bullet}
-                    style={{ display: 'flex', gap: 'var(--space-2)', alignItems: 'flex-start' }}
-                  >
-                    <span
-                      aria-hidden="true"
-                      style={{
-                        flex: '0 0 auto',
-                        width: 5,
-                        height: 5,
-                        borderRadius: 'var(--radius-full)',
-                        background: 'var(--color-primary-400)',
-                        marginTop: 8,
-                      }}
-                    />
-                    <span
-                      style={{
-                        fontSize: 14,
-                        lineHeight: 1.55,
-                        color: 'var(--color-text-secondary)',
-                      }}
-                    >
-                      {bullet}
-                    </span>
+                  <span key={bullet} className="role-card__bullet">
+                    {bullet}
                   </span>
                 ))}
               </span>
 
               {/* 고르기 전에 다음 화면을 알려준다. 뭘 하게 될지 알고 고르는 게 낫다. */}
-              <span
-                style={{
-                  display: 'inline-flex',
-                  width: 'fit-content',
-                  alignItems: 'center',
-                  height: 26,
-                  padding: '0 10px',
-                  borderRadius: 'var(--radius-sm)',
-                  background: 'var(--color-bg-subtle)',
-                  color: 'var(--color-text-tertiary)',
-                  fontSize: 12,
-                  fontWeight: 600,
-                }}
-              >
-                {choice.next}
-              </span>
+              <span className="role-card__next">{choice.next}</span>
 
-              {choice.caution && (
-                <span
-                  style={{
-                    fontSize: 12,
-                    lineHeight: 1.55,
-                    color: 'var(--color-warning)',
-                  }}
-                >
-                  {choice.caution}
-                </span>
-              )}
+              {choice.caution && <span className="role-card__gate">{choice.caution}</span>}
             </button>
-          );
-        })}
+          ))}
+        </div>
+
+        {/*
+          되돌릴 수 없다는 사실. **모바일은 상자로 본문에**, 데스크톱은 확정 버튼
+          아래 한 문장으로 둔다(시안 그대로). 어느 쪽이든 결정 직전에 보여야 한다 —
+          설명 문단에 섞어두면 안 읽는다.
+        */}
+        <div className="onboard__warnbox">
+          <strong>한 번 고르면 스스로 바꿀 수 없습니다</strong>
+          <span>잘못 고르셨다면 설정에서 전환을 요청하세요. 확인 후 하루 안에 바꿔드립니다.</span>
+        </div>
+
+        <div className="onboard__foot">
+          {cta}
+          <span className="onboard__note">
+            한 번 고르면 스스로 바꿀 수 없습니다. 잘못 고르셨다면 설정에서 전환을 요청하세요 — 확인
+            후 하루 안에 바꿔드립니다.
+          </span>
+        </div>
+      </main>
+
+      {/* 모바일 하단 고정. 시안은 확정 버튼을 항상 손에 닿는 곳에 둔다. */}
+      <div className="shell">
+        <div className="sticky-cta">
+          {/* 버튼이 왜 잠겼는지 말한다. 잠긴 이유를 모르면 사람은 화면을 떠난다. */}
+          {!picked && <span className="onboard__hint">역할을 하나 골라주세요</span>}
+          <Button
+            variant="primary"
+            size="lg"
+            block
+            pending={pending}
+            disabled={!picked}
+            onClick={() => void confirm()}
+          >
+            {picked ? '이 역할로 시작하기' : '역할을 하나 골라주세요'}
+          </Button>
+        </div>
       </div>
-
-      {/*
-        되돌릴 수 없다는 사실을 버튼 바로 위에 둔다.
-        설명 문단에 섞어두면 안 읽는다 — 결정하기 직전에 보여야 한다.
-      */}
-      <div
-        style={{
-          border: '1px solid var(--color-border)',
-          background: 'var(--color-bg-subtle)',
-          borderRadius: 'var(--radius-md)',
-          padding: '12px 14px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 4,
-          marginBottom: 'var(--space-5)',
-        }}
-      >
-        <strong style={{ fontSize: 13, fontWeight: 800 }}>
-          한 번 고르면 스스로 바꿀 수 없습니다
-        </strong>
-        <span style={{ fontSize: 12, lineHeight: 1.55, color: 'var(--color-text-secondary)' }}>
-          잘못 고르셨다면 설정에서 전환을 요청하세요. 확인 후 하루 안에 바꿔드립니다.
-        </span>
-      </div>
-
-      <button
-        type="button"
-        onClick={() => void confirm()}
-        disabled={!picked || pending}
-        style={{
-          width: '100%',
-          height: 48,
-          borderRadius: 'var(--radius-md)',
-          border: 'none',
-          fontSize: 16,
-          fontWeight: 700,
-          fontFamily: 'inherit',
-          color: 'var(--color-text-inverse)',
-          background: !picked || pending ? 'var(--color-primary-300)' : 'var(--color-primary-500)',
-          cursor: !picked || pending ? 'default' : 'pointer',
-        }}
-      >
-        {pending ? '저장 중…' : picked ? '이 역할로 시작하기' : '역할을 하나 골라주세요'}
-      </button>
-
-      {/* 버튼이 왜 잠겼는지 말한다. 잠긴 이유를 모르면 사람은 화면을 떠난다. */}
-      {!picked && (
-        <p
-          style={{
-            margin: 'var(--space-2) 0 0',
-            fontSize: 13,
-            color: 'var(--color-text-tertiary)',
-            textAlign: 'center',
-          }}
-        >
-          역할을 선택해 주세요
-        </p>
-      )}
-    </main>
+    </>
   );
 }
