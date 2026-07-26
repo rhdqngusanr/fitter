@@ -2122,6 +2122,12 @@
   color: var(--color-text-inverse);
 }
 
+/* P-02 는 같은 카드를 한 단 낮게 쓴다(64px). 폼이 길어서 세로를 아낀다. */
+.grade--sm {
+  height: 64px;
+  gap: 3px;
+}
+
 .grade__label {
   font-size: 16px;
   font-weight: 700;
@@ -2920,6 +2926,287 @@
   .contacts__back {
     display: inline-flex;
     width: fit-content;
+  }
+}
+
+/* ─────────────────────────── 포트폴리오 등록 (P-02) ─────────────────────────── */
+
+/*
+ * **시안의 데스크톱은 2단이다** — 본문 + 우측 348px.
+ * 구현은 640px 단일 컬럼이었고 우측 패널이 통째로 없었다.
+ *
+ * 우측이 하는 일은 C-01 과 같다: **올리기 전에 결과를 보여주는 것.**
+ * 다만 여기서는 하나 더 있다 — 공개 조건이 둘이라는 사실(공개 + 승인)을
+ * 올리기 전에 말해야 한다. 나중에 알면 사람은 속았다고 느끼고 떠난다.
+ */
+.upload {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 348px;
+  max-width: 1280px;
+  margin: 0 auto;
+  min-height: 760px;
+  border-top: 1px solid var(--color-border);
+}
+
+.upload__main {
+  padding: 32px var(--space-10) var(--space-10);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  min-width: 0;
+}
+
+.upload__h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.upload__lead {
+  margin: 0;
+  max-width: 620px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+.upload__section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.upload__section-title {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+/* 몇 장 올렸는가. 고정폭 숫자라 늘어나도 자리가 안 흔들린다. */
+.upload__count {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+}
+
+/* 한도에 닿으면 색으로 말한다. 더 못 올린다는 걸 누르기 전에 알아야 한다. */
+.upload__count--full {
+  color: var(--color-warning);
+  font-weight: 700;
+}
+
+.upload__note {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-text-tertiary);
+}
+
+.upload__note strong {
+  color: var(--color-text-secondary);
+}
+
+/* 시안의 정보 줄은 `1.4fr 1fr 1fr` 이다 — 제목이 가장 길다. */
+.upload__grid3 {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 14px;
+  padding-top: 22px;
+  border-top: 1px solid var(--color-border);
+}
+
+.upload__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* 동의 상자. 체크 없이는 못 올린다 — 포트폴리오에는 사진별 출처가 없어서 이게 유일한 관문이다. */
+.upload__consent {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  max-width: 660px;
+  padding: 14px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+}
+
+/* 체크를 안 하고 올리려 하면 상자 자체가 붉어진다. 아래 한 줄만으로는 안 보인다. */
+.upload__consent--error {
+  border-color: var(--color-danger);
+  background: var(--color-danger-bg);
+}
+
+.upload__consent input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--color-primary-500);
+}
+
+.upload__foot {
+  margin-top: auto;
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.upload__foot-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.upload__foot .btn {
+  height: 52px;
+  padding: 0 22px;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.upload__blocked {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-danger);
+}
+
+.upload__aside {
+  border-left: 1px solid var(--color-border);
+  background: var(--color-bg-subtle);
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.upload__aside-title {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.upload__aside-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.upload__aside-heading {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.upload__aside-note {
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--color-text-tertiary);
+}
+
+/* 업로드 처리 방식 목록. 점 하나 + 한 줄. */
+.upload__bullet {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+}
+
+.upload__bullet::before {
+  content: '';
+  flex: none;
+  width: 5px;
+  height: 5px;
+  margin-top: 7px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-300);
+}
+
+/* 공개 조건 두 개. 이 화면에서 가장 중요한 안내라 색을 준다. */
+.upload__gate {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: 14px;
+  border: 1px solid var(--color-warning);
+  border-radius: var(--radius-md);
+  background: var(--color-warning-bg);
+}
+
+.upload__gate-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--color-warning);
+}
+
+.upload__gate-body {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+/* 우측 패널이 살아 있는 폭에서는 본문 쪽 사본을 감춘다. 같은 말을 두 번 하지 않는다. */
+.upload__gate--inline {
+  display: none;
+}
+
+@media (max-width: 1100px) {
+  .upload__gate--inline {
+    display: flex;
+  }
+}
+
+@media (max-width: 1100px) {
+  .upload {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+  }
+
+  /*
+   * 미리보기는 접어도 되지만 **공개 조건 안내는 접으면 안 된다.**
+   * 그래서 그 블록만 본문 안에도 둔다(아래 `.upload__gate--inline`).
+   */
+  .upload__aside {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .upload {
+    border-top: none;
+  }
+
+  .upload__main {
+    padding: var(--space-4) var(--space-4) var(--space-5);
+    gap: 18px;
+  }
+
+  .upload__h1 {
+    font-size: 20px;
+  }
+
+  .upload__lead {
+    font-size: 15px;
+  }
+
+  .upload__grid3 {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+    padding-top: 16px;
+  }
+
+  .upload__foot {
+    display: none;
   }
 }
 

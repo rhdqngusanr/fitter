@@ -61,14 +61,26 @@ export function run() {
 
       for (let i = 0; i < lines.length; i += 1) {
         const line = lines[i];
-        /* 라벨 앞뒤 3줄을 함께 본다. 라벨과 인풋이 다른 줄에 있는 경우가 많다. */
-        const context = lines.slice(Math.max(0, i - 3), i + 1).join(' ');
+        /* 라벨 앞 8줄을 함께 본다. 라벨과 인풋이 다른 줄에 있는 경우가 많다. */
+        const context = lines.slice(Math.max(0, i - 8), i + 1).join(' ');
+        /*
+         * **인풋은 줄 단위로 보면 안 된다.** Prettier 가 속성을 여러 줄로 쪼개기 때문에
+         * `<input` 다음 줄에 `type="number"` 가 오는 게 정상이고, 한 줄만 보면 그게
+         * 자유 텍스트로 오인된다. 실제로 오탐이 났다 — 태그가 닫힐 때까지 이어 붙인다.
+         */
+        const element = elementAt(lines, i);
 
-        /* 1조 — 평수는 숫자다 */
+        /*
+         * 1조 — 평수는 숫자다.
+         *
+         * "이 인풋이 평수인가"를 두 곳에서 본다. 위쪽 라벨과 **인풋 자신의 `aria-label`**.
+         * 라벨만 보면 Prettier 가 라벨을 여러 줄로 쪼갠 순간 창 밖으로 밀려나서 놓친다 —
+         * 실제로 그래서 못 잡았다. 줄 수에 기대는 판정을 하나 줄인 것이다.
+         */
         if (
           /<input/.test(line) &&
-          /평형|평수/.test(context) &&
-          !/type="number"|inputmode="numeric"|type="range"/.test(line)
+          (/평형|평수/.test(context) || /평형|평수/.test(element)) &&
+          !/type="number"|inputMode="numeric"|inputmode="numeric"|type="range"/.test(element)
         ) {
           findings.push(
             finding({
@@ -83,7 +95,7 @@ export function run() {
         }
 
         /* 3조 — 지역은 행정구역 코드다. 주소 원문을 저장하지 않는다 */
-        if (/<input/.test(line) && /placeholder="[^"]*[가-힣]+(구|시|동)[^"]*"/.test(line)) {
+        if (/<input/.test(line) && /placeholder="[^"]*[가-힣]+(구|시|동)[^"]*"/.test(element)) {
           findings.push(
             finding({
               severity: target.severity,
@@ -137,4 +149,22 @@ export function run() {
   }
 
   return findings;
+}
+
+/**
+ * `i` 번째 줄에서 시작하는 태그 하나를 통째로 잇는다.
+ *
+ * Prettier 가 JSX 속성을 여러 줄로 쪼개기 때문에 `<input` 과 `type="number"` 가 다른 줄에
+ * 산다. 한 줄만 보면 멀쩡한 숫자 인풋이 자유 텍스트로 잡힌다 — 실제로 그 오탐이 났다.
+ *
+ * 태그가 안 닫히는 경우(문자열 안의 `<input` 등)를 대비해 12줄에서 끊는다.
+ * 검사기가 파일 하나에서 오래 도는 것보다 몇 건 놓치는 편이 낫다.
+ */
+function elementAt(lines, i) {
+  const parts = [];
+  for (let j = i; j < Math.min(lines.length, i + 12); j += 1) {
+    parts.push(lines[j]);
+    if (/\/?>\s*$/.test(lines[j].trim())) break;
+  }
+  return parts.join(' ');
 }
