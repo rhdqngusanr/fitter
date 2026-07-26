@@ -14,6 +14,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { ContactsModule } from './modules/contacts/contacts.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { RegionsModule } from './modules/regions/regions.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { ImagesModule } from './modules/images/images.module';
 import { MeModule } from './modules/me/me.module';
@@ -45,6 +46,7 @@ import { HealthModule } from './health/health.module';
     PortfoliosModule,
     ContactsModule,
     NotificationsModule,
+    RegionsModule,
     ReportsModule,
     AdminModule,
     HealthModule,

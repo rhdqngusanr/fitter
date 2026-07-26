@@ -7,19 +7,18 @@
  * 근거: brain/20-도메인/확장 규약.md 1조
  */
 
+import { MAX_PYEONG, MIN_PYEONG, SQUARE_METERS_PER_PYEONG } from '@fitter/shared';
+
 import { ValidationError } from './errors';
 
-/** 1평 = 400/121 ㎡ (약 3.3058). 상수를 흩뿌리지 않고 여기 하나만 둔다. */
-export const SQUARE_METERS_PER_PYEONG = 400 / 121;
-
-/**
- * 현실적인 주거·상가 범위. 벗어나면 오타이거나 장난이다.
+/*
+ * 숫자 자체는 `@fitter/shared` 가 정본이다. 화면도 같은 값을 써야 하는데
+ * 웹은 domain 을 import 할 수 없어서(의존 방향은 항상 안쪽이다) 상수만 바깥으로 뺐다.
+ * 여기 남은 건 그 숫자를 쓰는 **규칙**이다. 규칙은 안쪽에 있어야 한다.
  *
  * 상한이 500인 이유는 반셀프 인테리어에서 그보다 큰 의뢰가 사실상 없기 때문이다.
- * 상가라도 500평이면 대형이고, 상한이 낮을수록 오타(240 → 2400)를 더 잘 잡는다.
  */
-export const MIN_PYEONG = 1;
-export const MAX_PYEONG = 500;
+export { MAX_PYEONG, MIN_PYEONG, SQUARE_METERS_PER_PYEONG };
 
 export function pyeongToSquareMeters(pyeong: number): number {
   assertValidPyeong(pyeong);
