@@ -311,6 +311,15 @@
     font-size: 17px;
     font-weight: 800;
   }
+
+  /*
+   * 하단 고정 바 안의 버튼은 모두 52px 로 맞춘다.
+   * 나란히 선 두 버튼의 높이가 다르면 한쪽이 덜 중요해 보이는데,
+   * `이전` 은 덜 중요한 게 아니라 방향이 다른 것이다.
+   */
+  .sticky-cta .btn {
+    height: 52px;
+  }
 }
 
 .btn--primary {
@@ -428,6 +437,16 @@
   background: var(--color-primary-500);
   border-color: var(--color-primary-500);
   color: var(--color-text-inverse);
+}
+
+/*
+ * 큰 칩. 폼에서 손가락으로 고르는 칩이다 — 시안의 C-01 공종·시기 칩이 44px 다.
+ * 필터 칩(36px)보다 큰 이유는 필터는 훑는 것이고 이건 입력이기 때문이다.
+ */
+.chip--lg {
+  height: 44px;
+  padding: 0 18px;
+  font-size: 15px;
 }
 
 /*
@@ -1793,6 +1812,499 @@
   .procard {
     padding: var(--space-4);
     box-shadow: none;
+  }
+}
+
+/* ─────────────────────────── 의뢰 등록 마법사 (C-01) ─────────────────────────── */
+
+/*
+ * **시안의 데스크톱은 3단이다** — 좌측 스텝 사이드바(288px) · 본문 · 우측 미리보기(320px).
+ * 구현은 680px 단일 컬럼이라 진행 막대 하나로 스텝을 대신하고 있었고,
+ * "시공자에게는 이렇게 보입니다" 패널은 통째로 없었다.
+ *
+ * 3단이 중요한 이유: 이 화면은 **무엇을 공개하는지 모르는 채로 등록 버튼을 누르는 일**을
+ * 막아야 한다. 우측 미리보기가 그 일을 하고, 그건 마지막 단계로 미룰 수 없다.
+ */
+.wizard {
+  display: grid;
+  grid-template-columns: 288px minmax(0, 1fr) 320px;
+  border-top: 1px solid var(--color-border);
+  min-height: 720px;
+  /* 시안의 데스크톱 프레임 전체를 쓴다. 사이드바가 프레임 끝에 닿아야 3단으로 읽힌다. */
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.wizard__nav {
+  border-right: 1px solid var(--color-border);
+  background: var(--color-bg-subtle);
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wizard__step {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  text-align: left;
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.wizard__step[aria-current='step'] {
+  background: var(--color-bg);
+}
+
+/* 지나온 단계만 누를 수 있다. 앞 단계로 건너뛰면 검증을 지나친다. */
+.wizard__step:disabled {
+  cursor: default;
+}
+
+.wizard__step:not(:disabled):hover {
+  background: var(--color-surface-hover);
+}
+
+.wizard__mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-sunken);
+  color: var(--color-text-tertiary);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* 지나온 단계는 체크. 지금 단계는 primary 면. 앞으로 올 단계는 회색. */
+.wizard__step--done .wizard__mark {
+  border-color: var(--color-success-bg);
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.wizard__step[aria-current='step'] .wizard__mark {
+  border-color: var(--color-primary-500);
+  background: var(--color-primary-500);
+  color: var(--color-text-inverse);
+}
+
+.wizard__step-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+
+.wizard__step[aria-current='step'] .wizard__step-title {
+  color: var(--color-text-primary);
+}
+
+.wizard__step-hint {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+}
+
+.wizard__progress-box {
+  margin-top: auto;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wizard__progress-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-tertiary);
+}
+
+.wizard__bar {
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-sunken);
+  overflow: hidden;
+}
+
+.wizard__bar > span {
+  display: block;
+  height: 100%;
+  background: var(--color-primary-500);
+  transition: width 0.2s ease;
+}
+
+.wizard__counter {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.wizard__main {
+  padding: 36px var(--space-10);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.wizard__h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.wizard__lead {
+  margin: 0;
+  max-width: 560px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+/* 단계 이동. 시안은 이걸 본문 맨 아래에 구분선과 함께 붙인다. */
+.wizard__foot {
+  margin-top: auto;
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.wizard__foot-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.wizard__blocked {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-danger);
+}
+
+/* 시안의 마법사 CTA 는 52px 다. lg(48)보다 한 단 크다. */
+.wizard__cta.btn {
+  height: 52px;
+  padding: 0 28px;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.wizard__aside {
+  border-left: 1px solid var(--color-border);
+  background: var(--color-bg-subtle);
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.wizard__aside-title {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.wizard__aside-note {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-text-tertiary);
+}
+
+/* 마법사의 자기 상단 바. 임시저장 시각과 나가기가 여기 있다. */
+.wizard__topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) 0;
+}
+
+.wizard__topbar-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.wizard__saved {
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+}
+
+/* 모바일 스텝 헤더. 시안은 제목 + 카운터 + 4px 막대를 구분선 위에 둔다. */
+.wizard__mobile-head {
+  display: none;
+}
+
+/*
+ * 저작권 고지 상자. 시안은 이걸 테두리 있는 상자로 그렸다 —
+ * 문단으로 흘려두면 읽지 않고, 이 화면에서 가장 읽어야 하는 문장이다.
+ */
+.wizard__consent {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  max-width: 640px;
+  padding: 14px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+}
+
+/*
+ * 칩 묶음 위의 이름표. `<label>` 을 쓰지 않는 이유는 버튼 묶음을 label 로 감싸면
+ * 스크린리더가 버튼마다 이름표를 다시 읽는다 — `role="group"` + `aria-label` 이 맞다.
+ */
+.wizard__group-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+
+/* 시안의 스텝 3 은 그룹 이름표를 한 단 작게 쓴다. */
+.wizard__group-label--sm {
+  font-size: 14px;
+}
+
+.wizard__cover-title {
+  font-size: 17px;
+  font-weight: 800;
+}
+
+/* 자재 등급. 시안은 두 줄 카드다 — 이름 아래 한 마디 설명이 붙는다. */
+.grade-row {
+  display: flex;
+  gap: 10px;
+  max-width: 520px;
+}
+
+.grade {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  height: 76px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.grade:hover {
+  background: var(--color-surface-hover);
+}
+
+.grade[aria-pressed='true'] {
+  background: var(--color-primary-500);
+  border-color: var(--color-primary-500);
+  color: var(--color-text-inverse);
+}
+
+.grade__label {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.grade__hint {
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+/* 시안의 스텝 3 은 지역·평형·주거형태를 한 줄에 2fr 1fr 1fr 로 깐다. */
+.wizard__grid3 {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: var(--space-3);
+}
+
+/* 스텝 4 요약. 좌측 대표 사진 카드 + 우측 항목 목록. */
+.wizard__summary {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: var(--space-5);
+  max-width: 840px;
+}
+
+.wizard__summary-rows {
+  height: fit-content;
+  padding: 6px var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+}
+
+.wizard__summary-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: 13px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.wizard__summary-row:last-child {
+  border-bottom: none;
+}
+
+.wizard__summary-k {
+  font-size: 14px;
+  color: var(--color-text-tertiary);
+}
+
+.wizard__summary-v {
+  font-size: 14px;
+  font-weight: 700;
+  text-align: right;
+}
+
+/* 미리보기 카드 = 시공자 목록에 뜰 모습. 아래 문구까지 한 덩어리다. */
+.preview-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  overflow: hidden;
+}
+
+.preview-card__media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: var(--color-bg-sunken);
+}
+
+.preview-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.preview-card__body {
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.preview-card__title {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.preview-card__meta {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+}
+
+@media (max-width: 1180px) {
+  /* 미리보기를 먼저 접는다. 스텝 사이드바가 진행 상황을 알려주는 쪽이라 더 중요하다. */
+  .wizard {
+    grid-template-columns: 288px minmax(0, 1fr);
+  }
+
+  .wizard__aside {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .wizard {
+    grid-template-columns: minmax(0, 1fr);
+    border-top: none;
+    min-height: 0;
+  }
+
+  /* 좌측 사이드바 대신 상단에 제목 + 카운터 + 얇은 막대. 시안의 모바일 프레임이다. */
+  .wizard__nav {
+    display: none;
+  }
+
+  .wizard__mobile-head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-3) 0 10px;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .wizard__mobile-head .wizard__bar {
+    height: 4px;
+  }
+
+  .wizard__mobile-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .wizard__mobile-title {
+    font-size: 14px;
+    font-weight: 800;
+  }
+
+  .wizard__main {
+    padding: var(--space-4);
+  }
+
+  .wizard__h1 {
+    /* 모바일은 위쪽 스텝 헤더가 제목을 이미 말하고 있어서 h1 을 한 단 낮춘다. */
+    font-size: 20px;
+  }
+
+  .wizard__lead {
+    font-size: 15px;
+  }
+
+  .wizard__grid3,
+  .wizard__summary {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .grade-row {
+    max-width: none;
+  }
+
+  .grade {
+    height: 52px;
+    gap: 2px;
+  }
+
+  .grade__label {
+    font-size: 15px;
+  }
+
+  .grade__hint {
+    font-size: 11px;
+  }
+
+  .wizard__topbar {
+    padding: var(--space-3) 0;
+  }
+
+  /* 이동 버튼은 하단 고정 바로 내려간다. 폼이 길어서 아래까지 스크롤하지 않는다. */
+  .wizard__foot {
+    display: none;
   }
 }
 

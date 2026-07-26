@@ -107,3 +107,19 @@ export const MATERIAL_GRADE_LABELS: Readonly<Record<MaterialGrade, string>> = {
   STANDARD: '중급',
   PREMIUM: '고급',
 };
+
+/**
+ * 등급 한 마디 설명.
+ *
+ * **시안(C-01)이 등급 버튼을 두 줄로 그렸다** — 이름 아래 이 한 마디가 붙는다.
+ * `보급/중급/고급`만 보여주면 고객은 무엇을 고르는지 모른다. 자재 등급은
+ * 인테리어 용어를 모르는 사람이 가장 먼저 막히는 칸이다.
+ *
+ * 화면이 아니라 여기 있는 이유: 문구가 화면마다 갈라지면 같은 등급이 화면에 따라
+ * 다른 뜻으로 읽힌다. 라벨과 같은 곳에 둔다.
+ */
+export const MATERIAL_GRADE_HINTS: Readonly<Record<MaterialGrade, string>> = {
+  BASIC: '가성비',
+  STANDARD: '무난',
+  PREMIUM: '마감 중시',
+};

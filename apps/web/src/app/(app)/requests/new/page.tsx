@@ -7,6 +7,7 @@ import {
   HOUSING_TYPES,
   HOUSING_TYPE_LABELS,
   MATERIAL_GRADES,
+  MATERIAL_GRADE_HINTS,
   MATERIAL_GRADE_LABELS,
   MAX_PYEONG,
   MAX_REFERENCE_IMAGES,
@@ -17,8 +18,9 @@ import {
   type MaterialGrade,
 } from '@fitter/shared';
 
-import { Field, FormError, inputStyle } from '../../../../components/form';
+import { Field, FormError } from '../../../../components/form';
 import { ImageUploader, type UploadedImage } from '../../../../components/ImageUploader';
+import { Button } from '../../../../components/ui/Button';
 import { ApiError, api } from '../../../../lib/api';
 import { useSession } from '../../../../lib/session';
 
@@ -26,11 +28,31 @@ interface RegionTree {
   sido: { code: string; name: string; sigungu: { code: string; name: string }[] }[];
 }
 
+/**
+ * 4단계와 각 단계의 안내 문구. **정본은 시안의 `stepMeta` 다.**
+ * 좌측 사이드바의 힌트와 본문의 리드가 여기서 함께 나온다 — 두 곳에 따로 쓰면 갈라진다.
+ */
 const STEPS = [
-  { title: '사진 올리기', hint: '3~10장 권장' },
-  { title: '공종 고르기', hint: '복수 선택 가능' },
-  { title: '조건 입력', hint: '지역 · 평형 · 시기' },
-  { title: '확인하고 등록', hint: '마지막 단계' },
+  {
+    title: '사진 올리기',
+    hint: '3~10장 권장',
+    lead: '마음에 든 사진을 올려주세요. 인테리어 용어는 몰라도 됩니다 — 사진이 곧 요구사항입니다.',
+  },
+  {
+    title: '공종 고르기',
+    hint: '복수 선택 가능',
+    lead: '어떤 공사가 필요한가요? 확실하지 않으면 비워두세요. 사진을 보고 시공자가 제안합니다.',
+  },
+  {
+    title: '조건 입력',
+    hint: '지역 · 평형 · 시기',
+    lead: '시공자가 가능 여부를 판단할 최소 정보만 받습니다.',
+  },
+  {
+    title: '확인하고 등록',
+    hint: '마지막 단계',
+    lead: '이대로 등록하면 조건에 맞는 시공자에게 노출됩니다.',
+  },
 ] as const;
 
 /**
@@ -52,6 +74,10 @@ const TIMINGS = [
  *
  * 첫 화면이 폼이 아니라 사진 자리다 — 3초 안에 "사진을 올리면 그게 의뢰"라는 걸 알게 한다.
  * 한 페이지에 다 몰아넣으면 스크롤이 길어져서 첫 화면이 폼처럼 보인다. 그래서 4단계다.
+ *
+ * **시안의 데스크톱은 3단이다** — 좌측 스텝 사이드바 · 본문 · 우측 "시공자에게는 이렇게
+ * 보입니다". 우측 패널이 마지막 단계로 미룰 수 없는 이유는, 이 화면이 막아야 하는 사고가
+ * "무엇을 공개하는지 모르는 채로 등록 버튼을 누르는 것"이기 때문이다.
  *
  * 확장 규약을 화면에서 지키는 것도 이 폼의 존재 이유다 —
  * 평수는 숫자 입력, 지역은 시도→시군구 2단계, 공종은 코드 테이블, 나머지는 enum.
@@ -80,6 +106,8 @@ export default function NewRequestPage() {
 
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  /** 다음을 눌렀는데 막힌 경우. 누르기 전에는 빨간 글씨를 띄우지 않는다. */
+  const [tried, setTried] = useState(false);
 
   useEffect(() => {
     if (loading) return;
@@ -204,8 +232,12 @@ export default function NewRequestPage() {
           : null;
 
   async function next() {
-    if (blocked) return;
+    if (blocked) {
+      setTried(true);
+      return;
+    }
     setError(null);
+    setTried(false);
     setPending(true);
     try {
       await save();
@@ -244,456 +276,503 @@ export default function NewRequestPage() {
     }
   }
 
+  /** 임시저장하고 나간다. 시안의 헤더 버튼이 이 동작이다. */
+  async function saveAndLeave() {
+    setPending(true);
+    try {
+      await save();
+      router.push('/requests/mine');
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : '저장하지 못했습니다.');
+      setPending(false);
+    }
+  }
+
+  /** 카드 아래 한 줄. 사진 수 · 희망 시기 · 자재를 잇는다. */
+  function summaryMeta() {
+    return (
+      [
+        images.length > 0 ? `사진 ${images.length}장` : null,
+        TIMINGS.find((t) => t.key === timing)?.label,
+        materialGrade ? `${MATERIAL_GRADE_LABELS[materialGrade]} 자재` : null,
+      ]
+        .filter(Boolean)
+        .join(' · ') || '아직 입력 전'
+    );
+  }
+
+  /** 4단계 요약 표. 시안은 항목별 한 줄씩 오른쪽 정렬로 값을 놓는다. */
+  function summaryRows() {
+    return [
+      { k: '사진', v: `${images.length}장` },
+      { k: '공종', v: categoryNames.join(', ') || '—' },
+      { k: '지역', v: regionName || '—' },
+      {
+        k: '규모',
+        v:
+          [
+            validPyeong ? `${pyeongNum}평` : null,
+            housingType ? HOUSING_TYPE_LABELS[housingType] : null,
+          ]
+            .filter(Boolean)
+            .join(' · ') || '—',
+      },
+      { k: '희망 시기', v: TIMINGS.find((t) => t.key === timing)?.label ?? '—' },
+      { k: '자재 등급', v: materialGrade ? MATERIAL_GRADE_LABELS[materialGrade] : '—' },
+    ];
+  }
+
+  const meta = STEPS[step];
+  const counter = `${step + 1} / ${STEPS.length} 단계`;
+  const progress = `${((step + 1) / STEPS.length) * 100}%`;
+  const savedLabel = savedAt
+    ? `${savedAt.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })} 임시저장됨`
+    : null;
+  const showBlocked = tried && !!blocked;
+
   return (
-    <main style={{ maxWidth: 680, margin: '0 auto', padding: 'var(--space-8) var(--space-4)' }}>
-      {/* 어디까지 왔는지. 4단계라는 걸 처음부터 보여줘야 중간에 안 나간다. */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: 'var(--space-3)',
-        }}
-      >
-        <span style={{ fontSize: 13, color: 'var(--color-text-tertiary)' }}>
-          {step + 1} / {STEPS.length} 단계
-        </span>
-        {savedAt && (
-          <span style={{ fontSize: 12, color: 'var(--color-text-tertiary)' }}>
-            {savedAt.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })} 임시저장됨
-          </span>
-        )}
-      </div>
-
-      <div
-        aria-hidden="true"
-        style={{
-          height: 4,
-          borderRadius: 'var(--radius-full)',
-          background: 'var(--color-bg-sunken)',
-          marginBottom: 'var(--space-6)',
-          overflow: 'hidden',
-        }}
-      >
-        <div
-          style={{
-            width: `${((step + 1) / STEPS.length) * 100}%`,
-            height: '100%',
-            background: 'var(--color-primary-500)',
-          }}
-        />
-      </div>
-
-      <h1 style={{ fontSize: 24, margin: '0 0 var(--space-2)', fontWeight: 800 }}>
-        {STEPS[step]?.title}
-      </h1>
-
-      <FormError message={error} />
-
-      {/* ── 1. 사진 ──────────────────────────────────── */}
-      {step === 0 && (
-        <>
-          <p style={{ color: 'var(--color-text-secondary)', margin: '0 0 var(--space-6)' }}>
-            마음에 든 사진을 올려주세요. 3장 이상이면 시공자가 이해하기 쉽습니다. 인테리어 용어는
-            몰라도 됩니다 — 사진이 곧 요구사항입니다.
-          </p>
-          {draftId ? (
-            <ImageUploader
-              mode="reference"
-              images={images}
-              max={MAX_REFERENCE_IMAGES}
-              onChange={setImages}
-              authFetch={authFetch}
-            />
-          ) : (
-            <p style={{ color: 'var(--color-text-tertiary)', fontSize: 14 }}>준비 중…</p>
-          )}
-          {images.length > 0 && (
-            <p style={{ fontSize: 13, color: 'var(--color-text-tertiary)', margin: 0 }}>
-              {images.length}장 · 첫 번째 사진이 대표로 쓰입니다
-            </p>
-          )}
-        </>
-      )}
-
-      {/* ── 2. 공종 ──────────────────────────────────── */}
-      {step === 1 && (
-        <>
-          <p style={{ color: 'var(--color-text-secondary)', margin: '0 0 var(--space-6)' }}>
-            어떤 공사가 필요한지 골라주세요. 여러 개 고를 수 있습니다.
-          </p>
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: 'var(--space-2)',
-              marginBottom: 'var(--space-6)',
-            }}
-          >
-            {WORK_CATEGORY_SEEDS.map((c) => {
-              const on = categories.includes(c.code);
-              return (
-                <button
-                  key={c.code}
-                  type="button"
-                  aria-pressed={on}
-                  onClick={() =>
-                    setCategories((prev) =>
-                      prev.includes(c.code) ? prev.filter((x) => x !== c.code) : [...prev, c.code],
-                    )
-                  }
-                  style={{
-                    height: 40,
-                    padding: '0 var(--space-4)',
-                    borderRadius: 'var(--radius-full)',
-                    fontFamily: 'inherit',
-                    fontSize: 14,
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    background: on ? 'var(--color-primary-500)' : 'var(--color-surface)',
-                    color: on ? 'var(--color-text-inverse)' : 'var(--color-text-secondary)',
-                    border: `1px solid ${on ? 'var(--color-primary-500)' : 'var(--color-border-strong)'}`,
-                  }}
-                >
-                  {c.nameKo}
-                </button>
-              );
-            })}
+    <>
+      <div className="shell">
+        <div className="wizard__topbar">
+          <span className="wizard__topbar-title">의뢰 등록</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            {savedLabel && <span className="wizard__saved">{savedLabel}</span>}
+            <Button
+              variant="secondary"
+              size="md"
+              onClick={() => void saveAndLeave()}
+              disabled={pending || !draftId}
+            >
+              임시저장하고 나가기
+            </Button>
           </div>
-        </>
-      )}
+        </div>
 
-      {/* ── 3. 조건 ──────────────────────────────────── */}
-      {step === 2 && (
-        <>
-          <p style={{ color: 'var(--color-text-secondary)', margin: '0 0 var(--space-6)' }}>
-            시공자가 가능 여부를 판단할 최소 정보만 받습니다.
-          </p>
-
-          {/* 확장 규약 3조 — 시도→시군구 2단계. 주소 원문 칸은 없다. */}
-          <Field
-            label="시공 지역"
-            hint="동까지만 공개됩니다. 상세 주소는 컨택 수락 후에 전달합니다."
-          >
-            <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
-              <select
-                value={sido}
-                onChange={(e) => {
-                  setSido(e.target.value);
-                  setRegionCode('');
-                }}
-                style={{ ...inputStyle, flex: 1 }}
-              >
-                <option value="">시·도</option>
-                {regions?.sido.map((s) => (
-                  <option key={s.code} value={s.code}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={regionCode}
-                onChange={(e) => setRegionCode(e.target.value)}
-                disabled={!sido}
-                style={{ ...inputStyle, flex: 1 }}
-              >
-                <option value="">시·군·구</option>
-                {sigungu.map((g) => (
-                  <option key={g.code} value={g.code}>
-                    {g.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </Field>
-
-          {/* 확장 규약 1조 — 숫자 입력이다. "24평쯤" 을 받을 칸이 없다. */}
-          <Field
-            label="평형"
-            hint={
-              validPyeong
-                ? `약 ${(pyeongNum * SQUARE_METERS_PER_PYEONG).toFixed(1)}㎡`
-                : '평 단위 숫자로 입력해 주세요.'
-            }
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-              <input
-                type="number"
-                inputMode="numeric"
-                min={MIN_PYEONG}
-                max={MAX_PYEONG}
-                value={pyeong}
-                onChange={(e) => setPyeong(e.target.value)}
-                style={{ ...inputStyle, flex: 1 }}
-              />
-              <span style={{ color: 'var(--color-text-secondary)' }}>평</span>
-            </div>
-          </Field>
-
-          <Field label="주거 형태">
-            <ChipGroup
-              items={HOUSING_TYPES.map((t) => ({ key: t, label: HOUSING_TYPE_LABELS[t] }))}
-              value={housingType}
-              onChange={(v) => setHousingType(v as HousingType)}
-            />
-          </Field>
-
-          <Field label="희망 시기">
-            <ChipGroup
-              items={TIMINGS.map((t) => ({ key: t.key, label: t.label }))}
-              value={timing}
-              onChange={(v) => setTiming(v as (typeof TIMINGS)[number]['key'])}
-            />
-          </Field>
-
-          <Field label="자재 등급" hint="정하지 않았다면 비워두셔도 됩니다.">
-            <ChipGroup
-              items={MATERIAL_GRADES.map((g) => ({ key: g, label: MATERIAL_GRADE_LABELS[g] }))}
-              value={materialGrade}
-              onChange={(v) => setMaterialGrade(v as MaterialGrade)}
-            />
-          </Field>
-
-          <Field label="덧붙일 말 (선택)">
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={4}
-              maxLength={2000}
-              placeholder="꼭 지켜야 할 조건이나 궁금한 점을 적어주세요."
-              style={{
-                ...inputStyle,
-                height: 'auto',
-                padding: 'var(--space-3) var(--space-4)',
-                resize: 'vertical',
-              }}
-            />
-          </Field>
-        </>
-      )}
-
-      {/* ── 4. 확인 ──────────────────────────────────── */}
-      {step === 3 && (
-        <>
-          <p style={{ color: 'var(--color-text-secondary)', margin: '0 0 var(--space-6)' }}>
-            이대로 등록하면 조건에 맞는 시공자에게 노출됩니다.
-          </p>
-
-          {/*
-            **시공자에게 뭐가 보이는지 그대로 보여준다.**
-            뭘 공개하는지 모르는 채로 등록 버튼을 누르게 하면 안 된다.
-          */}
+        {/* 모바일 스텝 헤더. 데스크톱에서는 좌측 사이드바가 같은 일을 한다. */}
+        <div className="wizard__mobile-head">
+          <div className="wizard__mobile-row">
+            <span className="wizard__mobile-title">{meta?.title}</span>
+            <span className="wizard__counter">{counter}</span>
+          </div>
           <div
-            style={{
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-lg)',
-              overflow: 'hidden',
-              marginBottom: 'var(--space-5)',
-              background: 'var(--color-surface)',
-            }}
+            className="wizard__bar"
+            role="progressbar"
+            aria-valuenow={step + 1}
+            aria-valuemin={1}
+            aria-valuemax={STEPS.length}
+            aria-label="등록 진행률"
           >
-            {images[0] && (
-              <img
-                src={images[0].previewUrl}
-                alt="대표 사진"
-                style={{
-                  width: '100%',
-                  aspectRatio: '4 / 3',
-                  objectFit: 'cover',
-                  display: 'block',
-                  background: 'var(--color-bg-sunken)',
+            <span style={{ width: progress }} />
+          </div>
+        </div>
+      </div>
+
+      <div className="wizard">
+        {/* ── 좌측: 단계 ────────────────────────────────── */}
+        <nav aria-label="등록 단계" className="wizard__nav">
+          {STEPS.map((s, i) => {
+            const done = i < step;
+            const current = i === step;
+            return (
+              <button
+                key={s.title}
+                type="button"
+                className={`wizard__step${done ? ' wizard__step--done' : ''}`}
+                aria-current={current ? 'step' : undefined}
+                /*
+                 * 지나온 단계까지만 누를 수 있다. 앞 단계로 건너뛰면 검증을 지나치고,
+                 * 그러면 사진 0장짜리 의뢰가 등록될 수 있다.
+                 * 지금 단계는 눌러도 아무 일이 없지만 잠그지는 않는다 —
+                 * 현재 위치가 비활성으로 보이면 어디까지 갈 수 있는지가 흐려진다.
+                 */
+                disabled={i > step}
+                onClick={() => {
+                  setStep(i);
+                  setTried(false);
                 }}
-              />
-            )}
-            <div style={{ padding: 'var(--space-4)' }}>
-              <strong style={{ display: 'block', marginBottom: 'var(--space-1)' }}>{title}</strong>
-              <span style={{ fontSize: 13, color: 'var(--color-text-tertiary)' }}>
-                {[
-                  `${images.length}장`,
-                  TIMINGS.find((t) => t.key === timing)?.label,
-                  materialGrade ? `${MATERIAL_GRADE_LABELS[materialGrade]} 자재` : null,
-                ]
-                  .filter(Boolean)
-                  .join(' · ')}
+              >
+                <span className="wizard__mark" aria-hidden="true">
+                  {done ? '✓' : i + 1}
+                </span>
+                <span style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <span className="wizard__step-title">{s.title}</span>
+                  <span className="wizard__step-hint">{s.hint}</span>
+                </span>
+              </button>
+            );
+          })}
+
+          <div className="wizard__progress-box">
+            <span className="wizard__progress-label">진행률</span>
+            <div
+              className="wizard__bar"
+              role="progressbar"
+              aria-valuenow={step + 1}
+              aria-valuemin={1}
+              aria-valuemax={STEPS.length}
+              aria-label="등록 진행률"
+            >
+              <span style={{ width: progress }} />
+            </div>
+            <span className="wizard__counter">{counter}</span>
+          </div>
+        </nav>
+
+        {/* ── 가운데: 본문 ──────────────────────────────── */}
+        <main className="wizard__main">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <h1 className="wizard__h1">{meta?.title}</h1>
+            <p className="wizard__lead">{meta?.lead}</p>
+          </div>
+
+          <FormError message={error} />
+
+          {/* ── 1. 사진 ──────────────────────────────────── */}
+          {step === 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+              {draftId ? (
+                <ImageUploader
+                  mode="reference"
+                  images={images}
+                  max={MAX_REFERENCE_IMAGES}
+                  onChange={setImages}
+                  authFetch={authFetch}
+                />
+              ) : (
+                <span className="wizard__step-hint">준비 중…</span>
+              )}
+              {images.length > 0 && (
+                <span className="wizard__step-hint">
+                  {images.length}장 · 첫 번째 사진이 대표로 쓰입니다
+                </span>
+              )}
+
+              {/*
+                저작권 고지. 시안은 이걸 체크박스 한 줄로 받지만 구현은 **사진마다**
+                SELF/EXTERNAL 과 원본 주소를 받는다(위 업로더). 구현이 시안보다 엄격한
+                쪽이라 유지하고, 대신 시안의 상자 모양은 그대로 가져왔다 —
+                문단으로 흘려두면 이 화면에서 가장 읽어야 하는 문장을 읽지 않는다.
+              */}
+              <p className="wizard__consent">
+                직접 촬영했거나 사용 권리가 있는 사진을 올려주세요. 남의 사진은 사진마다 원본 주소를
+                함께 남기면 됩니다 — 의뢰 사진은 검색에 노출되지 않고 로그인한 시공자에게만
+                전달됩니다.
+              </p>
+            </div>
+          )}
+
+          {/* ── 2. 공종 · 자재 ───────────────────────────── */}
+          {step === 1 && (
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 22,
+                maxWidth: 680,
+              }}
+            >
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                {WORK_CATEGORY_SEEDS.map((c) => {
+                  const on = categories.includes(c.code);
+                  return (
+                    <button
+                      key={c.code}
+                      type="button"
+                      className="chip chip--lg"
+                      aria-pressed={on}
+                      onClick={() =>
+                        setCategories((prev) =>
+                          prev.includes(c.code)
+                            ? prev.filter((x) => x !== c.code)
+                            : [...prev, c.code],
+                        )
+                      }
+                    >
+                      {c.nameKo}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/*
+                자재 등급을 여기 둔 이유는 시안이 그렇게 묶었기 때문이다 —
+                "무슨 공사"와 "어느 정도로"는 같은 질문의 앞뒤다.
+              */}
+              <div
+                style={{
+                  borderTop: '1px solid var(--color-border)',
+                  paddingTop: 20,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 10,
+                }}
+              >
+                <span className="wizard__group-label">자재 등급</span>
+                <div className="grade-row" role="group" aria-label="자재 등급">
+                  {MATERIAL_GRADES.map((g) => (
+                    <button
+                      key={g}
+                      type="button"
+                      className="grade"
+                      aria-pressed={materialGrade === g}
+                      /* 같은 걸 다시 누르면 해제된다. 자재 등급은 필수가 아니다. */
+                      onClick={() => setMaterialGrade(materialGrade === g ? '' : g)}
+                    >
+                      <span className="grade__label">{MATERIAL_GRADE_LABELS[g]}</span>
+                      <span className="grade__hint">{MATERIAL_GRADE_HINTS[g]}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── 3. 조건 ──────────────────────────────────── */}
+          {step === 2 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 20, maxWidth: 680 }}>
+              {/*
+                시안은 지역·평형·주거형태를 한 줄(2fr 1fr 1fr)에 깐다.
+                지역만 2단계 셀렉트라 그 칸 안에서 다시 둘로 나눈다 — 확장 규약 3조.
+              */}
+              <div className="wizard__grid3">
+                <Field
+                  label="시공 지역"
+                  hint="동까지만 공개됩니다. 상세 주소는 컨택 수락 후에 전달합니다."
+                >
+                  <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                    <select
+                      value={sido}
+                      onChange={(e) => {
+                        setSido(e.target.value);
+                        setRegionCode('');
+                      }}
+                      className="input"
+                      aria-label="시·도"
+                    >
+                      <option value="">시·도</option>
+                      {regions?.sido.map((s) => (
+                        <option key={s.code} value={s.code}>
+                          {s.name}
+                        </option>
+                      ))}
+                    </select>
+                    <select
+                      value={regionCode}
+                      onChange={(e) => setRegionCode(e.target.value)}
+                      disabled={!sido}
+                      className="input"
+                      aria-label="시·군·구"
+                    >
+                      <option value="">시·군·구</option>
+                      {sigungu.map((g) => (
+                        <option key={g.code} value={g.code}>
+                          {g.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </Field>
+
+                {/* 확장 규약 1조 — 숫자 입력이다. "24평쯤" 을 받을 칸이 없다. */}
+                <Field
+                  label="평형"
+                  hint={
+                    validPyeong
+                      ? `약 ${(pyeongNum * SQUARE_METERS_PER_PYEONG).toFixed(1)}㎡`
+                      : '평 단위 숫자'
+                  }
+                >
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min={MIN_PYEONG}
+                    max={MAX_PYEONG}
+                    value={pyeong}
+                    onChange={(e) => setPyeong(e.target.value)}
+                    placeholder="24"
+                    className="input"
+                  />
+                </Field>
+
+                <Field label="주거 형태">
+                  <select
+                    value={housingType}
+                    onChange={(e) => setHousingType(e.target.value as HousingType)}
+                    className="input"
+                  >
+                    <option value="">선택</option>
+                    {HOUSING_TYPES.map((t) => (
+                      <option key={t} value={t}>
+                        {HOUSING_TYPE_LABELS[t]}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <span className="wizard__group-label wizard__group-label--sm">희망 시기</span>
+                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                  {TIMINGS.map((t) => (
+                    <button
+                      key={t.key}
+                      type="button"
+                      className="chip chip--lg"
+                      aria-pressed={timing === t.key}
+                      onClick={() => setTiming(t.key)}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <Field label="덧붙일 말 (선택)">
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={3}
+                  maxLength={2000}
+                  placeholder="예) 거주 중이라 주말 시공을 원합니다"
+                  className="input"
+                />
+              </Field>
+            </div>
+          )}
+
+          {/* ── 4. 확인 ──────────────────────────────────── */}
+          {step === 3 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+              <div className="wizard__summary">
+                {/*
+                  **시공자에게 뭐가 보이는지 그대로 보여준다.**
+                  뭘 공개하는지 모르는 채로 등록 버튼을 누르게 하면 안 된다.
+                */}
+                <div className="preview-card">
+                  <div className="preview-card__media">
+                    {images[0] && <img src={images[0].previewUrl} alt="대표 사진" />}
+                    <span className="card-photo__tag">대표 사진</span>
+                  </div>
+                  <div className="preview-card__body">
+                    <strong className="wizard__cover-title">{title}</strong>
+                    <span className="preview-card__meta">{summaryMeta()}</span>
+                  </div>
+                </div>
+
+                <div className="wizard__summary-rows">
+                  {summaryRows().map((row) => (
+                    <div key={row.k} className="wizard__summary-row">
+                      <span className="wizard__summary-k">{row.k}</span>
+                      <span className="wizard__summary-v">{row.v}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <p className="wizard__aside-note">
+                등록하면 조건에 맞는 시공자에게 노출됩니다. 이름·연락처·상세 주소는 컨택을 수락한
+                시공자에게만 공개됩니다.
+              </p>
+            </div>
+          )}
+
+          {/* ── 이동 (데스크톱) ──────────────────────────── */}
+          <div className="wizard__foot">
+            <Button
+              variant="secondary"
+              size="lg"
+              className="wizard__cta"
+              onClick={() => {
+                setStep((s) => Math.max(0, s - 1));
+                setTried(false);
+              }}
+              disabled={pending || step === 0}
+            >
+              이전
+            </Button>
+            <div className="wizard__foot-right">
+              {showBlocked && (
+                <span role="alert" className="wizard__blocked">
+                  {blocked}
+                </span>
+              )}
+              <Button
+                variant="primary"
+                size="lg"
+                className="wizard__cta"
+                pending={pending}
+                disabled={!draftId}
+                onClick={() => void (step === 3 ? submit() : next())}
+              >
+                {step === 3 ? '의뢰 등록하기' : '다음'}
+              </Button>
+            </div>
+          </div>
+        </main>
+
+        {/* ── 우측: 시공자에게 보이는 모습 ──────────────── */}
+        <aside className="wizard__aside" aria-label="시공자에게 보이는 모습">
+          <span className="wizard__aside-title">시공자에게는 이렇게 보입니다</span>
+          <div className="preview-card">
+            <div className="preview-card__media">
+              {images[0] && <img src={images[0].previewUrl} alt="" />}
+              {categoryNames[0] && <span className="card-photo__tag">{categoryNames[0]}</span>}
+              {images.length > 0 && <span className="card-photo__count">{images.length}장</span>}
+            </div>
+            <div className="preview-card__body">
+              <strong className="preview-card__title">{title}</strong>
+              <span className="preview-card__meta">{summaryMeta()}</span>
+              {/* 등록 직후 상태를 미리 보여준다. 올리면 무엇이 되는지가 여기서 읽힌다. */}
+              <span className="badge badge--warning" style={{ width: 'fit-content', marginTop: 4 }}>
+                제안 받는 중
               </span>
             </div>
           </div>
-
-          <dl
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-              gap: 'var(--space-3)',
-              margin: '0 0 var(--space-5)',
-            }}
-          >
-            <Summary label="사진" value={`${images.length}장`} />
-            <Summary label="공종" value={categoryNames.join(', ')} />
-            <Summary label="지역" value={regionName} />
-            <Summary
-              label="규모"
-              value={[`${pyeongNum}평`, housingType ? HOUSING_TYPE_LABELS[housingType] : null]
-                .filter(Boolean)
-                .join(' · ')}
-            />
-            <Summary label="희망 시기" value={TIMINGS.find((t) => t.key === timing)?.label ?? ''} />
-            {materialGrade && (
-              <Summary label="자재 등급" value={MATERIAL_GRADE_LABELS[materialGrade]} />
-            )}
-          </dl>
-
-          <p
-            style={{
-              fontSize: 13,
-              lineHeight: 1.7,
-              color: 'var(--color-text-secondary)',
-              background: 'var(--color-bg-subtle)',
-              borderRadius: 'var(--radius-md)',
-              padding: 'var(--space-4)',
-              margin: '0 0 var(--space-5)',
-            }}
-          >
-            사진과 조건만 공개됩니다.{' '}
-            <strong>이름·연락처·상세 주소는 컨택을 수락한 시공자에게만</strong> 열립니다.
+          <p className="wizard__aside-note">
+            사진과 조건만 공개됩니다. 이름·연락처·상세 주소는 컨택을 수락한 시공자에게만 열립니다.
           </p>
-        </>
-      )}
-
-      {/*
-        저작권 고지. 사진 단계에서 특히 중요하다 — 남의 사진을 올리는 게 이 서비스의
-        구조적 리스크이고, 그래서 의뢰는 검색에 노출되지 않는다.
-      */}
-      {step === 0 && (
-        <p
-          style={{
-            fontSize: 13,
-            lineHeight: 1.7,
-            color: 'var(--color-text-tertiary)',
-            margin: 'var(--space-4) 0 0',
-          }}
-        >
-          직접 촬영했거나 사용 권리가 있는 사진을 올려주세요. 남의 사진은 원본 주소를 함께 남기면
-          됩니다 — 의뢰 사진은 검색에 노출되지 않고 로그인한 시공자에게만 전달됩니다.
-        </p>
-      )}
-
-      {/* ── 이동 ─────────────────────────────────────── */}
-      {blocked && step < 3 && (
-        <p
-          style={{
-            fontSize: 13,
-            color: 'var(--color-text-tertiary)',
-            margin: 'var(--space-5) 0 0',
-            textAlign: 'center',
-          }}
-        >
-          {blocked}
-        </p>
-      )}
-
-      <div style={{ display: 'flex', gap: 'var(--space-3)', marginTop: 'var(--space-5)' }}>
-        {step > 0 && (
-          <button
-            type="button"
-            onClick={() => setStep((s) => s - 1)}
-            disabled={pending}
-            style={{
-              flex: 1,
-              height: 48,
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--color-border-strong)',
-              background: 'var(--color-surface)',
-              color: 'var(--color-text-secondary)',
-              fontSize: 15,
-              fontWeight: 600,
-              fontFamily: 'inherit',
-              cursor: pending ? 'default' : 'pointer',
-            }}
-          >
-            이전
-          </button>
-        )}
-        <button
-          type="button"
-          onClick={() => void (step === 3 ? submit() : next())}
-          disabled={pending || !draftId || !!blocked}
-          style={{
-            flex: 2,
-            height: 48,
-            borderRadius: 'var(--radius-md)',
-            border: 'none',
-            fontSize: 15,
-            fontWeight: 700,
-            fontFamily: 'inherit',
-            color: 'var(--color-text-inverse)',
-            background:
-              pending || !draftId || blocked
-                ? 'var(--color-primary-300)'
-                : 'var(--color-primary-500)',
-            cursor: pending || !draftId || blocked ? 'default' : 'pointer',
-          }}
-        >
-          {pending ? '처리 중…' : step === 3 ? '의뢰 등록하기' : '다음'}
-        </button>
+        </aside>
       </div>
-    </main>
-  );
-}
 
-/** 하나만 고르는 칩 묶음. 셀렉트보다 손가락으로 고르기 쉽고 선택지가 다 보인다. */
-function ChipGroup({
-  items,
-  value,
-  onChange,
-}: {
-  items: { key: string; label: string }[];
-  value: string;
-  onChange: (v: string) => void;
-}) {
-  return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
-      {items.map((item) => {
-        const on = value === item.key;
-        return (
-          <button
-            key={item.key}
-            type="button"
-            aria-pressed={on}
-            /* 같은 걸 다시 누르면 해제된다. 선택을 되돌릴 방법이 없으면 안 된다. */
-            onClick={() => onChange(on ? '' : item.key)}
-            style={{
-              height: 40,
-              padding: '0 var(--space-4)',
-              borderRadius: 'var(--radius-full)',
-              fontFamily: 'inherit',
-              fontSize: 14,
-              fontWeight: 600,
-              cursor: 'pointer',
-              background: on ? 'var(--color-primary-500)' : 'var(--color-surface)',
-              color: on ? 'var(--color-text-inverse)' : 'var(--color-text-secondary)',
-              border: `1px solid ${on ? 'var(--color-primary-500)' : 'var(--color-border-strong)'}`,
-            }}
-          >
-            {item.label}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-function Summary({ label, value }: { label: string; value: string }) {
-  return (
-    <div
-      style={{
-        border: '1px solid var(--color-border)',
-        borderRadius: 'var(--radius-md)',
-        background: 'var(--color-bg-subtle)',
-        padding: '12px 14px',
-      }}
-    >
-      <dt style={{ fontSize: 12, color: 'var(--color-text-tertiary)' }}>{label}</dt>
-      <dd style={{ margin: '3px 0 0', fontSize: 15, fontWeight: 700 }}>{value || '—'}</dd>
-    </div>
+      {/* ── 이동 (모바일 하단 고정) ────────────────────── */}
+      <div className="shell">
+        <div className="sticky-cta">
+          {showBlocked && (
+            <span
+              role="alert"
+              className="wizard__blocked"
+              style={{ display: 'block', marginBottom: 'var(--space-2)' }}
+            >
+              {blocked}
+            </span>
+          )}
+          <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+            {step > 0 && (
+              <Button
+                variant="secondary"
+                size="lg"
+                onClick={() => {
+                  setStep((s) => s - 1);
+                  setTried(false);
+                }}
+                disabled={pending}
+              >
+                이전
+              </Button>
+            )}
+            <Button
+              variant="primary"
+              size="lg"
+              block
+              pending={pending}
+              disabled={!draftId}
+              onClick={() => void (step === 3 ? submit() : next())}
+            >
+              {step === 3 ? '의뢰 등록하기' : '다음'}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
