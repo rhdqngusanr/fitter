@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/qc/hooks/stop-web-check.mjs",
+            "timeout": 120,
+            "statusMessage": "화면 변경 확인 중"
+          }
+        ]
+      }
+    ]
+  }
+}

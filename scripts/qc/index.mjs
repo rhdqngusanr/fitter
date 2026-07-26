@@ -19,12 +19,13 @@
 import * as designTokens from './checks/design-tokens.mjs';
 import * as expansionRules from './checks/expansion-rules.mjs';
 import * as glossary from './checks/glossary.mjs';
+import * as routes from './checks/routes.mjs';
 import * as structure from './checks/structure.mjs';
 import * as typography from './checks/typography.mjs';
 import * as vault from './checks/vault.mjs';
 import { printReport } from './lib/report.mjs';
 
-const CHECKS = [vault, glossary, expansionRules, structure, designTokens, typography];
+const CHECKS = [vault, glossary, expansionRules, structure, designTokens, typography, routes];
 
 const errorsOnly = process.argv.includes('--errors');
 
