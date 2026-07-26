@@ -77,9 +77,23 @@ describe('관리자 큐 (e2e)', () => {
     adminToken = relogin.body.accessToken;
   });
 
+  /**
+   * 정리.
+   *
+   * **신고는 `reporterId` 로 지울 수 없다.** 저작권 신고는 비로그인도 낼 수 있어서
+   * 이 테스트가 만든 것 중 하나는 `reporterId` 가 null 이다. 신고자로 지우면
+   * 그 행이 남아 **매 실행마다 PENDING 신고가 쌓인다** — 실제로 4건이 쌓여 있었다.
+   * 대상(`targetId`)으로 지운다.
+   */
   afterAll(async () => {
     const emails = [admin.email, pro.email];
-    await prisma?.report.deleteMany({ where: { reporter: { email: { in: emails } } } });
+    const targets = await prisma?.portfolioItem.findMany({
+      where: { pro: { email: { in: emails } } },
+      select: { id: true },
+    });
+    await prisma?.report.deleteMany({
+      where: { targetId: { in: (targets ?? []).map((t) => t.id) } },
+    });
     await prisma?.portfolioItem.deleteMany({ where: { pro: { email: { in: emails } } } });
     await prisma?.user.deleteMany({ where: { email: { in: emails } } });
     await app?.close();
