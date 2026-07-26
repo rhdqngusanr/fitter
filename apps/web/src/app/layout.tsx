@@ -6,6 +6,8 @@ import { SiteHeader } from '../components/SiteHeader';
 import { SessionProvider } from '../lib/session';
 
 import '../styles/tokens.css';
+// 토큰 다음에 온다. 컴포넌트 스타일이 토큰 변수를 쓰기 때문이다.
+import '../styles/components.css';
 
 export const metadata: Metadata = {
   title: { default: 'Fitter', template: '%s · Fitter' },

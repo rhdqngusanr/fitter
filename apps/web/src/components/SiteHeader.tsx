@@ -1,15 +1,40 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
+
 import { useSession } from '../lib/session';
+
+import { Avatar } from './ui/Avatar';
 
 /**
  * 상단 바.
  *
- * 로그인 상태에 따라 오른쪽이 바뀐다. 복원이 끝나기 전에는 아무것도 그리지 않는다 —
- * 로그인한 사람에게 "로그인" 버튼이 한 번 깜빡였다가 사라지는 게 제일 나쁘다.
+ * **정본은 `design/G-01 랜딩.dc.html` 의 헤더다** — 시안 8개가 전부 같은 헤더를 그린다.
+ * 데스크톱 68px · 좌우 40px, 모바일 56px · 좌우 16px. 로고 다음에 주요 내비가 오고,
+ * 오른쪽은 비로그인이면 `로그인` + `시작하기`, 로그인이면 진행 건수 + 아바타다.
+ *
+ * 전에는 이 헤더가 시안과 달랐다. 내비 항목이 `시공 사례 · 문의 · 내 의뢰` 였는데
+ * 시안은 `시공 사진 · 시공자 찾기 · 이용 방법` 이다. 차이가 단어 선택 문제로 보이지만
+ * 그렇지 않다 — **시안의 내비는 "무엇을 볼 수 있는가"이고 구현의 내비는 "내 것 관리"였다.**
+ * 처음 온 사람에게 `내 의뢰` 는 누를 이유가 없는 메뉴다.
+ *
+ * 복원이 끝나기 전에는 오른쪽을 그리지 않는다 — 로그인한 사람에게 "로그인" 버튼이
+ * 한 번 깜빡였다가 사라지는 게 제일 나쁘다.
  */
+
+/*
+ * 주요 내비.
+ *
+ * 시안의 세 번째 항목 `이용 방법` 은 아직 없다. 해당 시안도 화면도 없어서
+ * 만들면 내가 지어내는 것이 된다 — brain/00-허브/열린 질문.md 에 올렸다.
+ * `시공자 찾기`(C-06)는 시안 대조 큐에 있고 그 화면이 생기면 여기 한 줄을 켠다.
+ * **없는 화면으로 링크를 걸어두지 않는다.** 404 는 메뉴가 없는 것보다 나쁘다.
+ */
+const NAV = [{ href: '/gallery', label: '시공 사진' }];
+
 export function SiteHeader() {
   const { user, loading, logout } = useSession();
+  const pathname = usePathname();
 
   return (
     <>
@@ -21,105 +46,74 @@ export function SiteHeader() {
       <a href="#main" className="skip-link">
         본문 바로가기
       </a>
-      <header
-        style={{
-          borderBottom: '1px solid var(--color-border)',
-          background: 'var(--color-surface)',
-          position: 'sticky',
-          top: 0,
-          zIndex: 10,
-        }}
-      >
-        <nav
-          style={{
-            maxWidth: 1120,
-            margin: '0 auto',
-            padding: '0 var(--space-4)',
-            height: 60,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--space-6)',
-          }}
-        >
-          <a href="/" style={{ fontWeight: 700, fontSize: 20, color: 'var(--color-primary-600)' }}>
-            Fitter
-          </a>
-          <a href="/gallery" style={{ color: 'var(--color-text-secondary)' }}>
-            시공 사례
-          </a>
-          {/* 로그인 전용 메뉴. 비로그인에게 보여주면 누를 때마다 로그인으로 튕긴다. */}
-          {user && (
-            <>
-              <a href="/contacts" style={{ color: 'var(--color-text-secondary)' }}>
-                문의
-              </a>
-              {user.profileType === 'CUSTOMER' && (
-                <a href="/requests/mine" style={{ color: 'var(--color-text-secondary)' }}>
-                  내 의뢰
-                </a>
-              )}
-              {user.profileType === 'PRO' && (
-                <a href="/portfolios/mine" style={{ color: 'var(--color-text-secondary)' }}>
-                  내 사례
-                </a>
-              )}
-            </>
-          )}
+      <header className="site-header">
+        <div className="site-header__inner">
+          <div className="site-header__left">
+            <a href="/" className="site-header__logo">
+              Fitter
+            </a>
+            <nav aria-label="주요" className="site-header__nav">
+              {NAV.map((item) => {
+                const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                return (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    className="site-header__link"
+                    // 현재 위치를 색과 굵기만으로 알리지 않는다. 시안이 primary-500/700 으로 그린 그 상태다.
+                    aria-current={active ? 'page' : undefined}
+                  >
+                    {item.label}
+                  </a>
+                );
+              })}
+            </nav>
+          </div>
 
-          <div
-            style={{
-              marginLeft: 'auto',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--space-4)',
-            }}
-          >
+          <div className="site-header__right">
             {loading ? null : user ? (
               <>
-                <span style={{ fontSize: 14, color: 'var(--color-text-secondary)' }}>
-                  {user.nickname}
+                {/*
+                  시안은 여기에 `내 의뢰 2건` 처럼 **할 일의 개수**를 놓는다. 이름만 띄우면
+                  헤더가 아무 정보도 주지 않는다. 역할에 따라 갈 곳이 다르다.
+                */}
+                {user.profileType === 'CUSTOMER' && (
+                  <a href="/requests/mine" className="site-header__mine">
+                    내 의뢰
+                  </a>
+                )}
+                {user.profileType === 'PRO' && (
+                  <a href="/portfolios/mine" className="site-header__mine">
+                    내 사례
+                  </a>
+                )}
+                <a href="/contacts" className="site-header__mine">
+                  문의
+                </a>
+                <span className="site-header__me">
+                  <Avatar name={user.nickname} size={36} />
+                  <span className="site-header__nickname">{user.nickname}</span>
                 </span>
                 <button
                   type="button"
                   onClick={() => void logout()}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: 'var(--color-text-tertiary)',
-                    fontSize: 14,
-                    cursor: 'pointer',
-                    padding: '0 var(--space-2)',
-                  }}
+                  className="btn btn--ghost btn--sm site-header__logout"
                 >
                   로그아웃
                 </button>
               </>
             ) : (
               <>
-                <a href="/login" style={{ fontSize: 14, color: 'var(--color-text-secondary)' }}>
+                <a href="/login" className="btn btn--ghost btn--md site-header__login">
                   로그인
                 </a>
-                <a
-                  href="/signup"
-                  role="button"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    minHeight: 36,
-                    padding: '0 var(--space-5)',
-                    borderRadius: 'var(--radius-md)',
-                    background: 'var(--color-primary-500)',
-                    color: 'var(--color-text-inverse)',
-                    fontSize: 14,
-                    fontWeight: 600,
-                  }}
-                >
+                <a href="/signup" className="btn btn--primary btn--md">
                   시작하기
                 </a>
               </>
             )}
           </div>
-        </nav>
+        </div>
       </header>
     </>
   );

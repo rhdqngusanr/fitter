@@ -82,6 +82,37 @@
   --font-sans:
     'Pretendard Variable', Pretendard, -apple-system, system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+
+  /*
+   * 타이포 스케일 6단. 정본은 시안 02 TYPE 섹션의 6행이다.
+   *
+   * 이 토큰이 없던 동안 화면마다 `fontSize: 24` 를 직접 적었고, 그래서 시안과
+   * 대조하는 것 자체가 불가능했다. 크기만 변수로 두면 굵기·행간·자간이 또 갈라지므로
+   * 아래 `.t-*` 클래스가 네 값을 한 벌로 묶는다. **화면은 클래스를 쓰고 숫자를 적지 않는다.**
+   */
+  --text-display: 40px;
+  --text-h1: 28px;
+  --text-h2: 22px;
+  --text-h3: 17px;
+  --text-body: 16px;
+  --text-caption: 13px;
+}
+
+/*
+ * 시안 02 TYPE 의 "괄호 안은 모바일(390px) 값".
+ *
+ * 경계를 768px 로 잡았다 — 시안이 그리는 프레임은 390 과 1280 둘뿐이라 그 사이
+ * 어디서 갈라도 시안과 어긋나지 않는다. 태블릿은 모바일 스케일을 받는다.
+ * caption 은 시안에 모바일 값이 없어서 그대로 둔다.
+ */
+@media (max-width: 768px) {
+  :root {
+    --text-display: 32px;
+    --text-h1: 24px;
+    --text-h2: 20px;
+    --text-h3: 16px;
+    --text-body: 15px;
+  }
 }
 
 /*
@@ -176,11 +207,16 @@ textarea {
   outline-offset: 2px;
 }
 
-/* 터치 타깃 최소 44px. 화면마다 다시 정하지 않는다. */
-button,
-a[role='button'] {
-  min-height: 44px;
-}
+/*
+ * 터치 타깃 크기는 여기서 강제하지 않는다.
+ *
+ * 전에는 `button { min-height:44px }` 였는데 그게 시안을 어기고 있었다 — 시안의 칩은
+ * 36px, sm 버튼은 32px 인데 전부 44px 로 늘어나 있었다. 시안이 정한 규칙은
+ * "**모바일** 최소 터치 타깃 44px"이고, 그래서 모바일 주 버튼은 48~52px,
+ * 32~40px 은 데스크톱·인라인·목록 내 반복 액션용이다. 크기는 컴포넌트가 정한다.
+ *
+ * 근거: design/Fitter 디자인 시스템 v1.dc.html 04 COMPONENTS
+ */
 
 /*
  * 본문 바로가기.
@@ -202,4 +238,79 @@ a[role='button'] {
 
 .skip-link:focus {
   left: 0;
+}
+
+/*
+ * 타이포 스케일 클래스. 시안 02 TYPE 의 한 행 = 여기 한 클래스다.
+ * spec 열(`40/800/1.2/-0.03em`)의 네 값을 통째로 옮겼다 — 크기만 맞추고 굵기를
+ * 화면에서 다시 정하면 시안과 대조가 안 된다.
+ */
+.t-display {
+  font-size: var(--text-display);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+}
+
+.t-h1 {
+  font-size: var(--text-h1);
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+.t-h2 {
+  font-size: var(--text-h2);
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.015em;
+}
+
+.t-h3 {
+  font-size: var(--text-h3);
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+.t-body {
+  font-size: var(--text-body);
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: 0;
+}
+
+.t-caption {
+  font-size: var(--text-caption);
+  font-weight: 500;
+  line-height: 1.45;
+  letter-spacing: 0;
+}
+
+/* 제목 태그가 브라우저 기본 크기로 그려지지 않게 한다. 크기는 `.t-*` 가 정한다. */
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+/*
+ * 시안이 쓰는 애니메이션 두 개. 스켈레톤과 스피너가 화면마다 자기 keyframes 를
+ * 다시 정의하지 않도록 여기 한 번만 둔다.
+ */
+@keyframes fit-shimmer {
+  0% {
+    background-position: -320px 0;
+  }
+  100% {
+    background-position: 320px 0;
+  }
+}
+
+@keyframes fit-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

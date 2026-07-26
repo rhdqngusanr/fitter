@@ -27,6 +27,12 @@
   --shadow-3:0 8px 20px rgba(23,27,32,.10), 0 20px 44px rgba(23,27,32,.14);
   --font-sans:"Pretendard Variable",Pretendard,-apple-system,system-ui,sans-serif;
   --font-mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
+  /* 아래 02 TYPE 섹션의 6행이 정본이다. 여기에 선언이 없어서 구현이 화면마다 숫자를 직접 적고 있었다. */
+  --text-display:40px; --text-h1:28px; --text-h2:22px; --text-h3:17px; --text-body:16px; --text-caption:13px;
+}
+/* 02 TYPE 의 "괄호 안은 모바일(390px) 값". caption 은 모바일 값이 따로 없다. */
+@media (max-width:768px){
+  :root{ --text-display:32px; --text-h1:24px; --text-h2:20px; --text-h3:16px; --text-body:15px; }
 }
 [data-theme="dark"]{
   --color-primary-50:#152430; --color-primary-100:#1B3243; --color-primary-200:#28516E; --color-primary-300:#3F7BA4;

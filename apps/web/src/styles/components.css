@@ -1,0 +1,732 @@
+/*
+ * 컴포넌트 스타일.
+ *
+ * **정본은 `design/Fitter 디자인 시스템 v1.dc.html` 의 04 COMPONENTS 섹션이다.**
+ * 클래스 이름도 시안이 적어둔 것을 그대로 쓴다 — 시안이 `.btn / --btn-height-{sm,md,lg}`,
+ * `.card-photo / .card-pro` 라고 이름을 정해뒀다.
+ *
+ * 왜 인라인 스타일이 아니라 CSS 인가.
+ * 시안은 버튼·카드·칩마다 `style-hover` / `:active` / `focus-visible` 를 그려뒀는데
+ * React 인라인 스타일로는 그 상태를 표현할 수 없다. 그래서 구현이 hover 를 통째로
+ * 빠뜨리고 있었다 — 눌리는 느낌이 없는 화면이 "시안과 다르다"의 큰 부분이었다.
+ *
+ * 크기·색은 여기서 새로 정하지 않는다. 전부 tokens.css 의 변수와 시안의 spec 값이다.
+ */
+
+/* ─────────────────────────── 레이아웃 ─────────────────────────── */
+
+/*
+ * 페이지 폭. 시안의 데스크톱 프레임은 1280px 이고 모든 섹션이 좌우 40px 패딩을 쓴다.
+ * 모바일 프레임은 390px, 패딩 16px.
+ *
+ * 이걸 한 곳에 두는 이유: 구현이 화면마다 max-width 를 680·720·880·1120 으로
+ * 제각각 정하고 있었다. 폭이 화면마다 다르면 같은 서비스로 보이지 않는다.
+ */
+.shell {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 var(--space-10);
+}
+
+/* 폼처럼 한 줄이 길어지면 읽기 힘든 화면만 좁힌다. 시안의 폼 프레임이 620~680px 다. */
+.shell--form {
+  max-width: 680px;
+}
+
+/* 목록·상세처럼 본문이 한 단인 화면. 시안 값 1000px. */
+.shell--content {
+  max-width: 1000px;
+}
+
+@media (max-width: 768px) {
+  .shell {
+    padding: 0 var(--space-4);
+  }
+}
+
+/*
+ * 데스크톱 2단 (본문 + 우측 고정 패널). 시안의 여러 화면이 이 구성이다.
+ * 모바일에서는 한 단으로 접히고 패널이 본문 뒤로 간다.
+ */
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: var(--space-8);
+  align-items: start;
+}
+
+.split__aside {
+  position: sticky;
+  top: 88px;
+}
+
+@media (max-width: 900px) {
+  .split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .split__aside {
+    position: static;
+  }
+}
+
+/*
+ * 모바일 하단 고정 CTA. 시안의 여러 화면이 갖고 있는데 구현에는 아예 없었다.
+ * 긴 폼에서 제출 버튼이 스크롤 저 아래 있으면 사람은 끝까지 안 내려간다.
+ * 데스크톱에서는 본문 흐름 안에 버튼이 있으므로 숨긴다.
+ */
+.sticky-cta {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .sticky-cta {
+    display: block;
+    position: sticky;
+    bottom: 0;
+    z-index: 15;
+    /* 배경이 반투명이라 아래 내용이 비쳐 보인다 — 화면이 끝나지 않았다는 신호다. */
+    background: color-mix(in srgb, var(--color-bg) 96%, transparent);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid var(--color-border);
+    padding: var(--space-3) var(--space-4) 14px;
+    margin: 0 calc(-1 * var(--space-4));
+  }
+}
+
+/* ─────────────────────────── 사이트 헤더 ─────────────────────────── */
+
+/*
+ * 시안(G-01)의 헤더: 데스크톱 68px · 좌우 40px, 모바일 56px · 좌우 16px.
+ * 배경이 반투명 + blur 인 이유는 스크롤할 때 아래 사진이 살짝 비쳐야
+ * 헤더가 사진 위에 떠 있다는 게 읽히기 때문이다.
+ */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: color-mix(in srgb, var(--color-bg) 94%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.site-header__inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  height: 68px;
+  padding: 0 var(--space-10);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+}
+
+.site-header__left {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  min-width: 0;
+}
+
+.site-header__logo {
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+
+.site-header__logo:hover {
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+
+.site-header__nav {
+  display: flex;
+  gap: var(--space-5);
+}
+
+.site-header__link {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+/* 현재 화면. 시안은 굵기와 색 둘 다 올린다. */
+.site-header__link[aria-current='page'] {
+  font-weight: 700;
+  color: var(--color-primary-500);
+}
+
+.site-header__right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.site-header__mine {
+  font-size: 15px;
+  font-weight: 700;
+  padding: 0 var(--space-2);
+}
+
+.site-header__me {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding-left: var(--space-2);
+}
+
+.site-header__nickname {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+@media (max-width: 768px) {
+  .site-header__inner {
+    height: 56px;
+    padding: 0 var(--space-4);
+    gap: var(--space-3);
+  }
+
+  .site-header__logo {
+    font-size: 19px;
+  }
+
+  /*
+   * 모바일 헤더에는 내비가 없다. 시안의 모바일 프레임은 로고와 계정만 놓고
+   * 탐색은 본문 안의 칩·그리드로 한다 — 56px 안에 다섯 개를 넣으면 전부 못 누른다.
+   */
+  .site-header__nav,
+  .site-header__nickname {
+    display: none;
+  }
+
+  .site-header__mine {
+    font-size: 13px;
+    padding: 0;
+  }
+
+  .site-header__login,
+  .site-header__logout {
+    /* 모바일에서는 시안대로 36px 로 줄인다. */
+    height: 36px;
+    padding: 0 12px;
+    font-size: 14px;
+  }
+}
+
+/* ─────────────────────────── 사이트 푸터 ─────────────────────────── */
+
+.site-footer {
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg);
+  margin-top: var(--space-16);
+}
+
+.site-footer__inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-10) var(--space-10);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+@media (max-width: 768px) {
+  .site-footer__inner {
+    padding: var(--space-6) var(--space-4) var(--space-10);
+  }
+}
+
+/* ─────────────────────────── 버튼 ─────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+
+/* 시안 04: md(40px)는 데스크톱·인라인용, lg(48px)가 모바일 기본, sm(32px)은 목록 내 반복. */
+.btn--lg {
+  height: 48px;
+  padding: 0 22px;
+  font-size: 16px;
+}
+
+.btn--md {
+  height: 40px;
+  padding: 0 18px;
+  font-size: 15px;
+}
+
+.btn--sm {
+  height: 32px;
+  padding: 0 14px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+}
+
+/* 모바일 전폭 CTA. 시안의 모바일 프레임은 주 버튼을 52px 로 키운다. */
+.btn--block {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .btn--block.btn--lg {
+    height: 52px;
+    font-size: 17px;
+    font-weight: 800;
+  }
+}
+
+.btn--primary {
+  background: var(--color-primary-500);
+  color: var(--color-text-inverse);
+}
+
+.btn--primary:hover:not([disabled]) {
+  background: var(--color-primary-600);
+}
+
+.btn--primary:active:not([disabled]) {
+  background: var(--color-primary-600);
+}
+
+.btn--secondary {
+  background: var(--color-surface);
+  border-color: var(--color-border-strong);
+  color: var(--color-text-primary);
+}
+
+.btn--secondary:hover:not([disabled]) {
+  background: var(--color-surface-hover);
+  border-color: var(--color-text-tertiary);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--color-primary-500);
+}
+
+.btn--ghost:hover:not([disabled]) {
+  background: var(--color-primary-50);
+}
+
+/* 시안의 ghost 는 테두리가 없어 좌우 패딩이 더 좁다. */
+.btn--ghost.btn--lg {
+  padding: 0 18px;
+}
+
+.btn--ghost.btn--md {
+  padding: 0 14px;
+}
+
+.btn--ghost.btn--sm {
+  padding: 0 12px;
+}
+
+.btn--danger {
+  background: var(--color-danger);
+  color: #ffffff;
+}
+
+.btn--danger:hover:not([disabled]) {
+  filter: brightness(0.92);
+}
+
+/* 목록 안의 삭제처럼 되돌릴 수 없는 반복 액션. 시안은 이걸 ghost + danger 로 그렸다. */
+.btn--danger-ghost {
+  background: transparent;
+  color: var(--color-danger);
+}
+
+.btn--danger-ghost:hover:not([disabled]) {
+  background: var(--color-danger-bg);
+}
+
+/*
+ * 시안은 disabled 를 회색 면으로 그린다. primary 를 흐리게 만드는 방식(opacity)은
+ * "누를 수 있는데 로딩 중"과 "누를 수 없다"를 같은 모습으로 만든다.
+ */
+.btn[disabled] {
+  background: var(--color-bg-sunken);
+  border-color: transparent;
+  color: var(--color-text-tertiary);
+  cursor: not-allowed;
+}
+
+/* 전송 중은 disabled 와 다르게 보여야 한다 — 색을 유지하고 커서만 바꾼다. */
+.btn--pending[disabled] {
+  background: var(--color-primary-500);
+  color: var(--color-text-inverse);
+  opacity: 0.9;
+  cursor: progress;
+}
+
+/* ─────────────────────────── 칩 ─────────────────────────── */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  height: 36px;
+  padding: 0 15px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.chip:hover {
+  background: var(--color-surface-hover);
+}
+
+/*
+ * 선택 상태를 `aria-pressed` 로 판단한다. 별도 클래스를 쓰면 시각 상태와
+ * 스크린리더가 읽는 상태가 갈라질 수 있다 — 여기서는 갈라질 수 없다.
+ */
+.chip[aria-pressed='true'] {
+  background: var(--color-primary-500);
+  border-color: var(--color-primary-500);
+  color: var(--color-text-inverse);
+}
+
+/* 시안의 공종 칩은 모바일에서 줄바꿈이 아니라 가로 스크롤이다. */
+.chip-row {
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+  padding-bottom: var(--space-1);
+  scrollbar-width: none;
+}
+
+.chip-row::-webkit-scrollbar {
+  display: none;
+}
+
+/* ─────────────────────────── 뱃지 ─────────────────────────── */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 26px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* 시안: 승인 뱃지만 secondary(클레이)를 쓴다. 아껴 쓰기 때문에 나올 때마다 의미를 갖는다. */
+.badge--verified {
+  background: var(--color-secondary-100);
+  border-color: var(--color-secondary-300);
+  color: var(--color-secondary-600);
+}
+
+.badge--success {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.badge--warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.badge--danger {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.badge--info {
+  background: var(--color-primary-50);
+  color: var(--color-primary-600);
+}
+
+.badge--neutral {
+  background: var(--color-bg-sunken);
+  color: var(--color-text-secondary);
+}
+
+.badge--muted {
+  background: var(--color-bg-sunken);
+  color: var(--color-text-tertiary);
+}
+
+/* ─────────────────────────── 아바타 ─────────────────────────── */
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-100);
+  color: var(--color-primary-700);
+  font-weight: 800;
+  overflow: hidden;
+}
+
+/* 시안 04: 24 / 32 / 40 / 52 네 크기만 쓴다. */
+.avatar--24 {
+  width: 24px;
+  height: 24px;
+  font-size: 10px;
+}
+
+.avatar--32 {
+  width: 32px;
+  height: 32px;
+  font-size: 12px;
+}
+
+.avatar--36 {
+  width: 36px;
+  height: 36px;
+  font-size: 13px;
+}
+
+.avatar--40 {
+  width: 40px;
+  height: 40px;
+  font-size: 14px;
+}
+
+.avatar--52 {
+  width: 52px;
+  height: 52px;
+  font-size: 17px;
+}
+
+/* ─────────────────────────── 사진 카드 ─────────────────────────── */
+
+.card-photo {
+  display: block;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-bg);
+  color: inherit;
+  transition:
+    box-shadow 0.15s,
+    border-color 0.15s;
+}
+
+/*
+ * 시안: 사진 카드에는 그림자 대신 보더를 쓴다(그림자는 사진 가장자리를 흐린다).
+ * 그림자는 hover 에서만 나온다.
+ */
+.card-photo:hover {
+  box-shadow: var(--shadow-1);
+  border-color: var(--color-border-strong);
+  text-decoration: none;
+}
+
+.card-photo__media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: var(--color-bg-sunken);
+  overflow: hidden;
+}
+
+.card-photo__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 사진 위에는 컬러를 얹지 않는다. 불투명 흰 칩만 허용 — 시안 01 의 오버레이 규칙. */
+.card-photo__tag {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #171b20;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+}
+
+/* 사진 장수처럼 우하단에 얹는 것은 scrim 그라디언트 + 흰 글자다. */
+.card-photo__count {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--color-scrim);
+}
+
+.card-photo__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: 10px 12px 12px;
+}
+
+.card-photo__title {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--color-text-primary);
+}
+
+.card-photo__meta {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+}
+
+/* ─────────────────────────── 빈 상태 ─────────────────────────── */
+
+/* 시안: 콜드스타트 대비 — 기본값이 아니라 설계 대상. */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  padding: var(--space-8) var(--space-6);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+}
+
+.empty__icon {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-sunken);
+}
+
+.empty__title {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.empty__body {
+  max-width: 340px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+/* ─────────────────────────── 스켈레톤 · 스피너 ─────────────────────────── */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-sunken) 0%,
+    var(--color-bg-subtle) 40%,
+    var(--color-bg-sunken) 80%
+  );
+  background-size: 320px 100%;
+  animation: fit-shimmer 1.4s linear infinite;
+  border-radius: var(--radius-sm);
+}
+
+.spinner {
+  display: inline-block;
+  flex: none;
+  width: 15px;
+  height: 15px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #ffffff;
+  border-radius: var(--radius-full);
+  animation: fit-spin 0.7s linear infinite;
+}
+
+/* 흰 배경 위에서 도는 스피너는 링 색을 바꿔야 보인다. */
+.spinner--dark {
+  border-color: var(--color-border);
+  border-top-color: var(--color-primary-500);
+}
+
+/* 애니메이션을 줄이겠다고 설정한 사람에게는 돌리지 않는다. */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton,
+  .spinner {
+    animation: none;
+  }
+}
+
+/* ─────────────────────────── 인풋 ─────────────────────────── */
+
+.input {
+  width: 100%;
+  height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  /* iOS 는 16px 미만 인풋에 포커스하면 화면을 확대한다. 시안이 "16px 미만 금지"로 못 박았다. */
+  font-size: 16px;
+  font-family: inherit;
+  outline: none;
+}
+
+.input:focus {
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 3px var(--color-primary-100);
+}
+
+.input[disabled] {
+  background: var(--color-bg-sunken);
+  border-color: var(--color-border);
+  color: var(--color-text-tertiary);
+}
+
+/* 시안은 오류 인풋의 배경까지 바꾼다. 보더만 붉히면 색약인 사람이 놓친다. */
+.input--error {
+  border-color: var(--color-danger);
+  background: var(--color-danger-bg);
+}
+
+textarea.input {
+  height: auto;
+  min-height: 96px;
+  padding: 12px 14px;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+select.input {
+  appearance: none;
+  padding-right: 36px;
+  /* 화살표. 배경 이미지로 그려서 OS 기본 화살표의 생김새 차이를 없앤다. */
+  background-image: linear-gradient(45deg, transparent 50%, var(--color-text-tertiary) 50%),
+    linear-gradient(135deg, var(--color-text-tertiary) 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) calc(50% - 2px),
+    calc(100% - 13px) calc(50% - 2px);
+  background-size:
+    5px 5px,
+    5px 5px;
+  background-repeat: no-repeat;
+}
