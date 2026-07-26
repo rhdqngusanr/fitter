@@ -38,6 +38,19 @@ export function SiteHeader() {
         <a href="/gallery" style={{ color: 'var(--color-text-secondary)' }}>
           시공 사례
         </a>
+        {/* 로그인 전용 메뉴. 비로그인에게 보여주면 누를 때마다 로그인으로 튕긴다. */}
+        {user && (
+          <>
+            <a href="/contacts" style={{ color: 'var(--color-text-secondary)' }}>
+              문의
+            </a>
+            {user.profileType === 'CUSTOMER' && (
+              <a href="/requests/mine" style={{ color: 'var(--color-text-secondary)' }}>
+                내 의뢰
+              </a>
+            )}
+          </>
+        )}
 
         <div
           style={{
