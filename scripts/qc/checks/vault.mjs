@@ -35,6 +35,17 @@ export function run() {
   const noteNames = new Set(files.map((f) => basename(f, '.md')));
   const linkedTargets = new Set();
 
+  /*
+   * 캔버스도 옵시디언에서는 링크 대상이다. `.md` 만 알면 [[지도.canvas]] 가 깨진 링크로 잡힌다.
+   * 확장자를 뗀 이름과 붙인 이름을 둘 다 받는다 — 옵시디언이 둘 다 허용하기 때문이다.
+   * 다만 프론트매터·고아 검사는 노트에만 적용한다. 캔버스에는 본문이 없다.
+   */
+  const linkTargets = new Set(noteNames);
+  for (const canvas of collect('brain', ['.canvas'])) {
+    linkTargets.add(basename(canvas, '.canvas'));
+    linkTargets.add(basename(canvas));
+  }
+
   for (const file of files) {
     const content = read(file);
     const rel = short(file);
@@ -95,7 +106,7 @@ export function run() {
     for (const match of content.matchAll(/\[\[([^\]|#]+)/g)) {
       const target = match[1].trim();
       linkedTargets.add(target);
-      if (!noteNames.has(target)) {
+      if (!linkTargets.has(target)) {
         const hit = findLines(content, new RegExp(`\\[\\[${escapeRegex(target)}`))[0];
         findings.push(
           finding({
